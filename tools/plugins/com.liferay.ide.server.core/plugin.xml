@@ -222,5 +222,9 @@
             class="com.liferay.ide.server.core.portal.PortalJBossBundleFactory"
            type="jboss">
       </portalBundle>
+      <portalBundle
+            class="com.liferay.ide.server.core.portal.PortalJettyBundleFactory"
+           type="jetty">
+      </portalBundle>      
    </extension>
 </plugin>

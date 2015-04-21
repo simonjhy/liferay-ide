@@ -23,7 +23,10 @@ import com.liferay.ide.server.util.LiferayPortalValueLoader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.List;
 import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.JarFile;
@@ -68,6 +71,31 @@ public abstract class AbstractPortalBundle implements PortalBundle
         this.modulesPath = this.liferayHome.append( "osgi" );
     }
 
+    public void addLibs( IPath libDir, List<IPath> libPathList ) throws MalformedURLException
+    {
+        if( libDir.toFile().exists() )
+        {
+            final File[] libs = libDir.toFile().listFiles
+            (
+                new FilenameFilter()
+                {
+                    public boolean accept( File dir, String fileName )
+                    {
+                        return fileName.toLowerCase().endsWith( ".jar" );
+                    }
+                }
+            );
+
+            if( ! CoreUtil.isNullOrEmpty( libs ) )
+            {
+                for( File portaLib : libs )
+                {
+                    libPathList.add( libDir.append( portaLib.getName() ) );
+                }
+            }
+        }
+    }    
+    
     protected abstract int getDefaultJMXRemotePort();
 
     protected abstract IPath getPortalDir( IPath portalDir );
@@ -259,4 +287,6 @@ public abstract class AbstractPortalBundle implements PortalBundle
             }
         }
     }
+    
+
 }
