@@ -18,7 +18,7 @@ import com.liferay.ide.core.ILiferayConstants;
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.StringPool;
 import com.liferay.ide.server.core.LiferayServerCore;
-import com.liferay.ide.server.util.LiferayPortalValueLoader;
+import com.liferay.ide.server.util.LiferayPortalVersionLoader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -66,7 +66,7 @@ public abstract class AbstractPortalBundle implements PortalBundle
 
         this.autoDeployPath = this.liferayHome.append( "deploy" );
 
-        this.version = getPortalVersion( this.bundlePath, getPortalDir( bundlePath ) );
+        this.version = getPortalVersion( getPortalDir( bundlePath ) );
 
         this.modulesPath = this.liferayHome.append( "osgi" );
     }
@@ -95,8 +95,10 @@ public abstract class AbstractPortalBundle implements PortalBundle
             }
         }
     }    
-    
+
     protected abstract int getDefaultJMXRemotePort();
+
+    protected abstract IPath getPortaGlobalLib();
 
     protected abstract IPath getPortalDir( IPath portalDir );
 
@@ -173,17 +175,17 @@ public abstract class AbstractPortalBundle implements PortalBundle
         return null;
     }
 
-    private String getPortalVersion( IPath location, IPath portalDir )
+    private String getPortalVersion( IPath portalDir )
     {
         String version = getConfigInfoFromCache( CONFIG_TYPE_VERSION, portalDir );
 
         if( version == null )
         {
-            version = getConfigInfoFromManifest( CONFIG_TYPE_VERSION, portalDir );
+            version = getConfigInfoFromManifest( CONFIG_TYPE_VERSION );
 
             if( version == null )
             {
-                final LiferayPortalValueLoader loader = new LiferayPortalValueLoader( location, portalDir );
+                final LiferayPortalVersionLoader loader = new LiferayPortalVersionLoader( getPortaGlobalLib() );
 
                 final Version loadedVersion = loader.loadVersionFromClass();
 
@@ -202,9 +204,9 @@ public abstract class AbstractPortalBundle implements PortalBundle
         return version;
     }
 
-    private String getConfigInfoFromManifest( String configType, IPath portalDir )
+    private String getConfigInfoFromManifest( String configType )
     {
-        File implJar = portalDir.append( "/WEB-INF/lib/portal-impl.jar").toFile();
+        File implJar = getPortaGlobalLib().append( "portal-service.jar" ).toFile();
 
         String version = null;
         String serverInfo = null;
@@ -287,6 +289,4 @@ public abstract class AbstractPortalBundle implements PortalBundle
             }
         }
     }
-    
-
 }

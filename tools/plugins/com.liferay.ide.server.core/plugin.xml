@@ -225,6 +225,10 @@
       <portalBundle
             class="com.liferay.ide.server.core.portal.PortalJettyBundleFactory"
            type="jetty">
-      </portalBundle>      
+      </portalBundle>
+      <portalBundle
+            class="com.liferay.ide.server.core.portal.PortalGlassfishBundleFactory"
+           type="jetty">
+      </portalBundle>            
    </extension>
 </plugin>

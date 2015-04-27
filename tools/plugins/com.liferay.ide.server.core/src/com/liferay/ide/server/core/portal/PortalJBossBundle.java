@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.launching.IVMInstall;
 
 /**
  * @author Simon Jiang
@@ -38,7 +40,12 @@ public class PortalJBossBundle extends AbstractPortalBundle  implements PortalBu
         return DEFAULT_JMX_PORT;
     }
 
-    public String getMainClass()
+    public String getStartMainClass()
+    {
+        return "org.jboss.modules.Main";
+    }
+
+    public String getStopMainClass()
     {
         return "org.jboss.modules.Main";
     }
@@ -55,7 +62,12 @@ public class PortalJBossBundle extends AbstractPortalBundle  implements PortalBu
         return retval;
     }
 
-    public IPath[] getRuntimeClasspath()
+    protected IPath getPortaGlobalLib()
+    {
+        return new Path(this.bundlePath + "/modules/com/liferay/portal/main" );
+    }
+    
+    public IPath[] getRuntimeClasspath(IVMInstall vmInstall)
     {
         final List<IPath> paths = new ArrayList<IPath>();
 
@@ -102,7 +114,7 @@ public class PortalJBossBundle extends AbstractPortalBundle  implements PortalBu
     }
 
     @Override
-    public String[] getRuntimeStartVMArgs()
+    public String[] getRuntimeStartVMArgs(IVMInstall vmInstall)
     {
         final List<String> args = new ArrayList<String>();
 
@@ -133,7 +145,7 @@ public class PortalJBossBundle extends AbstractPortalBundle  implements PortalBu
     }
 
     @Override
-    public String[] getRuntimeStopVMArgs()
+    public String[] getRuntimeStopVMArgs(IVMInstall vmInstall)
     {
         final List<String> args = new ArrayList<String>();
         args.add( "-Djboss.home.dir=" + "\"" + this.bundlePath + "\"");

@@ -15,13 +15,13 @@
 
 package com.liferay.ide.server.core.portal;
 
-import com.liferay.ide.server.core.LiferayServerCore;
-
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.launching.IVMInstall;
 
 /**
  * @author Simon Jiang
@@ -41,11 +41,17 @@ public class PortalJettyBundle extends AbstractPortalBundle  implements PortalBu
         return DEFAULT_JMX_PORT;
     }
 
-    public String getMainClass()
+    public String getStartMainClass()
     {
         return "org.eclipse.jetty.start.Main";
     }
 
+    public String getStopMainClass()
+    {
+        return "org.eclipse.jetty.start.Main";
+    }
+
+    
     protected IPath getPortalDir( IPath appServerDir )
     {
         IPath retval = null;
@@ -58,17 +64,26 @@ public class PortalJettyBundle extends AbstractPortalBundle  implements PortalBu
         return retval;
     }
 
-    public IPath[] getRuntimeClasspath()
+    protected IPath getPortaGlobalLib()
     {
+        return new Path(this.bundlePath + "/lib/ext/liferay" );
+    }
+    
+    public IPath[] getRuntimeClasspath(IVMInstall vmInstall)
+    {
+        IPath vmInstallPath = new Path(vmInstall.getInstallLocation().getAbsolutePath());
         final List<IPath> paths = new ArrayList<IPath>();
 
         if( this.bundlePath.toFile().exists() )
         {
             try
             {
-                addLibs(this.bundlePath,paths);
+                paths.add( this.bundlePath.append( "start.jar" ) );
+                paths.add( vmInstallPath.append( "/jre/lib/rt.jar" ) );
+                paths.add( vmInstallPath.append( "/lib/tools.jar" ) );                
                 addLibs(this.bundlePath.append( "lib" ),paths);
                 addLibs(this.bundlePath.append( "lib/jsp" ),paths);
+                addLibs(this.bundlePath.append( "lib/annotations" ),paths);
             }
             catch( MalformedURLException e )
             {
@@ -83,7 +98,6 @@ public class PortalJettyBundle extends AbstractPortalBundle  implements PortalBu
     {
         final List<String> args = new ArrayList<String>();
         return args.toArray( new String[0] );
-
     }
 
     @Override
@@ -95,26 +109,29 @@ public class PortalJettyBundle extends AbstractPortalBundle  implements PortalBu
     }
 
     @Override
-    public String[] getRuntimeStartVMArgs()
+    public String[] getRuntimeStartVMArgs(IVMInstall vmInstall)
     {
+        IPath vmInstallPath = new Path(vmInstall.getInstallLocation().getAbsolutePath());
+        
         final List<String> args = new ArrayList<String>();
 
         args.add( "-Dcom.sun.management.jmxremote" );
         args.add( "-Dcom.sun.management.jmxremote.authenticate=false" );
         args.add( "-Dcom.sun.management.jmxremote.port=" + jmxRemotePort );
         args.add( "-Dcom.sun.management.jmxremote.ssl=false" );
-        //args.add( "-Djetty.home=" + LiferayServerCore.getDefault().getStateLocation() + "/tmp1" );
-        //args.add( "-DSTART=" + LiferayServerCore.getDefault().getStateLocation() + "/tmp1/start.config" );
+        args.add( "-Djetty.home=" +  this.bundlePath );
         args.add( "-Dinstall.jetty.home=" +  this.bundlePath );
-        args.add( "-DVERBOSE");
-        args.add( "-Djetty.port=8080");
-        args.add( "-DSTOP.PORT=8082");
-        args.add( "-DSTOP.KEY=secret");
+        args.add( "-Djava.library.path=" + vmInstallPath);
+        args.add( "-DVERBOSE" );
+        args.add( "-Djetty.port=8080" ); 
+        args.add( "-DSTOP.PORT=8082" );
+        args.add( "-DSTOP.KEY=secret" );
+
         return args.toArray( new String[0] );
     }
 
     @Override
-    public String[] getRuntimeStopVMArgs()
+    public String[] getRuntimeStopVMArgs(IVMInstall vmInstall)
     {
         final List<String> args = new ArrayList<String>();
         return args.toArray( new String[0] );
