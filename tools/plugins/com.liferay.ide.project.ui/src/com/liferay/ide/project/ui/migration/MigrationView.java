@@ -38,6 +38,7 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.Browser;
@@ -80,6 +81,7 @@ import com.liferay.ide.ui.util.UIUtil;
  * @author Gregory Amerson
  * @author Terry Jia
  * @author Lovett li
+ * @author Simon Jiang
  */
 @SuppressWarnings( "restriction" )
 public class MigrationView extends CommonNavigator implements IDoubleClickListener
@@ -98,32 +100,10 @@ public class MigrationView extends CommonNavigator implements IDoubleClickListen
 
     private void createColumns( final TableViewer _problemsViewer )
     {
-        final String[] titles = { "Problem", "Line", "Resolved" };
-        final int[] bounds = { 200, 100, 100 };
+        final String[] titles = { "Resolved", "Line", "Problem" };
+        final int[] bounds = { 65, 55, 200 };
 
         TableViewerColumn col = createTableViewerColumn( titles[0], bounds[0], _problemsViewer );
-        col.setLabelProvider( new ColumnLabelProvider()
-        {
-            public String getText( Object element )
-            {
-                TaskProblem p = (TaskProblem) element;
-
-                return p.title;
-            }
-        });
-
-        col = createTableViewerColumn( titles[1], bounds[1], _problemsViewer );
-        col.setLabelProvider( new ColumnLabelProvider()
-        {
-            public String getText( Object element )
-            {
-                TaskProblem p = (TaskProblem) element;
-
-                return p.lineNumber > -1 ? ( p.lineNumber + "" ) : "";
-            }
-        });
-
-        col = createTableViewerColumn( titles[2], bounds[2], _problemsViewer );
         col.setEditingSupport( new EditingSupport( _problemsViewer )
         {
             @Override
@@ -175,9 +155,44 @@ public class MigrationView extends CommonNavigator implements IDoubleClickListen
                 }
             }
 
+            @Override
             public String getText( Object element )
             {
                 return null;
+            }
+        });
+
+        col = createTableViewerColumn( titles[1], bounds[1], _problemsViewer );
+        col.setLabelProvider( new ColumnLabelProvider()
+        {
+            @Override
+            public String getText( Object element )
+            {
+                TaskProblem p = (TaskProblem) element;
+
+                return p.lineNumber > -1 ? ( p.lineNumber + "" ) : "";
+            }
+        });
+
+        col = createTableViewerColumn( titles[2], bounds[2], _problemsViewer );
+        col.setLabelProvider( new ColumnLabelProvider()
+        {
+            @Override
+            public String getText( Object element )
+            {
+                TaskProblem p = (TaskProblem) element;
+
+                return p.title;
+            }
+
+            @Override
+            public void update(ViewerCell cell)
+            {
+                super.update(cell);
+
+                Table table = _problemsViewer.getTable();
+
+                table.getColumn(2).pack();
             }
         });
     }
@@ -187,9 +202,12 @@ public class MigrationView extends CommonNavigator implements IDoubleClickListen
     {
         SashForm viewParent = new SashForm( parent, SWT.HORIZONTAL );
 
+        viewParent.setLayout( new FillLayout( SWT.HORIZONTAL ) );
+
         super.createPartControl( viewParent );
 
         SashForm detailParent = new SashForm( viewParent, SWT.VERTICAL );
+        viewParent.setWeights( new int[] { 2, 3 } );
 
         _problemsViewer =
             new TableViewer( detailParent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER );
@@ -208,6 +226,7 @@ public class MigrationView extends CommonNavigator implements IDoubleClickListen
         menuMgr.setRemoveAllWhenShown( true );
         menuMgr.addMenuListener( new IMenuListener()
         {
+            @Override
             public void menuAboutToShow( IMenuManager manager )
             {
                 MigrationView.this.fillContextMenu( manager, _problemsViewer );
@@ -242,14 +261,17 @@ public class MigrationView extends CommonNavigator implements IDoubleClickListen
 
             _form.addHyperlinkListener( new IHyperlinkListener()
             {
+                @Override
                 public void linkExited( org.eclipse.ui.forms.events.HyperlinkEvent e )
                 {
                 }
 
+                @Override
                 public void linkEntered( org.eclipse.ui.forms.events.HyperlinkEvent e )
                 {
                 }
 
+                @Override
                 public void linkActivated( org.eclipse.ui.forms.events.HyperlinkEvent e )
                 {
                     if( e.data instanceof String )
@@ -280,8 +302,11 @@ public class MigrationView extends CommonNavigator implements IDoubleClickListen
             _browser = new Browser( detailParent, SWT.BORDER );
         }
 
+        detailParent.setWeights( new int[] { 2, 3 } );
+
         getCommonViewer().addSelectionChangedListener( new ISelectionChangedListener()
         {
+            @Override
             public void selectionChanged( SelectionChangedEvent event )
             {
                 List<TaskProblem> problems = MigrationUtil.getTaskProblemsFromTreeNode( event.getSelection() );
@@ -300,10 +325,12 @@ public class MigrationView extends CommonNavigator implements IDoubleClickListen
 
         _problemsViewer.addSelectionChangedListener( new ISelectionChangedListener()
         {
+            @Override
             public void selectionChanged( final SelectionChangedEvent event )
             {
                 UIUtil.async( new Runnable()
                 {
+                    @Override
                     public void run()
                     {
                         updateForm( event );
@@ -352,6 +379,7 @@ public class MigrationView extends CommonNavigator implements IDoubleClickListen
 
         shell.addDisposeListener( new DisposeListener()
         {
+            @Override
             public void widgetDisposed( DisposeEvent e )
             {
                 savePopupState( shell );
@@ -361,6 +389,7 @@ public class MigrationView extends CommonNavigator implements IDoubleClickListen
 
         shell.addListener( SWT.Traverse, new Listener()
         {
+            @Override
             public void handleEvent( Event event )
             {
                 switch( event.detail )
@@ -494,6 +523,7 @@ public class MigrationView extends CommonNavigator implements IDoubleClickListen
     {
         return new SelectionAdapter()
         {
+            @Override
             public void widgetSelected( SelectionEvent e )
             {
                 _comparator.setColumn( index );
@@ -509,6 +539,7 @@ public class MigrationView extends CommonNavigator implements IDoubleClickListen
     {
         Display.getDefault().asyncExec( new Runnable()
         {
+            @Override
             public void run()
             {
                 try
