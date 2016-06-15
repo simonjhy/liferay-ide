@@ -1543,4 +1543,19 @@
          </command>
       </menuContribution-->
    </extension>
+   <extension
+         id="liferay_osgi_completion_category"
+         name="Liferay OSGI Component Completion Category"
+         point="org.eclipse.jdt.ui.javaCompletionProposalComputer">
+         <proposalCategory/>
+   </extension>
+   <extension
+         id="LiferayOsgiCompletionProposal"
+         point="org.eclipse.jdt.ui.javaCompletionProposalComputer">
+         <javaCompletionProposalComputer
+      		class="com.liferay.ide.project.ui.editory.CustomCompletionProposalComputer"
+      		categoryId="com.codeandme.jsdt.contentassist.codeandme_category"
+      		activate="true">
+   		</javaCompletionProposalComputer>
+   </extension>
 </plugin>
