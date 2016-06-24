@@ -62,3 +62,4 @@ Export-Package: com.liferay.ide.project.ui,
  com.liferay.ide.project.ui.wizard
 Service-Component: OSGI-INF/com.liferay.ide.project.ui.migration.IDEReporter.xml,
  OSGI-INF/com.liferay.ide.project.ui.migration.WorkspaceMigrationImpl.xml
+Import-Package: com.google.common.collect
