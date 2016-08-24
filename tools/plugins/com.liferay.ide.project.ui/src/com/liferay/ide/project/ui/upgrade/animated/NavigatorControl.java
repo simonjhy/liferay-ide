@@ -2,6 +2,7 @@
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.ui.upgrade.animated.AnimatedCanvas.Animator;
+import com.liferay.ide.project.ui.upgrade.animated.GearAnimator.Page;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
@@ -15,8 +16,10 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Path;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 
 /**
  * @author Eike Stepper
@@ -49,6 +52,8 @@ public class NavigatorControl extends AbstractCanvas
     private static final int BACK = EXIT - 1;
     private static final int NEXT = BACK - 1;    
 
+    
+    private UpgradePage[] pages;
     @Override
     protected void init()
     {
@@ -124,9 +129,14 @@ public class NavigatorControl extends AbstractCanvas
             scheduleRun();
         }
     } 
-    public NavigatorControl( Composite parent, int style )
+    
+    public NavigatorControl( Composite parent, int style, UpgradePage[] pages)
     {
         super( parent, style | SWT.DOUBLE_BUFFERED );
+        
+        this.pages = pages;
+        
+        Display display = getDisplay();
         
         setBackground( display.getSystemColor( SWT.COLOR_WHITE ) );
         
@@ -216,12 +226,59 @@ public class NavigatorControl extends AbstractCanvas
         getDisplay().timerExec( DEFAULT_TIMER_INTERVAL, runnable );
     }
     
-    protected boolean onMouseMove(int x, int y)
+    private UpgradePage getSelectedPage()
     {
-      return false;
+        return pages[0];
     }
+
     protected boolean onMouseDown(int x, int y)
     {
+      if (x != Integer.MIN_VALUE && y != Integer.MIN_VALUE)
+      {
+        GC gc = new GC(this);
+
+        UpgradePage page = getSelectedPage();
+        if (page != null)
+        {
+          if (page.backPage() && backBox != null && backBox.contains(x, y))
+          {
+            return true;
+          }
+
+          if (page.nextPage() && nextBox != null && nextBox.contains(x, y))
+          {
+            return true;
+          }
+        }
+      }
+
+      return false;
+    }
+    
+    protected boolean onMouseMove(int x, int y)
+    {
+      if (x != Integer.MIN_VALUE && y != Integer.MIN_VALUE)
+      {
+        GC gc = new GC(this);
+
+        UpgradePage page = getSelectedPage();
+        if (page != null)
+        {
+          if (page.backPage() && backBox != null && backBox.contains(x, y))
+          {
+            hover = BACK;
+            return true;
+          }
+
+          if (page.nextPage() && nextBox != null && nextBox.contains(x, y))
+          {
+            hover = NEXT;
+            return true;
+          }
+        }
+      }
+
+      hover = NONE;
       return false;
     }
 
@@ -233,8 +290,8 @@ public class NavigatorControl extends AbstractCanvas
         gc.setLineWidth( 3 );
         gc.setAntialias( SWT.ON );
 
-        backBox = Animator.drawImage( gc, backImages[hover == BACK ? 1 : 0], BORDER + buttonR, answerY );
-        nextBox = Animator.drawImage( gc, nextImages[hover == NEXT ? 1 : 0], PAGE_WIDTH + BORDER - buttonR, answerY );
+        backBox = drawImage( gc, backImages[hover == BACK ? 1 : 0], BORDER + buttonR, answerY );
+        nextBox = drawImage( gc, nextImages[hover == NEXT ? 1 : 0], PAGE_WIDTH + BORDER - buttonR, answerY );
 
         oldHover = hover;
     }

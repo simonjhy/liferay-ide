@@ -1,14 +1,14 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
-import com.liferay.ide.project.ui.upgrade.animated.GearAnimator.Answer;
-import com.liferay.ide.project.ui.upgrade.animated.UpgradePage.Action;
-
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 
-public abstract class UpgradePage
+public abstract class UpgradePage extends Composite
 {
+    public UpgradePage( Composite parent, int style )
+    {
+        super( parent, style );
+    }
     public static final int NONE = -1;
     
     private int index;
@@ -18,12 +18,6 @@ public abstract class UpgradePage
     private int choice = NONE;
     
     protected Action[] actions;
-
-    public UpgradePage(int index, String title)
-    {
-      this.index = index;
-      this.title = title;
-    }
 
     public final int getIndex()
     {

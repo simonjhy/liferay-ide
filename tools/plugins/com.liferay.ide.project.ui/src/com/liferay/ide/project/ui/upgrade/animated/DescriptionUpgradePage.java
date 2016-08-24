@@ -1,5 +1,7 @@
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import org.eclipse.swt.widgets.Composite;
+
 public class DescriptionUpgradePage extends UpgradePage
 {
     
@@ -9,10 +11,10 @@ public class DescriptionUpgradePage extends UpgradePage
 //        actions = new Action[] { new SkipAction(true), new DescriptionUpgradeFinishAction(false)};
 //    }
 
-    
-    public DescriptionUpgradePage( int index, String title )
+
+    public DescriptionUpgradePage( Composite parent, int style )
     {
-        super( index, title );
+        super( parent, style );
         // TODO Auto-generated constructor stub
     }
 
@@ -20,14 +22,14 @@ public class DescriptionUpgradePage extends UpgradePage
     protected boolean backPage()
     {
         // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 
     @Override
     protected boolean nextPage()
     {
         // TODO Auto-generated method stub
-        return false;
+        return true;
     }
     
     protected class DescriptionUpgradeFinishAction extends FinishAction
