@@ -1,15 +1,42 @@
+/*******************************************************************************
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ *******************************************************************************/
 package com.liferay.ide.project.ui.upgrade.animated;
+
+import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.server.core.LiferayServerCore;
+import com.liferay.ide.ui.util.SWTUtil;
+import com.liferay.ide.ui.util.UIUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.sapphire.Event;
+import org.eclipse.sapphire.Listener;
+import org.eclipse.sapphire.Property;
+import org.eclipse.sapphire.ValuePropertyContentEvent;
+import org.eclipse.sapphire.modeling.Status;
+import org.eclipse.sapphire.services.ValidationService;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -18,19 +45,19 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.IServerLifecycleListener;
 import org.eclipse.wst.server.core.ServerCore;
 import org.eclipse.wst.server.ui.ServerUIUtil;
 
-import com.liferay.ide.core.util.CoreUtil;
-import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageValidationListener;
-import com.liferay.ide.server.core.LiferayServerCore;
-import com.liferay.ide.ui.util.SWTUtil;
-import com.liferay.ide.ui.util.UIUtil;
+/**
+ * @author Simon Jiang
+ */
 
 @SuppressWarnings( "unused" )
-public class InitCofigurePrjectPage extends Page implements IServerLifecycleListener, ModifyListener
+public class InitCofigurePrjectPage extends Page implements IServerLifecycleListener
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
     private Text dirField;
@@ -41,19 +68,67 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
     private Label serverLabel;
     private Combo serverComb;
     private Button serverButton;
+    protected CLabel errorMessageLabel;
+    private static Color GRAY;
     
-    private String[] errors;
-
+    private class LiferayUpgradeValidationListener extends Listener
+    {
+        @Override
+        public void handle( Event event )
+        {
+            System.out.print( event.toString() );
+            if (event instanceof ValuePropertyContentEvent )
+            {
+                ValuePropertyContentEvent propertyEvetn  = (ValuePropertyContentEvent)event;
+                Property property = propertyEvetn.property();
+                Status validation = Status.createOkStatus();
+                
+                if (property.name().equals( "SdkLocation" ))
+                {
+                    SdkLocationValidationService sdkValidate = property.service( SdkLocationValidationService.class );
+                    validation =  sdkValidate.compute();
+                }
+                else if (property.name().equals( "ProjectName" ))
+                {
+                    ProjectNameValidationService projectNameValidate = property.service( ProjectNameValidationService.class );
+                    validation =  projectNameValidate.compute();                    
+                }
+                
+                if ( !validation.ok() )
+                {
+                    errorMessageLabel.setVisible( true );
+                    errorMessageLabel.setText( validation.message() );
+                }
+                else
+                {
+                    errorMessageLabel.setVisible( false );
+                    errorMessageLabel.setText( "" );
+                }                         
+            }
+        }
+    }
+    
     public InitCofigurePrjectPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
+
         
         GridLayout layout = new GridLayout(2, false);
 
-        // set the layout to the shell
         setLayout(layout);
         setLayoutData(new GridData( GridData.FILL_BOTH ));
-        setBackground( parent.getBackground() );
+        setBackground( GRAY );
+        
+        errorMessageLabel = new CLabel( this, SWT.LEFT_TO_RIGHT );
+        errorMessageLabel.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );
+        errorMessageLabel.setImage( PlatformUI.getWorkbench().getSharedImages().getImage(
+            ISharedImages.IMG_OBJS_ERROR_TSK ) );
+        errorMessageLabel.setVisible( false );
+        
+
+
+        //dataModel.getProjectName().attach( new LiferayUpgradeValidationListener());
+        
         this.dirField = createTextField( "Liferay SDK folder:" );
         dirField.addModifyListener
         (
@@ -65,10 +140,11 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     {
                         dataModel.setSdkLocation( dirField.getText() );
                     }
-                    
                 }
             }
-        );        
+        );   
+        dirField.setText( "" );
+        
         SWTUtil.createButton( this, "Browse..." ).addSelectionListener( new SelectionAdapter()
         {
             @Override
@@ -177,6 +253,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         
         IServer[] servers = ServerCore.getServers();
         List<String> serverNames = new ArrayList<String>();
+
         if( !CoreUtil.isNullOrEmpty( servers ) )
         {
             for( IServer server : servers )
@@ -187,41 +264,12 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 }
             }
         }
-        serverComb.setItems( serverNames.toArray( new String[serverNames.size()] ) );        
         
-/*        
-
-        dataModel.getSdkLocation().attach( new Listener(){
-
-            @Override
-            public void handle( Event event )
-            {
-                if (event instanceof ValuePropertyContentEvent )
-                {
-                    System.out.println( dataModel.getSdkLocation().content() );
-                }
-                
-                
-            }
-            
-        });
-        txtTest.addModifyListener
-        (
-            new ModifyListener()
-            {
-                public void modifyText( ModifyEvent e )
-                {
-                    if ( e.getSource().equals( txtTest ) )
-                    {
-                        System.out.println( "sdfdsfd" );
-                    }
-                    dataModel.setSdkLocation( txtTest.getText() );
-                }
-            }
-        );
-*/
-
+        serverComb.setItems( serverNames.toArray( new String[serverNames.size()] ) );        
         setActions( actions );
+        
+        dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener());
+        dataModel.getProjectName().attach( new LiferayUpgradeValidationListener());
     }
 
     @Override
@@ -302,32 +350,5 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 }
             }
         });
-
-    }
-    
-    @Override
-    public void modifyText( ModifyEvent e )
-    {
-        if( e.getSource().equals( dirField ) )
-        {
-            //check dirField status and validataion
-            //check server version
-            //check project name validation
-            validate();
-        }
-    }
-
-    
-    private boolean validate()
-    {
-        if ( errors != null && errors.length > 0)
-        {
-            PageValidateEvent event = new PageValidateEvent();
-            for( PageValidationListener listener : pageValidationListeners )
-            {
-                listener.onValidation( event );
-            }
-        }
-        return false;
     }
 }

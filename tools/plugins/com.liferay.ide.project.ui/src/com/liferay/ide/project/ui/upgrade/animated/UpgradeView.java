@@ -1,8 +1,20 @@
-
+/*******************************************************************************
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ *******************************************************************************/
 package com.liferay.ide.project.ui.upgrade.animated;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.liferay.ide.ui.util.SWTUtil;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
@@ -11,8 +23,10 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
-import com.liferay.ide.ui.util.SWTUtil;
-
+/**
+ * @author Andy
+ * @author Simon Jiang
+ */
 public class UpgradeView extends ViewPart implements SelectionChangedListener
 {
 
@@ -146,57 +160,6 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
     public interface PageValidationListener
     {
         public void onValidation( PageValidateEvent event );
-    }
-
-    private final List<PageActionListener> actionListeners = new ArrayList<PageActionListener>();
-    private final List<PageNavigatorListener> navigatorListeners = new ArrayList<PageNavigatorListener>();
-
-    public final void addActionListener( PageActionListener listener )
-    {
-        synchronized( actionListeners )
-        {
-            actionListeners.add( listener );
-        }
-    }
-
-    public final PageActionListener[] getActionListeners()
-    {
-        synchronized( actionListeners )
-        {
-            return actionListeners.toArray( new PageActionListener[actionListeners.size()] );
-        }
-    }
-
-    public final void removeActionListener( PageActionListener listener )
-    {
-        synchronized( actionListeners )
-        {
-            actionListeners.remove( listener );
-        }
-    }
-
-    public final void addNavigatorListener( PageNavigatorListener listener )
-    {
-        synchronized( navigatorListeners )
-        {
-            navigatorListeners.add( listener );
-        }
-    }
-
-    public final PageNavigatorListener[] getNavigatorListeners()
-    {
-        synchronized( navigatorListeners )
-        {
-            return navigatorListeners.toArray( new PageNavigatorListener[navigatorListeners.size()] );
-        }
-    }
-
-    public final void removeNavigatorListener( PageNavigatorListener listener )
-    {
-        synchronized( navigatorListeners )
-        {
-            navigatorListeners.remove( listener );
-        }
     }
 
     @Override
