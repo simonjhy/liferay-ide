@@ -24,16 +24,12 @@ public abstract class Page extends Composite
         super( parent, style );
         this.dataModel = dataModel;
     }
-    
-    public static final int NONE = -1;
 
     private int pageId;
     
     private int index;
 
     private String title = "title";
-
-    private int choice = NONE;
     
     protected PageAction[] actions;
     
@@ -90,7 +86,6 @@ public abstract class Page extends Composite
         return selectedAction;
     }
 
-    
     public void setSelectedAction( PageAction selectedAction )
     {
         this.selectedAction = selectedAction;
