@@ -1,6 +1,8 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.ui.util.SWTUtil;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +12,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
-
-import com.liferay.ide.ui.util.SWTUtil;
 
 public class UpgradeView extends ViewPart implements SelectionChangedListener
 {
@@ -70,7 +70,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
         gear.setLayoutData( gridData );
 
-        gear.setGearsNumber( 3 );
+        gear.setGearsNumber( 10 );
 
         final StackLayout stackLayout = new StackLayout();
 
@@ -84,23 +84,62 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         containerData.heightHint = 500;
         pageControler.setLayoutData( containerData );
 
-        Page page1 = new DescriptionUpgradePage( pageControler, SWT.BORDER, dataModel );
-        page1.setIndex( 0 );
-        page1.setTitle( "this is first page" );
+        Page welcomePage = new WelcomePage( pageControler, SWT.NONE, dataModel );
+        welcomePage.setIndex( 0 );
+        welcomePage.setTitle( "Welcome" );
 
-        Page page2 = new InitCofigurePrjectPage( pageControler, SWT.BORDER, dataModel );
-        page2.setIndex( 1 );
-        page2.setTitle( "this is second page" );
+        Page initCofigurePrjectPage = new InitCofigurePrjectPage( pageControler, SWT.NONE, dataModel );
+        initCofigurePrjectPage.setIndex( 1 );
+        initCofigurePrjectPage.setTitle( "Cofigure Projects" );
+        
+        Page descriptorsPage = new  DescriptorsPage( pageControler, SWT.NONE, dataModel );
+        descriptorsPage.setIndex( 2 );
+        descriptorsPage.setTitle( "Update Descriptor Files" );
+        
 
-        Page page3 = new DescriptionUpgradePage3( pageControler, SWT.BORDER, dataModel );
-        page3.setIndex( 2 );
-        page3.setTitle( "this is third page" );
+        Page findBreakingChangesPage = new  FindBreakingChangesPage( pageControler, SWT.NONE, dataModel );
+        findBreakingChangesPage.setIndex( 3 );
+        findBreakingChangesPage.setTitle( "Find Breaking Changes" );
+        
+        Page buildServicePage = new  BuildServicePage( pageControler, SWT.NONE, dataModel );
+        buildServicePage.setIndex( 4 );
+        buildServicePage.setTitle( "Build Service" );
+        
+        Page layoutTemplatePage = new  LayoutTemplatePage( pageControler, SWT.NONE, dataModel );
+        layoutTemplatePage.setIndex( 5 );
+        layoutTemplatePage.setTitle( "Layout Template" );
+        
+        Page customJspPage = new  CustomJspPage( pageControler, SWT.NONE, dataModel );
+        customJspPage.setIndex( 6 );
+        customJspPage.setTitle( "Custom Jsp" );
+        
+        Page extAndThemePage = new  ExtAndThemePage( pageControler, SWT.NONE, dataModel );
+        extAndThemePage.setIndex( 7 );
+        extAndThemePage.setTitle( "Ext and Theme" );
+        
+        Page compilePage = new  CompilePage( pageControler, SWT.NONE, dataModel );
+        compilePage.setIndex( 8 );
+        compilePage.setTitle( "Compile" );
+        
+        Page deployPage = new  DeployPage( pageControler, SWT.NONE, dataModel );
+        deployPage.setIndex( 9 );
+        deployPage.setTitle( "Deploy" );
 
-        pages = new Page[3];
-
-        pages[0] = page1;
-        pages[1] = page2;
-        pages[2] = page3;
+        List<Page> pageList = new ArrayList<Page>();
+                
+        pageList.add( welcomePage );
+        pageList.add( initCofigurePrjectPage );
+        pageList.add( descriptorsPage );
+        pageList.add( findBreakingChangesPage );
+        pageList.add( buildServicePage );
+        pageList.add( layoutTemplatePage );
+        pageList.add( customJspPage );
+        pageList.add( extAndThemePage );
+        pageList.add( compilePage );
+        pageList.add( deployPage );
+        
+         
+        pages = pageList.toArray(  new Page[0] );
 
         final NavigatorControl navigator = new NavigatorControl( composite, SWT.NONE, pages );
 
@@ -110,8 +149,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         gear.addSelectionChangedListener( navigator );
         gear.addSelectionChangedListener( this );
 
-        
-        page2.addPageValidationListener( gear );
+        //page2.addPageValidationListener( gear );
         
         
         GridData navData = new GridData( GridData.FILL_HORIZONTAL );

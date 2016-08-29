@@ -5,18 +5,18 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 
-public class DescriptionUpgradePage3 extends Page
+public class FindBreakingChangesPage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
     
-    public DescriptionUpgradePage3( Composite parent, int style, LiferayUpgradeDataModel dataModel )
+    public FindBreakingChangesPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style,dataModel );
         
         this.setLayout( new FillLayout() );
         
         Button button = new Button(this, SWT.PUSH);
-        button.setText( "page3" );
+        button.setText( "Find Breaking Changes" );
 
         setActions( actions );
     }
@@ -30,6 +30,6 @@ public class DescriptionUpgradePage3 extends Page
     @Override
     protected boolean showNextPage()
     {
-        return false;
+        return true;
     }
 }

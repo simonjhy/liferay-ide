@@ -1,6 +1,10 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageActionListener;
+import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageNavigatorListener;
+import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageValidationListener;
+
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
@@ -37,12 +41,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-
-import com.liferay.ide.project.ui.upgrade.animated.GearAnimator.AnimatorPage;
-import com.liferay.ide.project.ui.upgrade.animated.GearAnimator.Listener;
-import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageActionListener;
-import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageNavigatorListener;
-import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageValidationListener;
 
 public class GearControl extends Canvas implements PageNavigatorListener, PageActionListener, PageValidationListener
 {
@@ -106,7 +104,7 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
         selectionChangedListeners.add( listener );
     }
 
-    public int gearsNumber = 7;
+    public int gearsNumber = 10;
 
     
     public int getGearsNumber()
@@ -154,8 +152,6 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
 
     private static Color DARK_GRAY;
 
-    private final List<Listener> listeners = new ArrayList<Listener>();
-
     private Color purple;
 
     private Color tooltipColor;
@@ -189,8 +185,6 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
     //private Image badgeImage ;
 
     private final Image[] noImages = new Image[5];
-
-    private final AnimatorPage[] pages = new AnimatorPage[gearsNumber];
 
     private final Point[] tooltipPoints = new Point[gearsNumber];
 
@@ -544,9 +538,10 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
         selection = 0;
         overflow = true;
       }
-      else if (selection > pages.length - 1)
+      else if (selection > gearsNumber - 1)
       {
-        selection = pages.length - 1;
+        selection = gearsNumber - 1;
+
         overflow = true;
       }
 
