@@ -14,19 +14,18 @@
  *******************************************************************************/
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageValidationListener;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
-
-import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageValidationListener;
 
 /**
  * @author Simon Jiang
@@ -40,16 +39,12 @@ public abstract class Page extends Composite
         super( parent, style );
         this.dataModel = dataModel;
     }
-    
-    public static final int NONE = -1;
 
     private int pageId;
     
     private int index;
 
     private String title = "title";
-
-    private int choice = NONE;
     
     protected PageAction[] actions;
     
@@ -106,7 +101,6 @@ public abstract class Page extends Composite
         return selectedAction;
     }
 
-    
     public void setSelectedAction( PageAction selectedAction )
     {
         this.selectedAction = selectedAction;

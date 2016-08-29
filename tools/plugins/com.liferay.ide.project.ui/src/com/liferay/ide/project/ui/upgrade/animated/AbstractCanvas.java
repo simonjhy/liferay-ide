@@ -17,7 +17,6 @@ package com.liferay.ide.project.ui.upgrade.animated;
 import com.liferay.ide.project.ui.ProjectUI;
 import com.liferay.ide.project.ui.upgrade.animated.util.UIUtil;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;

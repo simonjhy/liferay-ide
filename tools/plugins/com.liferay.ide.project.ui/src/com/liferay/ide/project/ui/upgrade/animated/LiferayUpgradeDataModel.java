@@ -21,8 +21,10 @@ import org.eclipse.sapphire.Type;
 import org.eclipse.sapphire.Value;
 import org.eclipse.sapphire.ValueProperty;
 import org.eclipse.sapphire.modeling.Path;
-import org.eclipse.sapphire.modeling.annotations.Required;
+import org.eclipse.sapphire.modeling.annotations.AbsolutePath;
+import org.eclipse.sapphire.modeling.annotations.FileSystemResourceType;
 import org.eclipse.sapphire.modeling.annotations.Service;
+import org.eclipse.sapphire.modeling.annotations.ValidFileSystemResourceType;
 
 /**
  * @author Simon Jiang
@@ -46,13 +48,19 @@ public interface LiferayUpgradeDataModel extends Element
     Value<String> getProjectName();
     void setProjectName( String ProjectName );
     
-    @Required
     ValueProperty PROP_LAYOUT = new ValueProperty( TYPE, "Layout" );
     Value<String> getLayout();
     void setLayout( String Layout );
 
-    @Required
     ValueProperty PROP_LIFERAY_SERVER_NAME = new ValueProperty( TYPE, "LiferayServerName" );
     Value<String> getLiferayServerName();
     void setLiferayServerName( String value );
+
+    @Type( base = Path.class )
+    @AbsolutePath
+    @ValidFileSystemResourceType( FileSystemResourceType.FOLDER )
+    ValueProperty PROP_NewLOCATION = new ValueProperty( TYPE, "NewLocation" );  
+    Value<Path> getNewLocation();
+    void setNewLocation( String newLocation );
+    void setNewLocation( Path newLocation );
 }

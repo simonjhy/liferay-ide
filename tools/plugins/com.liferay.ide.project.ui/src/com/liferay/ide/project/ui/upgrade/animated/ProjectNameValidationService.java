@@ -27,6 +27,7 @@ import org.eclipse.sapphire.services.ValidationService;
 
 /**
  * @author Andy Wu
+ * @author Simon Jiang
  */
 public class ProjectNameValidationService extends ValidationService
 {

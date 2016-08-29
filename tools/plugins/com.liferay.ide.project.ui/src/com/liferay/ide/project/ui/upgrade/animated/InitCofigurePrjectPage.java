@@ -14,22 +14,49 @@
  *******************************************************************************/
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.core.ILiferayProjectImporter;
+import com.liferay.ide.core.LiferayCore;
 import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.core.util.IOUtil;
+import com.liferay.ide.core.util.ZipUtil;
+import com.liferay.ide.project.core.ProjectCore;
+import com.liferay.ide.project.core.modules.BladeCLI;
+import com.liferay.ide.project.core.modules.BladeCLIException;
+import com.liferay.ide.project.core.util.ProjectImportUtil;
+import com.liferay.ide.project.core.util.ProjectUtil;
+import com.liferay.ide.sdk.core.SDK;
+import com.liferay.ide.sdk.core.SDKUtil;
 import com.liferay.ide.server.core.LiferayServerCore;
+import com.liferay.ide.server.util.ServerUtil;
 import com.liferay.ide.ui.util.SWTUtil;
 import com.liferay.ide.ui.util.UIUtil;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.sapphire.Event;
 import org.eclipse.sapphire.Listener;
 import org.eclipse.sapphire.Property;
 import org.eclipse.sapphire.ValuePropertyContentEvent;
 import org.eclipse.sapphire.modeling.Status;
+import org.eclipse.sapphire.platform.PathBridge;
 import org.eclipse.sapphire.services.ValidationService;
+import org.eclipse.sapphire.ui.Presentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.ModifyEvent;
@@ -70,6 +97,8 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
     private Button serverButton;
     protected CLabel errorMessageLabel;
     private static Color GRAY;
+    protected Label blankLabel;
+    private Button importButton;
     
     private class LiferayUpgradeValidationListener extends Listener
     {
@@ -88,7 +117,8 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     SdkLocationValidationService sdkValidate = property.service( SdkLocationValidationService.class );
                     validation =  sdkValidate.compute();
                 }
-                else if (property.name().equals( "ProjectName" ))
+                
+                if (property.name().equals( "ProjectName" ))
                 {
                     ProjectNameValidationService projectNameValidate = property.service( ProjectNameValidationService.class );
                     validation =  projectNameValidate.compute();                    
@@ -105,6 +135,8 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     errorMessageLabel.setText( "" );
                 }                         
             }
+            
+            validate();
         }
     }
     
@@ -124,10 +156,6 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         errorMessageLabel.setImage( PlatformUI.getWorkbench().getSharedImages().getImage(
             ISharedImages.IMG_OBJS_ERROR_TSK ) );
         errorMessageLabel.setVisible( false );
-        
-
-
-        //dataModel.getProjectName().attach( new LiferayUpgradeValidationListener());
         
         this.dirField = createTextField( "Liferay SDK folder:" );
         dirField.addModifyListener
@@ -270,8 +298,58 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         
         dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener());
         dataModel.getProjectName().attach( new LiferayUpgradeValidationListener());
+        
+        blankLabel = new Label( this, SWT.LEFT_TO_RIGHT );
+        
+        SWTUtil.createButton( this, "Import SDK Project..." ).addSelectionListener( new SelectionAdapter()
+        {
+            @Override
+            public void widgetSelected( SelectionEvent e )
+            {
+                importProject();
+            }
+        });
+        
+        startCheckThread();
     }
 
+    private void validate()
+    {
+        UIUtil.async( new Runnable(){
+
+            @Override
+            public void run()
+            {
+                if ( dirField.getText().length() == 0 )
+                {
+                    errorMessageLabel.setVisible( true );
+                    errorMessageLabel.setText( "This sdk location is empty " );
+                }
+                
+                if ( projectNameField.getText().length() == 0 )
+                {
+                    errorMessageLabel.setVisible( true );
+                    errorMessageLabel.setText( "This new upgrade sdk name should not be null." );
+                } 
+            }
+        });
+
+    }
+    
+    private void startCheckThread()
+    {
+        final Thread t = new Thread()
+        {
+            @Override
+            public void run()
+            {
+                validate();
+            }
+        };
+
+        t.start();
+    }
+    
     @Override
     protected boolean showBackPage()
     {
@@ -350,5 +428,178 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 }
             }
         });
+    }
+    
+    private static String newPath = "";
+    
+    protected void importProject()
+    {
+        String layout = this.layoutComb.getText();
+
+        IPath location = PathBridge.create(dataModel.getSdkLocation().content() );
+        String projectName = dataModel.getProjectName().content();
+
+        try
+        {
+            PlatformUI.getWorkbench().getProgressService().busyCursorWhile( new IRunnableWithProgress()
+            {
+
+                public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException
+                {
+                    try
+                    {
+                        copyNewSDK( location, monitor );
+
+                        clearWorkspaceSDKAndProjects( location, monitor );
+
+                        if( layout.equals( "Use plugin sdk in liferay workspace" ) )
+                        {
+                            createLiferayWorkspace( location, monitor );
+
+                            newPath = renameProjectFolder( location, projectName, monitor );
+
+                            ILiferayProjectImporter importer = LiferayCore.getImporter( "gradle" );
+
+                            importer.importProject( newPath, monitor );
+
+                            importSDKProject( new Path( newPath ).append( "plugins-sdk" ), monitor );
+                        }
+                        else
+                        {
+                            String serverName = dataModel.getLiferayServerName().content();
+
+                            IServer server = ServerUtil.getServer( serverName );
+
+                            IPath serverPath = server.getRuntime().getLocation();
+
+                            SDK sdk = new SDK( location );
+                            sdk.addOrUpdateServerProperties( serverPath );
+
+                            newPath = renameProjectFolder( location, projectName, monitor );
+
+                            sdk = SDKUtil.createSDKFromLocation( new Path( newPath ) );
+
+                            SDKUtil.openAsProject( sdk, monitor );
+
+                            importSDKProject( sdk.getLocation(), monitor );
+                        }
+
+                    }
+                    catch( Exception e )
+                    {
+                        e.printStackTrace( );
+                    }
+                }
+            } );
+        }
+        catch( Exception e )
+        {
+            e.printStackTrace();
+        }
+
+        dataModel.setNewLocation( newPath );
+
+        newPath = "";
+    }
+
+    private void clearWorkspaceSDKAndProjects( IPath targetSDKLocation, IProgressMonitor monitor ) throws CoreException
+    {
+        IProject sdkProject = SDKUtil.getWorkspaceSDKProject();
+
+        if( sdkProject != null && sdkProject.getLocation().equals( targetSDKLocation ) )
+        {
+            IProject[] projects = ProjectUtil.getAllPluginsSDKProjects();
+
+            for( IProject project : projects )
+            {
+                project.delete( false, true, monitor );
+            }
+
+            sdkProject.delete( false, true, monitor );
+        }
+
+    }
+
+    private void copyNewSDK( IPath targetSDKLocation, IProgressMonitor monitor ) throws IOException
+    {
+        final URL sdkZipUrl = Platform.getBundle( "com.liferay.ide.project.ui" ).getEntry( "resources/sdk70ga2.zip" );
+
+        final File sdkZipFile = new File( FileLocator.toFileURL( sdkZipUrl ).getFile() );
+
+        final IPath stateLocation = ProjectCore.getDefault().getStateLocation();
+
+        File stateDir = stateLocation.toFile();
+
+        ZipUtil.unzip( sdkZipFile, stateDir );
+
+        IOUtil.copyDirToDir( new File( stateDir, "com.liferay.portal.plugins.sdk-7.0" ), targetSDKLocation.toFile() );
+    }
+
+    private void createLiferayWorkspace( IPath targetSDKLocation, IProgressMonitor monitor ) throws BladeCLIException
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "-b " );
+        sb.append( "\"" + targetSDKLocation.toFile().getAbsolutePath() + "\" " );
+        sb.append( "init" );
+
+        BladeCLI.execute( sb.toString() );
+    }
+
+    private String renameProjectFolder( IPath targetSDKLocation, String newName, IProgressMonitor monitor )
+    {
+        if( newName == null || newName.equals( "" ) )
+        {
+            return targetSDKLocation.toString();
+        }
+
+        File newFolder = targetSDKLocation.removeLastSegments( 1 ).append( newName ).toFile();
+        targetSDKLocation.toFile().renameTo( newFolder );
+        return newFolder.toPath().toString();
+    }
+
+    private void importSDKProject( IPath targetSDKLocation, IProgressMonitor monitor )
+    {
+        Collection<File> eclipseProjectFiles = new ArrayList<File>();
+
+        Collection<File> liferayProjectDirs = new ArrayList<File>();
+
+        if( ProjectUtil.collectSDKProjectsFromDirectory(
+            eclipseProjectFiles, liferayProjectDirs, targetSDKLocation.toFile(), null, true, monitor ) )
+        {
+            for( File project : liferayProjectDirs )
+            {
+                try
+                {
+                    IProject importProject =
+                        ProjectImportUtil.importProject( new Path( project.getPath() ), monitor, null );
+                    if( ProjectUtil.isExtProject( importProject ) || ProjectUtil.isThemeProject( importProject ) ||
+                        importProject.getName().startsWith( "resources-importer-web" ) )
+                    {
+                        importProject.delete( false, true, monitor );
+                    }
+                }
+                catch( CoreException e )
+                {
+                }
+            }
+
+            for( File project : eclipseProjectFiles )
+            {
+                try
+                {
+                    IProject importProject =
+                        ProjectImportUtil.importProject( new Path( project.getParent() ), monitor, null );
+                    if( ProjectUtil.isExtProject( importProject ) || ProjectUtil.isThemeProject( importProject ) ||
+                        importProject.getName().startsWith( "resources-importer-web" ) )
+                    {
+                        importProject.delete( false, true, monitor );
+                    }
+                }
+                catch( CoreException e )
+                {
+                }
+            }
+        }
     }
 }

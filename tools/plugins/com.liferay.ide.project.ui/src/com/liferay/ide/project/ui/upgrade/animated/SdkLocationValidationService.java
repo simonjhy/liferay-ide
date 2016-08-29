@@ -16,7 +16,6 @@
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.core.ProjectCore;
-import com.liferay.ide.project.core.upgrade.CodeUpgradeOp;
 import com.liferay.ide.sdk.core.SDK;
 import com.liferay.ide.sdk.core.SDKUtil;
 
@@ -29,6 +28,7 @@ import org.eclipse.sapphire.services.ValidationService;
 
 /**
  * @author Andy Wu
+ * @author Simon Jiang
  */
 public class SdkLocationValidationService extends ValidationService
 {
