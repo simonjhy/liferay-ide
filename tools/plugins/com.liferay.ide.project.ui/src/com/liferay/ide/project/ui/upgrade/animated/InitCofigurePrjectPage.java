@@ -24,6 +24,9 @@ import com.liferay.ide.project.core.modules.BladeCLI;
 import com.liferay.ide.project.core.modules.BladeCLIException;
 import com.liferay.ide.project.core.util.ProjectImportUtil;
 import com.liferay.ide.project.core.util.ProjectUtil;
+import com.liferay.ide.project.core.util.SearchFilesVisitor;
+import com.liferay.ide.project.ui.ProjectUI;
+import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageNavigatorListener;
 import com.liferay.ide.sdk.core.SDK;
 import com.liferay.ide.sdk.core.SDKUtil;
 import com.liferay.ide.server.core.LiferayServerCore;
@@ -41,6 +44,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
@@ -219,7 +223,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 {
                     int sel = layoutComb.getSelectionIndex();
 
-                    if ( sel > 0 )
+                    if ( sel == 0 )
                     {
                         serverLabel.setVisible( true );
                         serverButton.setVisible( true );
@@ -272,9 +276,9 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         
         if ( layoutComb.getSelectionIndex() == 0 )
         {
-            serverLabel.setVisible( false );
-            serverButton.setVisible( false );
-            serverComb.setVisible( false );
+            serverLabel.setVisible( true );
+            serverButton.setVisible( true );
+            serverComb.setVisible( true );
         }
         
         ServerCore.addServerLifecycleListener( this );
@@ -299,14 +303,33 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener());
         dataModel.getProjectName().attach( new LiferayUpgradeValidationListener());
         
+        
+        SWTUtil.createHorizontalSpacer( this, 3 );
+        SWTUtil.createSeparator( this, 3 );
+        
         blankLabel = new Label( this, SWT.LEFT_TO_RIGHT );
         
-        SWTUtil.createButton( this, "Import SDK Project..." ).addSelectionListener( new SelectionAdapter()
+        importButton = SWTUtil.createButton( this, "Import SDK Project..." );
+        importButton.addSelectionListener( new SelectionAdapter()
         {
             @Override
             public void widgetSelected( SelectionEvent e )
             {
+                importButton.setEnabled( false );
                 importProject();
+                importButton.setEnabled( true );
+                
+                PageNavigateEvent event = new PageNavigateEvent();
+                
+                if( showNextPage() )
+                {
+                    event.setTargetPage( UpgradeView.getPage( getIndex() + 1  ) );
+                }
+                
+                for( PageNavigatorListener listener : naviListeners )
+                {
+                    listener.onPageNavigate( event );
+                }
             }
         });
         
@@ -435,15 +458,15 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
     protected void importProject()
     {
         String layout = this.layoutComb.getText();
-
+        String serverName = this.serverComb.getText();
         IPath location = PathBridge.create(dataModel.getSdkLocation().content() );
         String projectName = dataModel.getProjectName().content();
-
+        
+        
         try
         {
             PlatformUI.getWorkbench().getProgressService().busyCursorWhile( new IRunnableWithProgress()
             {
-
                 public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException
                 {
                     try
@@ -452,7 +475,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
                         clearWorkspaceSDKAndProjects( location, monitor );
 
-                        if( layout.equals( "Use plugin sdk in liferay workspace" ) )
+                        if( layout.equals( "Use Plugin SDK In Liferay Workspace" ) )
                         {
                             createLiferayWorkspace( location, monitor );
 
@@ -466,13 +489,13 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                         }
                         else
                         {
-                            String serverName = dataModel.getLiferayServerName().content();
-
                             IServer server = ServerUtil.getServer( serverName );
 
                             IPath serverPath = server.getRuntime().getLocation();
 
-                            SDK sdk = new SDK( location );
+                            //SDK sdk = new SDK( location );
+                            
+                            SDK sdk = SDKUtil.createSDKFromLocation( location );    
                             sdk.addOrUpdateServerProperties( serverPath );
 
                             newPath = renameProjectFolder( location, projectName, monitor );
@@ -483,7 +506,6 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
                             importSDKProject( sdk.getLocation(), monitor );
                         }
-
                     }
                     catch( Exception e )
                     {
@@ -494,7 +516,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         }
         catch( Exception e )
         {
-            e.printStackTrace();
+            ProjectUI.logError( e );;
         }
 
         dataModel.setNewLocation( newPath );
@@ -557,7 +579,38 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         targetSDKLocation.toFile().renameTo( newFolder );
         return newFolder.toPath().toString();
     }
-
+    
+    private void checkProjectType( IProject project )
+    {
+        if ( ProjectUtil.isPortletProject( project ))
+        {
+            dataModel.setHasPortlet( true );
+        }else if ( ProjectUtil.isHookProject( project ))
+        {
+            dataModel.setHasHook( true );
+        }else if ( ProjectUtil.isLayoutTplProject( project ))
+        {
+            dataModel.setHasLayout( true );
+        }else if ( ProjectUtil.isThemeProject( project ))
+        {
+            dataModel.setHasTheme( true );
+        }else if ( ProjectUtil.isExtProject( project ))
+        {
+            dataModel.setHasExt( true );
+        }else if ( ProjectUtil.isWebProject( project ))
+        {
+            dataModel.setHasWeb( true );
+        }else 
+        {
+            List<IFile> searchFiles = new SearchFilesVisitor().searchFiles( project, "service.xml" );
+            
+            if ( searchFiles.size() > 0 )
+            {
+                dataModel.setHasWeb( true );    
+            }
+        }    
+    }
+    
     private void importSDKProject( IPath targetSDKLocation, IProgressMonitor monitor )
     {
         Collection<File> eclipseProjectFiles = new ArrayList<File>();
@@ -573,6 +626,9 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 {
                     IProject importProject =
                         ProjectImportUtil.importProject( new Path( project.getPath() ), monitor, null );
+                    
+                    checkProjectType(importProject);
+                    
                     if( ProjectUtil.isExtProject( importProject ) || ProjectUtil.isThemeProject( importProject ) ||
                         importProject.getName().startsWith( "resources-importer-web" ) )
                     {
@@ -590,6 +646,9 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 {
                     IProject importProject =
                         ProjectImportUtil.importProject( new Path( project.getParent() ), monitor, null );
+                    
+                    checkProjectType(importProject);
+                    
                     if( ProjectUtil.isExtProject( importProject ) || ProjectUtil.isThemeProject( importProject ) ||
                         importProject.getName().startsWith( "resources-importer-web" ) )
                     {

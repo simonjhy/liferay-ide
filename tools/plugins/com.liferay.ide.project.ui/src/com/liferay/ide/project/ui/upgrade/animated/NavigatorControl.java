@@ -347,7 +347,6 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
                 if( retVal == true )
                 {
-
                     for( PageNavigatorListener listener : naviListeners )
                     {
                         listener.onPageNavigate( event );

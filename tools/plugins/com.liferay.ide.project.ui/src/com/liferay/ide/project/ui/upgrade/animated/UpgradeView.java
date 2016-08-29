@@ -16,7 +16,8 @@ import org.eclipse.ui.part.ViewPart;
 public class UpgradeView extends ViewPart implements SelectionChangedListener
 {
     protected LiferayUpgradeDataModel dataModel;
-
+    private String[] pageIds = {"welcom", "import", "descriptor", "breaking", "service", "layout", "jsp", "ext", "compile", "deploy" };
+    
     private LiferayUpgradeDataModel createUpgradeModel()
     {
         return LiferayUpgradeDataModel.TYPE.instantiate();
@@ -91,43 +92,56 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         Page welcomePage = new WelcomePage( pagesSwitchControler, SWT.NONE, dataModel );
         welcomePage.setIndex( 0 );
         welcomePage.setTitle( "Welcome" );
+        welcomePage.setPageId( pageIds[0] );
+        welcomePage.setBackPage( false );
+       
 
         Page initCofigurePrjectPage = new InitCofigurePrjectPage( pagesSwitchControler, SWT.NONE, dataModel );
         initCofigurePrjectPage.setIndex( 1 );
         initCofigurePrjectPage.setTitle( "Cofigure Projects" );
+        initCofigurePrjectPage.addPageNavigateListener( gear );
+        initCofigurePrjectPage.setPageId( pageIds[1] );
         
         Page descriptorsPage = new  DescriptorsPage( pagesSwitchControler, SWT.NONE, dataModel );
         descriptorsPage.setIndex( 2 );
         descriptorsPage.setTitle( "Update Descriptor Files" );
-        
+        descriptorsPage.setPageId( pageIds[2] );
+        descriptorsPage.setBackPage( false );
 
         Page findBreakingChangesPage = new  FindBreakingChangesPage( pagesSwitchControler, SWT.NONE, dataModel );
         findBreakingChangesPage.setIndex( 3 );
         findBreakingChangesPage.setTitle( "Find Breaking Changes" );
+        findBreakingChangesPage.setPageId( pageIds[3] );
         
         Page buildServicePage = new  BuildServicePage( pagesSwitchControler, SWT.NONE, dataModel );
         buildServicePage.setIndex( 4 );
         buildServicePage.setTitle( "Build Service" );
+        buildServicePage.setPageId( pageIds[4] );
         
         Page layoutTemplatePage = new  LayoutTemplatePage( pagesSwitchControler, SWT.NONE, dataModel );
         layoutTemplatePage.setIndex( 5 );
         layoutTemplatePage.setTitle( "Layout Template" );
+        layoutTemplatePage.setPageId( pageIds[5] );
         
         Page customJspPage = new  CustomJspPage( pagesSwitchControler, SWT.NONE, dataModel );
         customJspPage.setIndex( 6 );
         customJspPage.setTitle( "Custom Jsp" );
+        customJspPage.setPageId( pageIds[6] );
         
         Page extAndThemePage = new  ExtAndThemePage( pagesSwitchControler, SWT.NONE, dataModel );
         extAndThemePage.setIndex( 7 );
         extAndThemePage.setTitle( "Ext and Theme" );
+        extAndThemePage.setPageId( pageIds[7] );
         
         Page compilePage = new  CompilePage( pagesSwitchControler, SWT.NONE, dataModel );
         compilePage.setIndex( 8 );
         compilePage.setTitle( "Compile" );
+        compilePage.setPageId( pageIds[8] );
         
         Page deployPage = new  DeployPage( pagesSwitchControler, SWT.NONE, dataModel );
         deployPage.setIndex( 9 );
         deployPage.setTitle( "Deploy" );
+        deployPage.setPageId( pageIds[9] );
 
         List<Page> pageList = new ArrayList<Page>();
                 

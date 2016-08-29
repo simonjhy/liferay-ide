@@ -20,16 +20,4 @@ public class CompilePage extends Page
 
         setActions( actions );
     }
-
-    @Override
-    protected boolean showBackPage()
-    {
-        return true;
-    }
-
-    @Override
-    protected boolean showNextPage()
-    {
-        return true;
-    }
 }

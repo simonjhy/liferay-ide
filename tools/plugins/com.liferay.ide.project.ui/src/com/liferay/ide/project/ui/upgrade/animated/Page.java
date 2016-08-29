@@ -14,6 +14,7 @@
  *******************************************************************************/
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageNavigatorListener;
 import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageValidationListener;
 
 import java.util.ArrayList;
@@ -32,6 +33,11 @@ import org.eclipse.swt.widgets.Text;
  */
 public abstract class Page extends Composite
 {
+    
+    protected boolean canBack = true;
+    protected boolean canNext = true;
+    
+    
     protected LiferayUpgradeDataModel dataModel;
     
     public Page( Composite parent, int style, LiferayUpgradeDataModel dataModel )
@@ -40,8 +46,23 @@ public abstract class Page extends Composite
         this.dataModel = dataModel;
     }
 
-    private int pageId;
+    protected final List<PageNavigatorListener> naviListeners =
+                    Collections.synchronizedList( new ArrayList<PageNavigatorListener>() );
     
+    private String pageId;
+    
+    
+    public String getPageId()
+    {
+        return pageId;
+    }
+
+    
+    public void setPageId( String pageId )
+    {
+        this.pageId = pageId;
+    }
+
     private int index;
 
     private String title = "title";
@@ -80,13 +101,24 @@ public abstract class Page extends Composite
       this.actions = actions;
     }
 
-    protected  boolean showBackPage()
+    protected boolean showBackPage()
     {
-        return false;
+        return canBack;
     }
-    protected  boolean showNextPage()
+
+    protected boolean showNextPage()
     {
-        return false;
+        return canNext;
+    }
+    
+    protected void setBackPage( boolean canBack )
+    {
+        this.canBack = canBack;
+    }
+    
+    protected void setNextPage( boolean canBack )
+    {
+        this.canNext = canBack;
     }
 
     @Override
@@ -140,4 +172,12 @@ public abstract class Page extends Composite
     {
         this.pageValidationListeners.add( listener );
     }
+    
+    public void addPageNavigateListener( PageNavigatorListener listener )
+    {
+        this.naviListeners.add( listener );
+    }
+    
+    
+    
 }

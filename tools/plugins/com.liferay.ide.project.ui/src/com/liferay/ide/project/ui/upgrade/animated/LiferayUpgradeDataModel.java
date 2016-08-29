@@ -22,9 +22,11 @@ import org.eclipse.sapphire.Value;
 import org.eclipse.sapphire.ValueProperty;
 import org.eclipse.sapphire.modeling.Path;
 import org.eclipse.sapphire.modeling.annotations.AbsolutePath;
+import org.eclipse.sapphire.modeling.annotations.DefaultValue;
 import org.eclipse.sapphire.modeling.annotations.FileSystemResourceType;
 import org.eclipse.sapphire.modeling.annotations.Service;
 import org.eclipse.sapphire.modeling.annotations.ValidFileSystemResourceType;
+import org.eclipse.sapphire.modeling.xml.annotations.XmlBinding;
 
 /**
  * @author Simon Jiang
@@ -63,4 +65,63 @@ public interface LiferayUpgradeDataModel extends Element
     Value<Path> getNewLocation();
     void setNewLocation( String newLocation );
     void setNewLocation( Path newLocation );
+    
+    
+    @XmlBinding( path = "HasHook" )
+    @Type( base = Boolean.class )
+    @DefaultValue( text = "false" )
+    ValueProperty PROP_HAS_HOOK = new ValueProperty( TYPE, "HasHook" );
+
+    Value<Boolean> getHasHook();
+    void setHasHook( String hasHook );
+    void setHasHook( Boolean hasHook );
+
+    @XmlBinding( path = "HasPortlet" )
+    @Type( base = Boolean.class )
+    @DefaultValue( text = "false" )
+    ValueProperty PROP_HAS_PORTLET = new ValueProperty( TYPE, "HasPortlet" );
+
+    Value<Boolean> getHasPortlet();
+    void setHasPortlet( String hasPortlet );
+    void setHasPortlet( Boolean hasPortlet );
+
+    @Type( base = Boolean.class )
+    @DefaultValue( text = "false" )
+    ValueProperty PROP_HAS_THEME = new ValueProperty( TYPE, "HasTheme" );
+
+    Value<Boolean> getHasTheme();
+    void setHasTheme( String hasTheme );
+    void setHasTheme( Boolean hasTheme );
+
+    @Type( base = Boolean.class )
+    @DefaultValue( text = "false" )
+    ValueProperty PROP_HAS_EXT = new ValueProperty( TYPE, "HasExt" );
+
+    Value<Boolean> getHasExt();
+    void setHasExt( String hasExt );
+    void setHasExt( Boolean hasExt );
+
+    @Type( base = Boolean.class )
+    @DefaultValue( text = "false" )
+    ValueProperty PROP_HAS_SERVICE_BUILDER = new ValueProperty( TYPE, "HasServiceBuilder" );
+
+    Value<Boolean> getHasServiceBuilder();
+    void setHasServiceBuilder( String hasServiceBuilder );
+    void setHasServiceBuilder( Boolean hasServiceBuilder );
+
+    @Type( base = Boolean.class )
+    @DefaultValue( text = "false" )
+    ValueProperty PROP_HAS_LAYOUT = new ValueProperty( TYPE, "HasLayout" );
+
+    Value<Boolean> getHasLayout();
+    void setHasLayout( String hasLayout );
+    void setHasLayout( Boolean hasLayout );
+
+    @Type( base = Boolean.class )
+    @DefaultValue( text = "false" )
+    ValueProperty PROP_HAS_WEB = new ValueProperty( TYPE, "HasWeb" );
+
+    Value<Boolean> getHasWeb();
+    void setHasWeb( String hasWeb );
+    void setHasWeb( Boolean hasWeb );
 }
