@@ -1,20 +1,10 @@
-/*******************************************************************************
- * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
- *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.ui.util.SWTUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
@@ -23,13 +13,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 
-/**
- * @author Andy
- * @author Simon Jiang
- */
 public class UpgradeView extends ViewPart implements SelectionChangedListener
 {
-
     protected LiferayUpgradeDataModel dataModel;
 
     private LiferayUpgradeDataModel createUpgradeModel()
@@ -43,24 +28,29 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         this.dataModel = createUpgradeModel();
     }
 
-    // public static int selection = 0;
-
-    private static Composite pageControler = null;
+    private static Composite pagesSwitchControler = null;
 
     private static Page[] pages = null;
 
     public void setSelectPage( int i )
     {
-        StackLayout stackLayout = (StackLayout) pageControler.getLayout();
+        StackLayout stackLayout = (StackLayout) pagesSwitchControler.getLayout();
 
         stackLayout.topControl = pages[i];
 
-        pageControler.layout();
+        pagesSwitchControler.layout();
     }
 
     public static Page getPage( int i )
     {
-        return pages[i];
+        if(i < 0 || i > pages.length - 1 )
+        {
+            return null;
+        }
+        else
+        {
+            return pages[i];
+        }
     }
 
     @Override
@@ -84,51 +74,86 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
         gear.setLayoutData( gridData );
 
-        gear.setGearsNumber( 3 );
+        gear.setGearsNumber( 10 );
 
-        final StackLayout stackLayout = new StackLayout();
+        StackLayout stackLayout = new StackLayout();
+        
+        pagesSwitchControler = new Composite( composite, SWT.BORDER );
 
-        pageControler = new Composite( composite, SWT.BORDER );
-
-        pageControler.setLayout( stackLayout );
+        pagesSwitchControler.setLayout( stackLayout );
 
         GridData containerData = new GridData( GridData.FILL_HORIZONTAL );
         containerData.grabExcessHorizontalSpace = true;
         containerData.widthHint = 400;
         containerData.heightHint = 500;
-        pageControler.setLayoutData( containerData );
+        pagesSwitchControler.setLayoutData( containerData );
 
-        Page page1 = new DescriptionUpgradePage( pageControler, SWT.BORDER, dataModel );
-        page1.setIndex( 0 );
-        page1.setTitle( "this is first page" );
+        Page welcomePage = new WelcomePage( pagesSwitchControler, SWT.NONE, dataModel );
+        welcomePage.setIndex( 0 );
+        welcomePage.setTitle( "Welcome" );
 
-        Page page2 = new InitCofigurePrjectPage( pageControler, SWT.BORDER, dataModel );
-        page2.setIndex( 1 );
-        page2.setTitle( "this is second page" );
+        Page initCofigurePrjectPage = new InitCofigurePrjectPage( pagesSwitchControler, SWT.NONE, dataModel );
+        initCofigurePrjectPage.setIndex( 1 );
+        initCofigurePrjectPage.setTitle( "Cofigure Projects" );
+        
+        Page descriptorsPage = new  DescriptorsPage( pagesSwitchControler, SWT.NONE, dataModel );
+        descriptorsPage.setIndex( 2 );
+        descriptorsPage.setTitle( "Update Descriptor Files" );
+        
 
-        Page page3 = new DescriptionUpgradePage3( pageControler, SWT.BORDER, dataModel );
-        page3.setIndex( 2 );
-        page3.setTitle( "this is third page" );
+        Page findBreakingChangesPage = new  FindBreakingChangesPage( pagesSwitchControler, SWT.NONE, dataModel );
+        findBreakingChangesPage.setIndex( 3 );
+        findBreakingChangesPage.setTitle( "Find Breaking Changes" );
+        
+        Page buildServicePage = new  BuildServicePage( pagesSwitchControler, SWT.NONE, dataModel );
+        buildServicePage.setIndex( 4 );
+        buildServicePage.setTitle( "Build Service" );
+        
+        Page layoutTemplatePage = new  LayoutTemplatePage( pagesSwitchControler, SWT.NONE, dataModel );
+        layoutTemplatePage.setIndex( 5 );
+        layoutTemplatePage.setTitle( "Layout Template" );
+        
+        Page customJspPage = new  CustomJspPage( pagesSwitchControler, SWT.NONE, dataModel );
+        customJspPage.setIndex( 6 );
+        customJspPage.setTitle( "Custom Jsp" );
+        
+        Page extAndThemePage = new  ExtAndThemePage( pagesSwitchControler, SWT.NONE, dataModel );
+        extAndThemePage.setIndex( 7 );
+        extAndThemePage.setTitle( "Ext and Theme" );
+        
+        Page compilePage = new  CompilePage( pagesSwitchControler, SWT.NONE, dataModel );
+        compilePage.setIndex( 8 );
+        compilePage.setTitle( "Compile" );
+        
+        Page deployPage = new  DeployPage( pagesSwitchControler, SWT.NONE, dataModel );
+        deployPage.setIndex( 9 );
+        deployPage.setTitle( "Deploy" );
 
-        pages = new Page[3];
+        List<Page> pageList = new ArrayList<Page>();
+                
+        pageList.add( welcomePage );
+        pageList.add( initCofigurePrjectPage );
+        pageList.add( descriptorsPage );
+        pageList.add( findBreakingChangesPage );
+        pageList.add( buildServicePage );
+        pageList.add( layoutTemplatePage );
+        pageList.add( customJspPage );
+        pageList.add( extAndThemePage );
+        pageList.add( compilePage );
+        pageList.add( deployPage );
+        
+        pages = pageList.toArray(  new Page[0] );
 
-        pages[0] = page1;
-        pages[1] = page2;
-        pages[2] = page3;
-
-        final NavigatorControl navigator = new NavigatorControl( composite, SWT.NONE, pages );
+        final NavigatorControl navigator = new NavigatorControl( composite, SWT.NONE );
 
         navigator.addPageNavigateListener( gear );
         navigator.addPageActionListener( gear );
 
         gear.addSelectionChangedListener( navigator );
         gear.addSelectionChangedListener( this );
-
-        
-        page2.addPageValidationListener( gear );
-        
         
         GridData navData = new GridData( GridData.FILL_HORIZONTAL );
+
         navData.grabExcessHorizontalSpace = true;
         navData.widthHint = 400;
         navData.heightHint = 55;
@@ -153,7 +178,6 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
     public interface PageNavigatorListener
     {
-
         public void onPageNavigate( PageNavigateEvent event );
     }
     
@@ -162,14 +186,65 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         public void onValidation( PageValidateEvent event );
     }
 
+    private final List<PageActionListener> actionListeners = new ArrayList<PageActionListener>();
+    private final List<PageNavigatorListener> navigatorListeners = new ArrayList<PageNavigatorListener>();
+
+    public final void addActionListener( PageActionListener listener )
+    {
+        synchronized( actionListeners )
+        {
+            actionListeners.add( listener );
+        }
+    }
+
+    public final PageActionListener[] getActionListeners()
+    {
+        synchronized( actionListeners )
+        {
+            return actionListeners.toArray( new PageActionListener[actionListeners.size()] );
+        }
+    }
+
+    public final void removeActionListener( PageActionListener listener )
+    {
+        synchronized( actionListeners )
+        {
+            actionListeners.remove( listener );
+        }
+    }
+
+    public final void addNavigatorListener( PageNavigatorListener listener )
+    {
+        synchronized( navigatorListeners )
+        {
+            navigatorListeners.add( listener );
+        }
+    }
+
+    public PageNavigatorListener[] getPageNavigatorListener()
+    {
+        synchronized( navigatorListeners )
+        {
+            return navigatorListeners.toArray( new PageNavigatorListener[navigatorListeners.size()] );
+        }
+    }
+
+    public final void removeNavigatorListener( PageNavigatorListener listener )
+    {
+        synchronized( navigatorListeners )
+        {
+            navigatorListeners.remove( listener );
+        }
+    }
+
     @Override
     public void onSelectionChanged( int targetSelection )
     {
-        StackLayout stackLayout = (StackLayout) pageControler.getLayout();
+        StackLayout stackLayout = (StackLayout) pagesSwitchControler.getLayout();
 
         stackLayout.topControl = pages[targetSelection];
 
-        pageControler.layout();
+        pagesSwitchControler.layout();
 
     }
 

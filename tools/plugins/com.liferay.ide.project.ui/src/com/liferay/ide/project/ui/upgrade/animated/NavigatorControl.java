@@ -1,18 +1,8 @@
-/*******************************************************************************
- * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
- *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
- * any later version.
- *
- * This library is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
- * details.
- *
- *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
+
+import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageActionListener;
+import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageNavigatorListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,7 +17,6 @@ import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -35,49 +24,38 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
-import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageActionListener;
-import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageNavigatorListener;
-
-/**
- * @author Simon Jiang
- */
 public class NavigatorControl extends AbstractCanvas implements SelectionChangedListener
 {
-
-    private static Color WHITE;
-
-    private static Color GRAY;
-
-    private static Color DARK_GRAY;
-    public NavigatorControl insance;
     private static final int DEFAULT_TIMER_INTERVAL = 10;
+
+    public static final int NONE = -1;
+
+    public static final int PAGE_WIDTH = 400;
+
+    public static final int PAGE_HEIGHT = 120;
+    public static final int BORDER = 30;
+    private static final int EXIT = NONE - 1;
+
+    private static final int BACK = EXIT - 1;
+    private static final int NEXT = BACK - 1;
+
+    private static final int CHOICES = NEXT - 1;
     private boolean overflow;
     private boolean oldShowOverlay;
     private int hover = NONE;
     private int oldHover = NONE;
-    public static final int NONE = -1;
     private final Image[] backImages = new Image[2];
     private final Image[] nextImages = new Image[2];
     private int buttonR;
     private int answerY;
-    private static final int BIG_FONT_PX = 48;
-    public static final int PAGE_WIDTH = 400;
-    public static final int PAGE_HEIGHT = 120;
-    public static final int BORDER = 30;
     private Rectangle backBox;
     private Rectangle nextBox;
-    private static final int EXIT = NONE - 1;
-    private static final int BACK = EXIT - 1;
-    private static final int NEXT = BACK - 1;
-    private static final int CHOICES = NEXT - 1;
     private int pageY;
-    private int choice = NONE;
     private Rectangle[] actionBoxes;
-    private boolean pageBufferUpdated;
     
-    private int select = 0;
+    private Display display; 
 
-    private Page[] pages;
+    private int select = 0;
 
     private final List<PageNavigatorListener> naviListeners =
         Collections.synchronizedList( new ArrayList<PageNavigatorListener>() );
@@ -85,119 +63,24 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
     private final List<PageActionListener> actionListeners =
         Collections.synchronizedList( new ArrayList<PageActionListener>() );
 
-    public void addPageNavigateListener( PageNavigatorListener listener )
-    {
-        this.naviListeners.add( listener );
-    }
-
-    public void addPageActionListener( PageActionListener listener )
-    {
-        this.actionListeners.add( listener );
-    }
-
-    @Override
-    protected void init()
-    {
-        super.init();
-
-        bigFont = createFont( BIG_FONT_PX, PAGE_WIDTH, "" );
-
-        backImages[0] = loadImage( "back.png" );
-        backImages[1] = loadImage( "back_hover.png" );
-
-        nextImages[0] = loadImage( "next.png" );
-        nextImages[1] = loadImage( "next_hover.png" );
-
-        buttonR = nextImages[0].getBounds().height / 2;
-        answerY = 5 + buttonR;
-
-        PageAction[] actions = getSelectedPage().getActions();
-
-        actionBoxes = new Rectangle[actions.length];
-
-        // pageY = getHeight() + 2 * BORDER;
-
-    }
-
     private final Runnable runnable = new Runnable()
     {
-
         public void run()
         {
             doRun();
         }
     };
 
-    protected boolean shouldShowOverlay()
-    {
-        return ( System.currentTimeMillis() / 1000 & 1 ) == 1;
-    }
-
-    protected boolean advance()
-    {
-        boolean needsRedraw = false;
-
-        if( overflow )
-        {
-            overflow = false;
-            needsRedraw = true;
-        }
-
-        boolean showOverlay = shouldShowOverlay();
-
-        if( showOverlay != oldShowOverlay )
-        {
-            oldShowOverlay = showOverlay;
-            // updatePage();
-            needsRedraw = true;
-        }
-
-        if( hover != oldHover )
-        {
-            needsRedraw = true;
-        }
-
-        return true;
-    }
-
-    protected synchronized void doRun()
-    {
-        if( isDisposed() )
-        {
-            return;
-        }
-
-        boolean needsRedraw = advance();
-
-        if( needsRedraw )
-        {
-            redraw();
-        }
-        else
-        {
-            scheduleRun();
-        }
-    }
-
-    public NavigatorControl( Composite parent, int style, Page[] pages )
+    public NavigatorControl( Composite parent, int style )
     {
         super( parent, style | SWT.DOUBLE_BUFFERED );
 
-        this.pages = pages;
-
-        Display display = getDisplay();
+        display = getDisplay();
 
         setBackground( display.getSystemColor( SWT.COLOR_WHITE ) );
 
-        WHITE = display.getSystemColor( SWT.COLOR_WHITE );
-        GRAY = display.getSystemColor( SWT.COLOR_GRAY );
-        DARK_GRAY = display.getSystemColor( SWT.COLOR_DARK_GRAY );
-
-        insance = this;
-
         addFocusListener( new FocusListener()
         {
-
             public void focusGained( FocusEvent e )
             {
                 redraw();
@@ -211,11 +94,10 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
         addPaintListener( new PaintListener()
         {
-
             @Override
             public void paintControl( PaintEvent e )
             {
-                Image buffer = new Image( getDisplay(), getBounds() );
+                Image buffer = new Image( display, getBounds() );
 
                 GC canvasGc = e.gc;
                 // not blink
@@ -274,14 +156,177 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         scheduleRun();
     }
 
-    private void scheduleRun()
+    protected boolean actionOnMouseDown( int x, int y )
     {
-        getDisplay().timerExec( DEFAULT_TIMER_INTERVAL, runnable );
+        int i = getAction( x, y );
+
+        if( i != NONE )
+        {
+            doAction( i );
+
+            return true;
+        }
+
+        return false;
     }
+
+    protected int actionOnMouseMove( int x, int y )
+    {
+        int i = getAction( x, y );
+
+        if( i != NONE )
+        {
+            //pageBufferUpdated = false;
+            return CHOICES - i;
+        }
+
+        if( hover <= CHOICES )
+        {
+            //pageBufferUpdated = false;
+        }
+
+        return NONE;
+    }
+
+    public void addPageActionListener( PageActionListener listener )
+    {
+        this.actionListeners.add( listener );
+    }
+
+    public void addPageNavigateListener( PageNavigatorListener listener )
+    {
+        this.naviListeners.add( listener );
+    }
+
+    protected boolean advance()
+    {
+        boolean needsRedraw = false;
+
+        if( overflow )
+        {
+            overflow = false;
+            needsRedraw = true;
+        }
+
+        boolean showOverlay = shouldShowOverlay();
+
+        if( showOverlay != oldShowOverlay )
+        {
+            oldShowOverlay = showOverlay;
+            needsRedraw = true;
+        }
+
+        if( hover != oldHover )
+        {
+            needsRedraw = true;
+        }
+
+        return true;
+    }
+
+    private void doAction( int i )
+    {
+        Page page = getSelectedPage();
+
+        PageAction[] pageActions = page.getActions();
+
+        PageAction targetAction = pageActions[i];
+
+        boolean originState = targetAction.isSelected();
+
+        targetAction.setSelected( !originState );
+
+        if( originState )
+        {
+            page.setSelectedAction( null );
+        }
+        else
+        {
+            page.setSelectedAction( targetAction );
+
+            for(int j = 0 ; j < pageActions.length ; j++)
+            {
+                if(j != i)
+                {
+                    pageActions[j].setSelected( false );
+                }
+            }
+
+            if( page.showNextPage() )
+            {
+                PageActionEvent event = new PageActionEvent();
+
+                event.setAction( targetAction );
+
+                event.setTargetPage( UpgradeView.getPage( select + 1 ) );
+
+                for( PageActionListener listener : actionListeners )
+                {
+                    listener.onPageAction( event );
+                }
+            }
+        }
+    }
+
+    protected synchronized void doRun()
+    {
+        if( isDisposed() )
+        {
+            return;
+        }
+
+        boolean needsRedraw = advance();
+
+        if( needsRedraw )
+        {
+            redraw();
+        }
+        else
+        {
+            scheduleRun();
+        }
+    }
+
+    public final int getAction( int x, int y )
+    {
+        PageAction[] actions = getSelectedPage().getActions();
+
+        for( int i = 0; i < actions.length; i++ )
+        {
+            Rectangle box = actionBoxes[i];
+
+            if( box != null && box.contains( x, y ) )
+            {
+                return i;
+            }
+        }
+
+        return NONE;
+    }
+
 
     private Page getSelectedPage()
     {
-        return pages[select];
+        return UpgradeView.getPage( select );
+    }
+
+    @Override
+    protected void init()
+    {
+        super.init();
+
+        backImages[0] = loadImage( "back.png" );
+        backImages[1] = loadImage( "back_hover.png" );
+
+        nextImages[0] = loadImage( "next.png" );
+        nextImages[1] = loadImage( "next_hover.png" );
+
+        buttonR = nextImages[0].getBounds().height / 2;
+
+        answerY = 5 + buttonR;
+
+        actionBoxes = new Rectangle[2];
+
     }
 
     protected boolean onMouseDown( int x, int y )
@@ -298,15 +343,15 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
                 if( page.showBackPage() && backBox != null && backBox.contains( x, y ) )
                 {
-                    event.setTargetPage( pages[ select - 1 ] );
+                    event.setTargetPage( UpgradeView.getPage( select - 1 ) );
 
                     retVal = true;
                 }
 
                 if( page.showNextPage() && nextBox != null && nextBox.contains( x, y ) )
                 {
-                    event.setTargetPage( pages[ select + 1  ] );
-                    
+                    event.setTargetPage( UpgradeView.getPage( select + 1  ) );
+
                     retVal = true;
                 }
 
@@ -363,97 +408,10 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         return false;
     }
 
-    public final int getAction( int x, int y )
+    @Override
+    public void onSelectionChanged( int targetSelection )
     {
-        PageAction[] actions = getSelectedPage().getActions();
-
-        for( int i = 0; i < actions.length; i++ )
-        {
-            Rectangle box = actionBoxes[i];
-            
-            if( box != null && box.contains( x, y ) )
-            {
-                return i;
-            }
-        }
-
-        return NONE;
-    }
-
-    protected int actionOnMouseMove( int x, int y )
-    {
-        int i = getAction( x, y );
-
-        if( i != NONE )
-        {
-            pageBufferUpdated = false;
-            return CHOICES - i;
-        }
-
-        if( hover <= CHOICES )
-        {
-            pageBufferUpdated = false;
-        }
-
-        return NONE;
-    }
-
-    private void doAction( int i )
-    {
-        Page page = getSelectedPage();
-
-        PageAction[] pageActions = page.getActions();
-        
-        PageAction targetAction = pageActions[i];
-        
-        boolean originState = targetAction.isSelected();
-        
-        targetAction.setSelected( !originState );
-        
-        if( originState )
-        {
-            page.setSelectedAction( null );
-        }
-        else
-        {
-            page.setSelectedAction( targetAction );
-            
-            for(int j = 0 ; j < pageActions.length ; j++)
-            {
-                if(j != i)
-                {
-                    pageActions[j].setSelected( false );
-                }
-            }
-            
-            if( page.showNextPage() )
-            {
-                PageActionEvent event = new PageActionEvent();
-
-                event.setAction( targetAction );
-                
-                event.setTargetPage( pages[ select + 1 ] );
-
-                for( PageActionListener listener : actionListeners )
-                {
-                    listener.onPageAction( event );
-                }
-            }
-        }
-    }
-
-    protected boolean actionOnMouseDown( int x, int y )
-    {
-        int i = getAction( x, y );
-
-        if( i != NONE )
-        {
-            doAction( i );
-
-            return true;
-        }
-
-        return false;
+        select = targetSelection;
     }
 
     private void paint( GC gc )
@@ -461,12 +419,12 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         gc.setFont( getBaseFont() );
         gc.setLineWidth( 3 );
         gc.setAntialias( SWT.ON );
-        
+
         Page page = getSelectedPage();
-        
+
         backBox = null;
         nextBox = null;
-        
+
         if( page.showBackPage() )
         {
             backBox = drawImage( gc, backImages[hover == BACK ? 1 : 0], getBounds().width / 2 - 200, answerY );
@@ -480,6 +438,24 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         oldHover = hover;
 
         paintActions( gc, page );
+    }
+
+    public Rectangle paintAction( GC gc, int index, int x, int y, boolean hovered, boolean selected, PageAction action )
+    {
+        Image[] images = action.getImages();
+
+        Image image = images[0];
+
+        if( hovered )
+        {
+            image = images[2];
+        }
+        else if( selected )
+        {
+            image = images[1];
+        }
+
+        return drawImage( gc, image, x ,y );
     }
 
     private void paintActions( GC gc, Page page )
@@ -523,27 +499,13 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         }
     }
 
-    public Rectangle paintAction( GC gc, int index, int x, int y, boolean hovered, boolean selected, PageAction action )
+    private void scheduleRun()
     {
-        Image[] images = action.getImages();
-
-        Image image = images[0];
-
-        if( hovered )
-        {
-            image = images[2];
-        }
-        else if( selected )
-        {
-            image = images[1];
-        }
-
-        return drawImage( gc, image, x ,y );
+        display.timerExec( DEFAULT_TIMER_INTERVAL, runnable );
     }
 
-    @Override
-    public void onSelectionChanged( int targetSelection )
+    protected boolean shouldShowOverlay()
     {
-        select = targetSelection;
+        return ( System.currentTimeMillis() / 1000 & 1 ) == 1;
     }
 }
