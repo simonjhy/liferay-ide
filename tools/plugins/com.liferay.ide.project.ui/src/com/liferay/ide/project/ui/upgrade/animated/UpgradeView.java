@@ -15,7 +15,7 @@
 package com.liferay.ide.project.ui.upgrade.animated;
 
 /**
- * @author Adny
+ * @author Andy Wu
  * @author Simon Jiang
  */
 import com.liferay.ide.ui.util.SWTUtil;
