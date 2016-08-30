@@ -38,33 +38,38 @@ public class ProjectNameValidationService extends ValidationService
         Status retval = Status.createOkStatus();
 
         String projectName = op().getProjectName().content();
-        
-        if ( projectName == null )
+
+        if( projectName == null )
         {
-            return StatusBridge.create( ProjectCore.createErrorStatus( "This new upgrade sdk name should not be null." ) );
+            return StatusBridge.create(
+                ProjectCore.createErrorStatus( "This new upgrade sdk name should not be null." ) );
         }
-        
+
         final IProject[] projects = CoreUtil.getAllProjects();
-        
+
         for( IProject projetct : projects )
         {
-            if (projetct.getName().equals( projectName ))
+            if( projetct.getName().equals( projectName ) )
             {
                 return StatusBridge.create( ProjectCore.createErrorStatus( "This sdk project was already existed" ) );
             }
         }
-        
-        IPath osPath = PathBridge.create( op().getSdkLocation().content() );
-        
-        if ( osPath.segmentCount() > 1 )
+
+        if( op().getSdkLocation() != null && op().getSdkLocation().content() != null )
         {
-            IPath sdkParentPath = osPath.removeLastSegments( 1 );    
-            IPath newSdkPath = sdkParentPath.append( projectName );
-            
-            if ( newSdkPath.toFile().exists() )
+            IPath osPath = PathBridge.create( op().getSdkLocation().content() );
+
+            if( osPath.segmentCount() > 1 )
             {
-                return StatusBridge.create( ProjectCore.createErrorStatus( "This sdk location was already existed in disk." ) );
-            }             
+                IPath sdkParentPath = osPath.removeLastSegments( 1 );
+                IPath newSdkPath = sdkParentPath.append( projectName );
+
+                if( newSdkPath.toFile().exists() )
+                {
+                    return StatusBridge.create(
+                        ProjectCore.createErrorStatus( "This sdk location was already existed in disk." ) );
+                }
+            }
         }
 
         return retval;
