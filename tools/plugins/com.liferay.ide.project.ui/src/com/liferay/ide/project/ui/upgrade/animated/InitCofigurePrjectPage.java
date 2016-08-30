@@ -28,6 +28,7 @@ import com.liferay.ide.project.core.util.ProjectUtil;
 import com.liferay.ide.project.core.util.SearchFilesVisitor;
 import com.liferay.ide.project.ui.ProjectUI;
 import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageNavigatorListener;
+import com.liferay.ide.sdk.core.ISDKConstants;
 import com.liferay.ide.sdk.core.SDK;
 import com.liferay.ide.sdk.core.SDKUtil;
 import com.liferay.ide.server.core.LiferayServerCore;
@@ -114,7 +115,6 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         @Override
         public void handle( Event event )
         {
-            System.out.print( event.toString() );
             if( event instanceof ValuePropertyContentEvent )
             {
                 ValuePropertyContentEvent propertyEvetn = (ValuePropertyContentEvent) event;
@@ -176,6 +176,21 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 if( e.getSource().equals( dirField ) )
                 {
                     dataModel.setSdkLocation( dirField.getText() );
+                    SDK sdk = SDKUtil.createSDKFromLocation( new Path(dirField.getText()) );
+
+                    try
+                    {
+                        if( sdk != null )
+                        {
+                            final String liferay62ServerLocation =
+                                (String) ( sdk.getBuildProperties( true ).get( ISDKConstants.PROPERTY_APP_SERVER_PARENT_DIR ) );
+                            dataModel.setLiferay62ServerLocation( liferay62ServerLocation );
+                        }
+                    }
+                    catch( Exception xe )
+                    {
+                        ProjectUI.logError( xe );
+                    }
                 }
             }
         } );
@@ -298,7 +313,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
         serverComb.setItems( serverNames.toArray( new String[serverNames.size()] ) );
         serverComb.select( 0 );
-        setActions( actions );
+        dataModel.setLiferayServerName( serverComb.getText() );
 
         dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener() );
         dataModel.getProjectName().attach( new LiferayUpgradeValidationListener() );
@@ -332,6 +347,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
             }
         } );
 
+        setActions( actions );
         startCheckThread();
     }
 

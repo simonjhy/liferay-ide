@@ -57,6 +57,10 @@ public interface LiferayUpgradeDataModel extends Element
     ValueProperty PROP_LIFERAY_SERVER_NAME = new ValueProperty( TYPE, "LiferayServerName" );
     Value<String> getLiferayServerName();
     void setLiferayServerName( String value );
+    
+    ValueProperty PROP_LIFERAY_62_SERVER_LOCATION = new ValueProperty( TYPE, "Liferay62ServerLocation" );
+    Value<String> getLiferay62ServerLocation();
+    void setLiferay62ServerLocation( String value );
 
     @Type( base = Path.class )
     @AbsolutePath
