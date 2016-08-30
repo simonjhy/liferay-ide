@@ -148,36 +148,14 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         PageAction[] pageActions = page.getActions();
 
         PageAction targetAction = pageActions[i];
+        page.setSelectedAction( targetAction );
 
-        boolean originState = targetAction.isSelected();
-
-        targetAction.setSelected( !originState );
-
-        //origin is true and now it is false
-        if( originState )
-        {
-            page.setSelectedAction( null );
-        }
-        //origin is false and now it is true
-        else
-        {
-            page.setSelectedAction( targetAction );
-
-            for(int j = 0 ; j < pageActions.length ; j++)
-            {
-                if(j != i)
-                {
-                    pageActions[j].setSelected( false );
-                }
-            }
-        }
-        
         PageActionEvent event = new PageActionEvent();
 
         event.setAction( targetAction );
         event.setTargetPage(null);
 
-        if( page.showNextPage() && !originState )
+        if( page.showNextPage() )
         {
             event.setTargetPage( UpgradeView.getPage( select + 1 ) );
         }
@@ -362,6 +340,7 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
     private void paintActions( GC gc, Page page )
     {
         PageAction[] actions = page.getActions();
+        PageAction selectedAction = page.getSelectedAction();
 
         boolean selecteds[] = new boolean[actions.length];
         boolean hovereds[] = new boolean[actions.length];
@@ -373,7 +352,7 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
         for( int i = 0; i < actions.length; i++ )
         {
-            selecteds[i] = actions[i].isSelected();
+            selecteds[i] = actions[i].equals( selectedAction );
 
             if( CHOICES - i == hover )
             {

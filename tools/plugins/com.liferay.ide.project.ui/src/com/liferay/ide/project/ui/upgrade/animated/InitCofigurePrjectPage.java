@@ -317,19 +317,18 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
             {
                 importButton.setEnabled( false );
                 importProject();
-                importButton.setEnabled( true );
 
                 PageNavigateEvent event = new PageNavigateEvent();
 
-                if( showNextPage() )
-                {
-                    event.setTargetPage( UpgradeView.getPage( getIndex() + 1 ) );
-                }
+                event.setTargetPage( UpgradeView.getPage( getIndex() + 1 ) );
 
                 for( PageNavigatorListener listener : naviListeners )
                 {
                     listener.onPageNavigate( event );
                 }
+
+                setNextPage( true );
+                importButton.setEnabled( true );
             }
         } );
 
@@ -500,7 +499,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     }
                     catch( Exception e )
                     {
-                        e.printStackTrace();
+                        ProjectUI.logError( e );
                     }
                 }
             } );
