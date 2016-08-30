@@ -14,7 +14,7 @@
  *******************************************************************************/
 package com.liferay.ide.project.ui.upgrade.animated;
 
-import java.io.IOException;
+import java.net.URL;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * @author Adny
@@ -59,10 +60,10 @@ public class LayoutTemplatePage extends Page
             {
                 try
                 {
-                    Runtime.getRuntime().exec(
-                        "rundll32 url.dll,FileProtocolHandler https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/upgrading-layout-templates" );
+                    URL layouttplUrl = new URL("https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/upgrading-layout-templates");
+                    PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(layouttplUrl);
                 }
-                catch( IOException e )
+                catch( Exception e )
                 {
                 }
 

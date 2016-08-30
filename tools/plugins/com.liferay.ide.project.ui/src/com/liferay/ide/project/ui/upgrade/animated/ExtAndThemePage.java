@@ -14,14 +14,22 @@
  *******************************************************************************/
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import java.net.URL;
+
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * @author Adny
  * @author Simon Jiang
+ * @author Joye Luo
  */
 public class ExtAndThemePage extends Page
 {
@@ -31,12 +39,35 @@ public class ExtAndThemePage extends Page
     public ExtAndThemePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style,dataModel );
-        
-        this.setLayout( new FillLayout() );
-        
-        Button button = new Button(this, SWT.PUSH);
-        button.setText( "Ext and theme" );
+        GridLayout layout = new GridLayout( 1, true );
+        this.setLayout( layout );
 
+        Label title = new Label( this, SWT.LEFT );
+        title.setText( "Ext and Theme Project " );
+        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
+
+        Link link = new Link( this, SWT.MULTI );
+        final String layouttpl =
+            "Ext and Theme Projects will be supported in the future.\n" +
+            "For more details, please see <a>Introduction to Themes</a>.\n";
+        link.setText( layouttpl );
+        link.addListener( SWT.Selection, new Listener()
+        {
+
+            @Override
+            public void handleEvent( Event event )
+            {
+                try
+                {
+                    URL extAndThemeUrl = new URL("https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/introduction-to-themes");
+                    PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(extAndThemeUrl);
+                }
+                catch( Exception e )
+                {
+                }
+
+            }
+        } );
         setActions( actions );
         this.setPageId( pageId );
     }
