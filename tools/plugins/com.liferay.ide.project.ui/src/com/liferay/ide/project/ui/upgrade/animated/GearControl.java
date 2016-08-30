@@ -10,14 +10,10 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackAdapter;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -26,20 +22,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Path;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.graphics.Resource;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
-public class GearControl extends Canvas implements PageNavigatorListener, PageActionListener, PageValidationListener
+public class GearControl extends AbstractCanvas implements PageNavigatorListener, PageActionListener, PageValidationListener
 {
-    private static final int DEFAULT_TIMER_INTERVAL = 10;
-
-    public static final int NONE = -1;
-
-    public static final int PAGE_WIDTH = 620;
-
-    public static final int PAGE_HEIGHT = 420;
 
     public static final int BORDER = 20;
 
@@ -58,10 +45,6 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
     private static Color GRAY;
 
     private static Color DARK_GRAY;
-
-    private Font baseFont;
-
-    private final List<Resource> resources = new ArrayList<Resource>();
 
     private final List<SelectionChangedListener> selectionChangedListeners =
                     Collections.synchronizedList( new ArrayList<SelectionChangedListener>() );
@@ -99,16 +82,6 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
     private int hover = NONE;
 
     private int oldHover = NONE;
-
-    private Image pageBuffer;
-
-    private GC pageGC;
-
-    private Image oldPageBuffer;
-
-    private GC oldPageGC;
-
-    private boolean oldShowOverlay;
 
     private Display display ;
 
@@ -159,92 +132,9 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
       return path;
     }
 
-    public static Rectangle drawText(GC gc, double cX, double cY, String text)
-    {
-      return drawText(gc, cX, cY, text, 0);
-    }
-
-    public static Rectangle drawText(GC gc, double cX, double cY, String text, int box)
-    {
-      Point extent = gc.stringExtent(text);
-
-      int x = (int)(cX - extent.x / 2);
-      int y = (int)(cY - extent.y / 2);
-
-      if (x < box)
-      {
-        x = box;
-      }
-
-      Rectangle rectangle = new Rectangle(x, y, extent.x, extent.y);
-
-      if (box > 0)
-      {
-        rectangle.x -= box;
-        rectangle.y -= box;
-        rectangle.width += 2 * box;
-        rectangle.height += 2 * box;
-
-        gc.fillRectangle(rectangle);
-      }
-
-      gc.drawText(text, x, y, true);
-
-      return rectangle;
-    }
-
-    private final Runnable runnable = new Runnable()
-    {
-        public void run()
-        {
-            doRun();
-        }
-    };
-
     public GearControl( Composite parent, int style )
     {
-        super( parent, style | SWT.DOUBLE_BUFFERED );
-
-        addFocusListener( new FocusListener()
-        {
-            public void focusGained( FocusEvent e )
-            {
-                redraw();
-            }
-
-            public void focusLost( FocusEvent e )
-            {
-                redraw();
-            }
-        } );
-
-        addPaintListener( new PaintListener()
-        {
-            @Override
-            public void paintControl( PaintEvent e )
-            {
-                Image buffer = new Image( getDisplay(), getBounds() );
-
-                GC canvasGc = e.gc;
-
-                //not blink
-                GC bufferGC = new GC( buffer );
-
-                bufferGC.setAdvanced( true );
-                bufferGC.setBackground( canvasGc.getBackground() );
-                bufferGC.fillRectangle( buffer.getBounds() );
-
-                paint( bufferGC );
-
-                canvasGc.drawImage( buffer, 0, 0 );
-
-                bufferGC.dispose();
-                buffer.dispose();
-
-                scheduleRun();
-            }
-        } );
-
+        super( parent, style );
 
         addMouseTrackListener( new MouseTrackAdapter()
         {
@@ -286,6 +176,7 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
         selectionChangedListeners.add( listener );
     }
 
+    @Override
     protected boolean advance()
     {
       boolean needsRedraw = false;
@@ -293,14 +184,6 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
       if (overflow)
       {
         overflow = false;
-        needsRedraw = true;
-      }
-
-      boolean showOverlay = shouldShowOverlay();
-
-      if (showOverlay != oldShowOverlay)
-      {
-        oldShowOverlay = showOverlay;
         needsRedraw = true;
       }
 
@@ -312,6 +195,7 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
       if (speed >= ANGLE)
       {
         startAnimation = 0;
+
         return needsRedraw;
       }
 
@@ -323,90 +207,17 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
       }
 
       long timeSinceStart = now - startAnimation;
+
       speed = timeSinceStart * ANGLE / 1900;
       angle += speed;
 
       return true;
     }
 
-    protected final Color createColor(int r, int g, int b)
-    {
-      Color color = new Color(display, r, g, b);
-      resources.add(color);
-      return color;
-    }
 
     protected final Font createFont(int pixelHeight)
     {
       return createFont(pixelHeight, 0);
-    }
-
-    protected final Font createFont(int pixelHeight, int pixelWidth, String... testStrings)
-    {
-      if (testStrings.length == 0)
-      {
-        pixelWidth = Integer.MAX_VALUE;
-        testStrings = new String[] { "Ag" };
-      }
-
-      Display display = getDisplay();
-      GC fontGC = new GC(display);
-
-      try
-      {
-        FontData[] fontData = baseFont.getFontData();
-        int fontSize = 40;
-        while (fontSize > 0)
-        {
-          for (int i = 0; i < fontData.length; i++)
-          {
-            fontData[i].setHeight(fontSize);
-            fontData[i].setStyle(SWT.BOLD);
-          }
-
-          Font font = new Font(display, fontData);
-          fontGC.setFont(font);
-
-          if (isFontSmallEnough(pixelHeight, pixelWidth, fontGC, testStrings))
-          {
-            resources.add(font);
-            return font;
-          }
-
-          font.dispose();
-          --fontSize;
-        }
-
-        throw new RuntimeException("Could not create font: " + pixelHeight);
-      }
-      finally
-      {
-        fontGC.dispose();
-      }
-    }
-
-    protected synchronized void doRun()
-    {
-        if( isDisposed() )
-        {
-            return;
-        }
-
-        boolean needsRedraw = advance();
-
-        if( needsRedraw )
-        {
-            redraw();
-        }
-        else
-        {
-            scheduleRun();
-        }
-    }
-
-    public final Font getBaseFont()
-    {
-      return baseFont;
     }
 
     public int getGearsNumber()
@@ -419,8 +230,10 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
       return selection;
     }
 
-    private void init()
+    protected void init()
     {
+        super.init();
+
         display = getDisplay();
 
         WHITE = display.getSystemColor(SWT.COLOR_WHITE);
@@ -455,29 +268,6 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
         gearForeground[1] = createColor(207, 108, 0);
 
         tooltipColor = createColor(253, 232, 206);
-
-
-        pageBuffer = new Image(display, PAGE_WIDTH, PAGE_HEIGHT);
-        pageGC = new GC(pageBuffer);
-        pageGC.setAdvanced(true);
-
-        oldPageBuffer = new Image(display, PAGE_WIDTH, PAGE_HEIGHT);
-        oldPageGC = new GC(oldPageBuffer);
-        oldPageGC.setAdvanced(true);
-    }
-
-    private boolean isFontSmallEnough(int pixelHeight, int pixelWidth, GC fontGC, String[] testStrings)
-    {
-      for (String testString : testStrings)
-      {
-        Point extent = fontGC.stringExtent(testString);
-        if (extent.y > pixelHeight || extent.x > pixelWidth)
-        {
-          return false;
-        }
-      }
-
-      return true;
     }
 
     protected boolean onMouseDown(int x, int y)
@@ -548,7 +338,8 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
         setSelection( targetPage.getIndex() );
     }
 
-    private void paint( GC gc )
+    @Override
+    protected void paint( GC gc )
     {
         gc.setFont( getBaseFont() );
         gc.setLineWidth( 3 );
@@ -700,10 +491,7 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
       speed = 0;
     }
 
-    private void scheduleRun()
-    {
-        getDisplay().timerExec( DEFAULT_TIMER_INTERVAL, runnable );
-    }
+ 
 
     public void setGearsNumber( int gearsNumber )
     {
@@ -750,14 +538,8 @@ public class GearControl extends Canvas implements PageNavigatorListener, PageAc
       restart();
     }
 
-    protected boolean shouldShowOverlay()
-    {
-      return (System.currentTimeMillis() / 1000 & 1) == 1;
-    }
-
     @Override
     public void onValidation( PageValidateEvent event )
     {
-        // TODO Auto-generated method stub
     }
 }
