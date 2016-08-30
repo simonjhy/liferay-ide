@@ -15,7 +15,6 @@
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.ui.ProjectUI;
-import com.liferay.ide.project.ui.upgrade.animated.util.UIUtil;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -23,6 +22,10 @@ import java.util.List;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -38,18 +41,65 @@ import org.eclipse.swt.widgets.Display;
 /**
  * @author Simon Jiang
  */
-public class AbstractCanvas extends Canvas
+
+public abstract class AbstractCanvas extends Canvas
 {
     protected Font baseFont;
     protected Font bigFont;
+    
+    private static final int DEFAULT_TIMER_INTERVAL = 10;
+    
+    public static final int NONE = -1;
 
     private final List<Resource> resources = new ArrayList<Resource>();
     
     public AbstractCanvas( Composite parent, int style )
     {
-        super( parent, style );
+        super( parent, style | SWT.DOUBLE_BUFFERED );
+        
+        addFocusListener( new FocusListener()
+        {
+            public void focusGained( FocusEvent e )
+            {
+                redraw();
+            }
+
+            public void focusLost( FocusEvent e )
+            {
+                redraw();
+            }
+        } );
+
+        addPaintListener( new PaintListener()
+        {
+            @Override
+            public void paintControl( PaintEvent e )
+            {
+                Image buffer = new Image( getDisplay(), getBounds() );
+
+                GC canvasGc = e.gc;
+
+                GC bufferGC = new GC( buffer );
+
+                bufferGC.setAdvanced( true );
+                bufferGC.setBackground( canvasGc.getBackground() );
+                bufferGC.fillRectangle( buffer.getBounds() );
+
+                paint( bufferGC );
+
+                canvasGc.drawImage( buffer, 0, 0 );
+
+                bufferGC.dispose();
+                buffer.dispose();
+
+                scheduleRun();
+            }
+        } );
+        
     }
    
+    protected abstract void paint( GC bufferGC );
+
     protected void init()
     {
       Display display = getDisplay();
@@ -140,7 +190,19 @@ public class AbstractCanvas extends Canvas
     @Override
     public void dispose()
     {
-      UIUtil.dispose(resources.toArray(new Resource[resources.size()]));
+      dispose(resources.toArray(new Resource[resources.size()]));
+    }
+    
+    public static void dispose(Resource... resources)
+    {
+      for (int i = 0; i < resources.length; i++)
+      {
+        Resource resource = resources[i];
+        if (resource != null && !resource.isDisposed())
+        {
+          resource.dispose();
+        }
+      }
     }
 
     protected final Image loadImage( String name )
@@ -149,7 +211,6 @@ public class AbstractCanvas extends Canvas
         
         try
         {
-            //TODO need to be changed to get image from bundle
             url  = ProjectUI.getDefault().getBundle().getEntry( "images/" + name );
         }
         catch( Exception e )
@@ -174,4 +235,72 @@ public class AbstractCanvas extends Canvas
       
       return new Rectangle(cX, cY, bounds.width, bounds.height);
     }
+    
+    public static Rectangle drawText(GC gc, double cX, double cY, String text)
+    {
+      return drawText(gc, cX, cY, text, 0);
+    }
+
+    public static Rectangle drawText(GC gc, double cX, double cY, String text, int box)
+    {
+      Point extent = gc.stringExtent(text);
+
+      int x = (int)(cX - extent.x / 2);
+      int y = (int)(cY - extent.y / 2);
+
+      if (x < box)
+      {
+        x = box;
+      }
+
+      Rectangle rectangle = new Rectangle(x, y, extent.x, extent.y);
+
+      if (box > 0)
+      {
+        rectangle.x -= box;
+        rectangle.y -= box;
+        rectangle.width += 2 * box;
+        rectangle.height += 2 * box;
+
+        gc.fillRectangle(rectangle);
+      }
+
+      gc.drawText(text, x, y, true);
+
+      return rectangle;
+    }
+    
+    protected void scheduleRun()
+    {
+        getDisplay().timerExec( DEFAULT_TIMER_INTERVAL, runnable );
+    }
+    
+    private final Runnable runnable = new Runnable()
+    {
+        public void run()
+        {
+            doRun();
+        }
+    };
+    
+    protected synchronized void doRun()
+    {
+        if( isDisposed() )
+        {
+            return;
+        }
+
+        boolean needsRedraw = advance();
+
+        if( needsRedraw )
+        {
+            redraw();
+        }
+        else
+        {
+            scheduleRun();
+        }
+    }
+
+    protected abstract boolean advance();
 }

@@ -206,57 +206,6 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         public void onValidation( PageValidateEvent event );
     }
 
-    private final List<PageActionListener> actionListeners = new ArrayList<PageActionListener>();
-    private final List<PageNavigatorListener> navigatorListeners = new ArrayList<PageNavigatorListener>();
-
-    public final void addActionListener( PageActionListener listener )
-    {
-        synchronized( actionListeners )
-        {
-            actionListeners.add( listener );
-        }
-    }
-
-    public final PageActionListener[] getActionListeners()
-    {
-        synchronized( actionListeners )
-        {
-            return actionListeners.toArray( new PageActionListener[actionListeners.size()] );
-        }
-    }
-
-    public final void removeActionListener( PageActionListener listener )
-    {
-        synchronized( actionListeners )
-        {
-            actionListeners.remove( listener );
-        }
-    }
-
-    public final void addNavigatorListener( PageNavigatorListener listener )
-    {
-        synchronized( navigatorListeners )
-        {
-            navigatorListeners.add( listener );
-        }
-    }
-
-    public PageNavigatorListener[] getPageNavigatorListener()
-    {
-        synchronized( navigatorListeners )
-        {
-            return navigatorListeners.toArray( new PageNavigatorListener[navigatorListeners.size()] );
-        }
-    }
-
-    public final void removeNavigatorListener( PageNavigatorListener listener )
-    {
-        synchronized( navigatorListeners )
-        {
-            navigatorListeners.remove( listener );
-        }
-    }
-
     @Override
     public void onSelectionChanged( int targetSelection )
     {
@@ -265,7 +214,6 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         stackLayout.topControl = pages[targetSelection];
 
         pagesSwitchControler.layout();
-
     }
 
 }

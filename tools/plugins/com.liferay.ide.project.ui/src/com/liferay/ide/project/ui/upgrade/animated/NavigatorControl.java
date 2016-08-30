@@ -43,30 +43,30 @@ import org.eclipse.swt.widgets.Display;
 
 public class NavigatorControl extends AbstractCanvas implements SelectionChangedListener
 {
-    private static final int DEFAULT_TIMER_INTERVAL = 10;
-
-    public static final int NONE = -1;
-
-    public static final int PAGE_WIDTH = 400;
-
-    public static final int PAGE_HEIGHT = 120;
     public static final int BORDER = 30;
+    
     private static final int EXIT = NONE - 1;
-
     private static final int BACK = EXIT - 1;
     private static final int NEXT = BACK - 1;
-
     private static final int CHOICES = NEXT - 1;
+
     private boolean overflow;
-    private boolean oldShowOverlay;
+    
     private int hover = NONE;
+
+    private int oldHover = NONE;
+
     private final Image[] backImages = new Image[2];
     private final Image[] nextImages = new Image[2];
+
     private int buttonR;
     private int answerY;
+
     private Rectangle backBox;
     private Rectangle nextBox;
+
     private int pageY;
+
     private Rectangle[] actionBoxes;
     
     private Display display; 
@@ -79,13 +79,6 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
     private final List<PageActionListener> actionListeners =
         Collections.synchronizedList( new ArrayList<PageActionListener>() );
 
-    private final Runnable runnable = new Runnable()
-    {
-        public void run()
-        {
-            doRun();
-        }
-    };
 
     public NavigatorControl( Composite parent, int style )
     {
@@ -214,21 +207,24 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         this.naviListeners.add( listener );
     }
 
+    @Override
     protected boolean advance()
     {
+        boolean needsRedraw = false;
+        
+        //TODO need to detect the paged and action changed and redraw
+
         if( overflow )
         {
             overflow = false;
         }
 
-        boolean showOverlay = shouldShowOverlay();
-
-        if( showOverlay != oldShowOverlay )
+        if( hover != oldHover )
         {
-            oldShowOverlay = showOverlay;
+            needsRedraw = true;
         }
 
-        return true;
+        return needsRedraw;
     }
 
     private void doAction( int i )
@@ -275,25 +271,6 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         }
     }
 
-    protected synchronized void doRun()
-    {
-        if( isDisposed() )
-        {
-            return;
-        }
-
-        boolean needsRedraw = advance();
-
-        if( needsRedraw )
-        {
-            redraw();
-        }
-        else
-        {
-            scheduleRun();
-        }
-    }
-
     public final int getAction( int x, int y )
     {
         PageAction[] actions = getSelectedPage().getActions();
@@ -317,7 +294,6 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         return UpgradeView.getPage( select );
     }
 
-    @Override
     protected void init()
     {
         super.init();
@@ -420,7 +396,8 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         select = targetSelection;
     }
 
-    private void paint( GC gc )
+    @Override
+    protected void paint( GC gc )
     {
         gc.setFont( getBaseFont() );
         gc.setLineWidth( 3 );
@@ -503,15 +480,5 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
             x = getBounds().width/2 + 40;
         }
-    }
-
-    private void scheduleRun()
-    {
-        display.timerExec( DEFAULT_TIMER_INTERVAL, runnable );
-    }
-
-    protected boolean shouldShowOverlay()
-    {
-        return ( System.currentTimeMillis() / 1000 & 1 ) == 1;
     }
 }
