@@ -15,7 +15,6 @@
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.ui.ProjectUI;
-import com.liferay.ide.project.ui.upgrade.animated.util.UIUtil;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -191,7 +190,19 @@ public abstract class AbstractCanvas extends Canvas
     @Override
     public void dispose()
     {
-      UIUtil.dispose(resources.toArray(new Resource[resources.size()]));
+      dispose(resources.toArray(new Resource[resources.size()]));
+    }
+    
+    public static void dispose(Resource... resources)
+    {
+      for (int i = 0; i < resources.length; i++)
+      {
+        Resource resource = resources[i];
+        if (resource != null && !resource.isDisposed())
+        {
+          resource.dispose();
+        }
+      }
     }
 
     protected final Image loadImage( String name )
