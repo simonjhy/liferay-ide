@@ -14,6 +14,9 @@
  *******************************************************************************/
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.project.ui.upgrade.CustomJspConverter;
+import com.liferay.ide.ui.util.UIUtil;
+
 import java.net.URL;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -29,24 +32,21 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.PlatformUI;
-import com.liferay.ide.project.ui.upgrade.CustomJspConverter;
-import com.liferay.ide.ui.util.UIUtil;
 
 /**
- * @author Adny
+ * @author Andy Wu
  * @author Simon Jiang
  * @author Joye Luo
  */
 public class WelcomePage extends Page
 {
-
-    PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-
     public WelcomePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
         GridLayout layout = new GridLayout( 1, false );
         this.setLayout( layout );
+        
+        this.setPageId( WELCOME_PAGE_ID );
 
         Label title = new Label( this, SWT.LEFT );
         title.setText( "Welcome to Liferay Code Upgrade Tool" );
@@ -130,6 +130,5 @@ public class WelcomePage extends Page
             }
         } );
 
-        setActions( actions );
     }
 }

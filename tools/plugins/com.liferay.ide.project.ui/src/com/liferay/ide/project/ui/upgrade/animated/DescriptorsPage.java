@@ -29,7 +29,6 @@ import org.eclipse.swt.widgets.Text;
 public class DescriptorsPage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    private String pageId = "descriptor";
     
     public DescriptorsPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -52,7 +51,7 @@ public class DescriptorsPage extends Page
         new LiferayDescriptorUpgradeTableViewCustomPart(this, SWT.NONE);
 
         setActions( actions );
-        this.setPageId( pageId );
+        this.setPageId( DESCRIPTORS_PAGE_ID );
     }
 
 

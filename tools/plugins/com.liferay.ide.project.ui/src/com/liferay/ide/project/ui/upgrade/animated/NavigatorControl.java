@@ -158,12 +158,11 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
         PageActionEvent event = new PageActionEvent();
 
-        event.setAction( targetAction );
-        event.setTargetPage(null);
+        event.setTargetPageIndex( NONE );
 
         if( page.showNextPage() && targetAction != null )
         {
-            event.setTargetPage( UpgradeView.getPage( select + 1 ) );
+            event.setTargetPageIndex( select + 1 );
         }
 
         for( PageActionListener listener : actionListeners )
@@ -235,19 +234,19 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
                 if( page.showBackPage() && backBox != null && backBox.contains( x, y ) )
                 {
-                    event.setTargetPage( UpgradeView.getPage( select - 1 ) );
+                    event.setTargetPage( select - 1  );
 
                     isNavigate = true;
                 }
 
                 if( page.showNextPage() && nextBox != null && nextBox.contains( x, y ) )
                 {
-                    event.setTargetPage( UpgradeView.getPage( select + 1  ) );
+                    event.setTargetPage( select + 1 );
 
                     isNavigate = true;
                 }
 
-                if( isNavigate == true )
+                if( isNavigate )
                 {
                     for( PageNavigatorListener listener : naviListeners )
                     {
@@ -295,6 +294,7 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
     public void onSelectionChanged( int targetSelection )
     {
         select = targetSelection;
+
         needRedraw = true;
     }
 
@@ -347,6 +347,11 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
     {
         PageAction[] actions = page.getActions();
         PageAction selectedAction = page.getSelectedAction();
+        
+        if( actions == null )
+        {
+            return ;
+        }
 
         boolean selecteds[] = new boolean[actions.length];
         boolean hovereds[] = new boolean[actions.length];

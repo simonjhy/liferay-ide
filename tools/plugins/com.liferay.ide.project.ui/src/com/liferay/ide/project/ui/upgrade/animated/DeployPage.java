@@ -31,7 +31,7 @@ import com.liferay.ide.server.util.ServerUtil;
 import com.liferay.ide.ui.util.UIUtil;
 
 /**
- * @author Adny
+ * @author Andy Wu
  * @author Simon Jiang
  * @author Joye Luo
  */
@@ -39,7 +39,6 @@ import com.liferay.ide.ui.util.UIUtil;
 public class DeployPage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    private String pageId = "deploy";
     
     public DeployPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -78,7 +77,7 @@ public class DeployPage extends Page
         } );
 
         setActions( actions );
-        this.setPageId( pageId );
+        this.setPageId( DEPLOY_PAGE_ID );
     }
 
 }

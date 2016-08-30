@@ -14,21 +14,21 @@
  *******************************************************************************/
 package com.liferay.ide.project.ui.upgrade.animated;
 
-
 /**
  * @author Simon Jiang
+ * @author Andy Wu
  */
 public class PageNavigateEvent
 {
-    protected Page targetPage;
+    private int targetPageIndex;
     
-    public Page getTargetPage()
+    public int getTargetPage()
     {
-        return this.targetPage;
+        return this.targetPageIndex;
     }
    
-    public void setTargetPage( Page targetPage )
+    public void setTargetPage( int targetPage )
     {
-        this.targetPage = targetPage;
+        this.targetPageIndex = targetPage;
     }
 }

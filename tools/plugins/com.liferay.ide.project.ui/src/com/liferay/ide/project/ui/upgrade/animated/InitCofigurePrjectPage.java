@@ -94,9 +94,6 @@ import org.eclipse.wst.server.ui.ServerUIUtil;
 public class InitCofigurePrjectPage extends Page implements IServerLifecycleListener
 {
 
-    private String pageId = "import";
-
-    PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
     private Text dirField;
     private Text newSDKField;
     private Combo layoutComb;
@@ -154,7 +151,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
     public InitCofigurePrjectPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
-        this.setPageId( pageId );
+        this.setPageId( IMPORT_PAGE_ID );
 
         GridLayout layout = new GridLayout( 2, false );
 
@@ -331,11 +328,14 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
             public void widgetSelected( SelectionEvent e )
             {
                 importButton.setEnabled( false );
+
                 importProject();
+                
+                resetPages();
 
                 PageNavigateEvent event = new PageNavigateEvent();
 
-                event.setTargetPage( UpgradeView.getPage( getIndex() + 1 ) );
+                event.setTargetPage( 2 );
 
                 for( PageNavigatorListener listener : naviListeners )
                 {
@@ -343,12 +343,39 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 }
 
                 setNextPage( true );
+
                 importButton.setEnabled( true );
             }
         } );
 
-        setActions( actions );
         startCheckThread();
+    }
+    
+    private void resetPages()
+    {
+        UpgradeView.resumePages();
+        
+        if( !dataModel.getHasServiceBuilder().content())
+        {
+            UpgradeView.removePage( BUILDSERVICE_PAGE_ID );
+        }
+        
+        if( ! dataModel.getHasLayout().content())
+        {
+            UpgradeView.removePage( LAYOUTTEMPLATE_PAGE_ID );
+        }
+        
+        if( ! dataModel.getHasHook().content())
+        {
+            UpgradeView.removePage( CUSTOMJSP_PAGE_ID );
+        }
+        
+        if( !dataModel.getHasExt().content() && !dataModel.getHasTheme().content() )
+        {
+            UpgradeView.removePage( EXTANDTHEME_PAGE_ID );
+        }
+
+        UpgradeView.resetPages();
     }
 
     private void validate()

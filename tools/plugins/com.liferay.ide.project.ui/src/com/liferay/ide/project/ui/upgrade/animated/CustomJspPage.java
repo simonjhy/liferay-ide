@@ -427,8 +427,6 @@ public class CustomJspPage extends Page
     }
 
     private PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-
-    private String pageId = "customjsp";
     
     private String compareType70 = "7.x";
     private String compareType62 = "6.2";
@@ -450,7 +448,7 @@ public class CustomJspPage extends Page
 
         setActions( actions );
 
-        this.setPageId( pageId );
+        this.setPageId( CUSTOMJSP_PAGE_ID );
 
         Composite container = new Composite( this, SWT.NONE );
 

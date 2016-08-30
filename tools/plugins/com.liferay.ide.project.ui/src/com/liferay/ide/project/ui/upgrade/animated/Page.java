@@ -33,6 +33,17 @@ import org.eclipse.swt.widgets.Text;
  */
 public abstract class Page extends Composite
 {
+    public static String WELCOME_PAGE_ID = "welcome";
+    public static String IMPORT_PAGE_ID = "import";
+    public static String DESCRIPTORS_PAGE_ID = "descriptors";
+    public static String FINDBREACKINGCHANGES_PAGE_ID = "findbreackingchanges";
+    public static String BUILDSERVICE_PAGE_ID = "buildservice";
+    public static String LAYOUTTEMPLATE_PAGE_ID = "layouttemplate";
+    public static String CUSTOMJSP_PAGE_ID = "customjsp";
+    public static String EXTANDTHEME_PAGE_ID = "extandtheme";
+    public static String COMPILE_PAGE_ID = "compile";
+    public static String DEPLOY_PAGE_ID = "deploy";
+    
     protected boolean canBack = true;
     protected boolean canNext = true;
     
@@ -124,6 +135,7 @@ public abstract class Page extends Composite
     public boolean equals( Object obj )
     {
         Page comp = (Page)obj;
+
         return this.pageId == comp.pageId;
     }
     
