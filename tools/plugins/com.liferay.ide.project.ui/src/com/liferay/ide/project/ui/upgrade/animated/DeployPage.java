@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 public class DeployPage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
+    private String pageId = "deploy";
     
     public DeployPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -19,17 +20,7 @@ public class DeployPage extends Page
         button.setText( "Deploy" );
 
         setActions( actions );
+        this.setPageId( pageId );
     }
 
-    @Override
-    protected boolean showBackPage()
-    {
-        return true;
-    }
-
-    @Override
-    protected boolean showNextPage()
-    {
-        return false;
-    }
 }

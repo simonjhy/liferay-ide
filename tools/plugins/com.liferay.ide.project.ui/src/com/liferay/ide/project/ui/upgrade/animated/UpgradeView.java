@@ -16,7 +16,7 @@ import org.eclipse.ui.part.ViewPart;
 public class UpgradeView extends ViewPart implements SelectionChangedListener
 {
     protected LiferayUpgradeDataModel dataModel;
-
+    
     private LiferayUpgradeDataModel createUpgradeModel()
     {
         return LiferayUpgradeDataModel.TYPE.instantiate();
@@ -91,15 +91,18 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         Page welcomePage = new WelcomePage( pagesSwitchControler, SWT.NONE, dataModel );
         welcomePage.setIndex( 0 );
         welcomePage.setTitle( "Welcome" );
+        welcomePage.setBackPage( false );
+       
 
         Page initCofigurePrjectPage = new InitCofigurePrjectPage( pagesSwitchControler, SWT.NONE, dataModel );
         initCofigurePrjectPage.setIndex( 1 );
         initCofigurePrjectPage.setTitle( "Cofigure Projects" );
+        initCofigurePrjectPage.addPageNavigateListener( gear );
         
         Page descriptorsPage = new  DescriptorsPage( pagesSwitchControler, SWT.NONE, dataModel );
         descriptorsPage.setIndex( 2 );
         descriptorsPage.setTitle( "Update Descriptor Files" );
-        
+        descriptorsPage.setBackPage( false );
 
         Page findBreakingChangesPage = new  FindBreakingChangesPage( pagesSwitchControler, SWT.NONE, dataModel );
         findBreakingChangesPage.setIndex( 3 );

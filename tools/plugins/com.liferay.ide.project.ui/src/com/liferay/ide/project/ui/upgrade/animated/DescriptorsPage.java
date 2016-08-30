@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 public class DescriptorsPage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
+    private String pageId = "descriptor";
     
     public DescriptorsPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -19,17 +20,8 @@ public class DescriptorsPage extends Page
         button.setText( "Descriptors" );
 
         setActions( actions );
+        this.setPageId( pageId );
     }
 
-    @Override
-    protected boolean showBackPage()
-    {
-        return true;
-    }
 
-    @Override
-    protected boolean showNextPage()
-    {
-        return true;
-    }
 }

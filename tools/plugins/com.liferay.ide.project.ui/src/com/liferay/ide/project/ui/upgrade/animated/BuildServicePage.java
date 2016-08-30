@@ -8,7 +8,8 @@ import org.eclipse.swt.widgets.Composite;
 public class BuildServicePage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    
+    private String pageId = "service";
+
     public BuildServicePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style,dataModel );
@@ -19,17 +20,7 @@ public class BuildServicePage extends Page
         button.setText( "Build Service" );
 
         setActions( actions );
-    }
-
-    @Override
-    protected boolean showBackPage()
-    {
-        return true;
-    }
-
-    @Override
-    protected boolean showNextPage()
-    {
-        return true;
+        
+        this.setPageId( pageId );
     }
 }

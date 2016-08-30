@@ -22,16 +22,4 @@ public class WelcomePage extends Page
 
         setActions( actions );
     }
-
-    @Override
-    protected boolean showBackPage()
-    {
-        return false;
-    }
-
-    @Override
-    protected boolean showNextPage()
-    {
-        return true;
-    }
 }
