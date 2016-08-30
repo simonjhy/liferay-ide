@@ -115,11 +115,11 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         initCofigurePrjectPage.setIndex( 1 );
         initCofigurePrjectPage.setTitle( "Cofigure Projects" );
         initCofigurePrjectPage.addPageNavigateListener( gear );
+        initCofigurePrjectPage.setNextPage( false );
         
         Page descriptorsPage = new  DescriptorsPage( pagesSwitchControler, SWT.NONE, dataModel );
         descriptorsPage.setIndex( 2 );
         descriptorsPage.setTitle( "Update Descriptor Files" );
-        descriptorsPage.setBackPage( false );
 
         Page findBreakingChangesPage = new  FindBreakingChangesPage( pagesSwitchControler, SWT.NONE, dataModel );
         findBreakingChangesPage.setIndex( 3 );
@@ -148,6 +148,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         Page deployPage = new  DeployPage( pagesSwitchControler, SWT.NONE, dataModel );
         deployPage.setIndex( 9 );
         deployPage.setTitle( "Deploy" );
+        deployPage.setNextPage( false );
 
         List<Page> pageList = new ArrayList<Page>();
                 

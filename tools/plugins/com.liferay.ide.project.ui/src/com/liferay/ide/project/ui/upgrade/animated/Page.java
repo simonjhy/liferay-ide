@@ -33,10 +33,8 @@ import org.eclipse.swt.widgets.Text;
  */
 public abstract class Page extends Composite
 {
-    
     protected boolean canBack = true;
     protected boolean canNext = true;
-    
     
     protected LiferayUpgradeDataModel dataModel;
     

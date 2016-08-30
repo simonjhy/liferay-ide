@@ -376,18 +376,6 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
     }
 
     @Override
-    protected boolean showBackPage()
-    {
-        return true;
-    }
-
-    @Override
-    protected boolean showNextPage()
-    {
-        return true;
-    }
-
-    @Override
     public void serverAdded( IServer server )
     {
         UIUtil.async( new Runnable()

@@ -1,4 +1,17 @@
-
+/*******************************************************************************
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ *******************************************************************************/
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageActionListener;
@@ -10,10 +23,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -25,6 +34,10 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
+/**
+ * @author Andy Wu
+ * @author Simon Jiang
+ */
 public class GearControl extends AbstractCanvas implements PageNavigatorListener, PageActionListener, PageValidationListener
 {
 
@@ -74,6 +87,8 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
     private float angle;
 
     private boolean overflow;
+    
+    private boolean needRedraw = false;
 
     private int selection;
 
@@ -136,36 +151,6 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
     {
         super( parent, style );
 
-        addMouseTrackListener( new MouseTrackAdapter()
-        {
-            @Override
-            public void mouseExit( MouseEvent e )
-            {
-                onMouseMove( Integer.MIN_VALUE, Integer.MIN_VALUE );
-            }
-        } );
-
-        addMouseMoveListener( new MouseMoveListener()
-        {
-            public void mouseMove( MouseEvent e )
-            {
-                onMouseMove( e.x, e.y );
-            }
-        } );
-
-        addMouseListener( new MouseAdapter()
-        {
-            @Override
-            public void mouseDown( MouseEvent e )
-            {
-                //left button
-                if( e.button == 1 )
-                {
-                    onMouseDown( e.x, e.y );
-                }
-            }
-        } );
-
         init();
 
         scheduleRun();
@@ -177,26 +162,32 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
     }
 
     @Override
-    protected boolean advance()
+    protected boolean needRedraw()
     {
-      boolean needsRedraw = false;
+      boolean retVal = false;
+      
+      if( needRedraw )
+      {
+          needRedraw = false;
+          retVal = true;
+      }
 
       if (overflow)
       {
         overflow = false;
-        needsRedraw = true;
+        retVal = true;
       }
 
       if (hover != oldHover)
       {
-        needsRedraw = true;
+        retVal = true;
       }
 
       if (speed >= ANGLE)
       {
         startAnimation = 0;
 
-        return needsRedraw;
+        return retVal;
       }
 
       long now = System.currentTimeMillis();
@@ -270,7 +261,8 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
         tooltipColor = createColor(253, 232, 206);
     }
 
-    protected boolean onMouseDown(int x, int y)
+    @Override
+    protected void onMouseDown(int x, int y)
     {
       if (x != Integer.MIN_VALUE && y != Integer.MIN_VALUE)
       {
@@ -286,16 +278,13 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
             {
               setSelection(i);
             }
-
-            return true;
           }
         }
       }
-
-      return false;
     }
 
-    protected boolean onMouseMove(int x, int y)
+    @Override
+    protected void onMouseMove(int x, int y)
     {
       if (x != Integer.MIN_VALUE && y != Integer.MIN_VALUE)
       {
@@ -312,22 +301,26 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
               hover = i;
             }
 
-            return true;
+            return ;
           }
         }
       }
 
       hover = NONE;
-
-      return false;
     }
 
     @Override
     public void onPageAction( PageActionEvent event )
     {
         Page targetPage = event.getTargetPage();
+ 
+        needRedraw =true;
 
-        setSelection(targetPage.getIndex());
+        if( targetPage != null )
+        {
+            setSelection(targetPage.getIndex());
+        }
+ 
     }
 
     @Override
@@ -517,7 +510,7 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
       if (overflow)
       {
         overflow = false;
-        while (advance())
+        while (needRedraw())
         {
           // Just advance.
         }

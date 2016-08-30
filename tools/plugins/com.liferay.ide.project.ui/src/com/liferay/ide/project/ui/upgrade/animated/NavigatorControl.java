@@ -22,14 +22,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.MouseTrackAdapter;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -39,19 +31,17 @@ import org.eclipse.swt.widgets.Display;
 
 /**
  * @author Simon Jiang
+ * @author Andy Wu
  */
 
 public class NavigatorControl extends AbstractCanvas implements SelectionChangedListener
 {
     public static final int BORDER = 30;
     
-    private static final int EXIT = NONE - 1;
-    private static final int BACK = EXIT - 1;
+    private static final int BACK = NONE - 1;
     private static final int NEXT = BACK - 1;
     private static final int CHOICES = NEXT - 1;
 
-    private boolean overflow;
-    
     private int hover = NONE;
 
     private int oldHover = NONE;
@@ -72,6 +62,8 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
     private Display display; 
 
     private int select = 0;
+    
+    private boolean needRedraw = false;
 
     private final List<PageNavigatorListener> naviListeners =
         Collections.synchronizedList( new ArrayList<PageNavigatorListener>() );
@@ -87,78 +79,6 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         display = getDisplay();
 
         setBackground( display.getSystemColor( SWT.COLOR_WHITE ) );
-
-        addFocusListener( new FocusListener()
-        {
-            public void focusGained( FocusEvent e )
-            {
-                redraw();
-            }
-
-            public void focusLost( FocusEvent e )
-            {
-                redraw();
-            }
-        } );
-
-        addPaintListener( new PaintListener()
-        {
-            @Override
-            public void paintControl( PaintEvent e )
-            {
-                Image buffer = new Image( display, getBounds() );
-
-                GC canvasGc = e.gc;
-                // not blink
-                GC bufferGC = new GC( buffer );
-
-                bufferGC.setAdvanced( true );
-                bufferGC.setBackground( canvasGc.getBackground() );
-                bufferGC.fillRectangle( buffer.getBounds() );
-
-                paint( bufferGC );
-
-                canvasGc.drawImage( buffer, 0, 0 );
-
-                bufferGC.dispose();
-                buffer.dispose();
-
-                scheduleRun();
-            }
-        } );
-
-        addMouseTrackListener( new MouseTrackAdapter()
-        {
-
-            @Override
-            public void mouseExit( MouseEvent e )
-            {
-                onMouseMove( Integer.MIN_VALUE, Integer.MIN_VALUE );
-            }
-        } );
-
-        addMouseMoveListener( new MouseMoveListener()
-        {
-
-            public void mouseMove( MouseEvent e )
-            {
-                onMouseMove( e.x, e.y );
-            }
-        } );
-
-        addMouseListener( new MouseAdapter()
-        {
-
-            @Override
-            public void mouseDown( MouseEvent e )
-            {
-                // left button
-                if( e.button == 1 )
-                {
-                    onMouseDown( e.x, e.y );
-                }
-            }
-        } );
 
         init();
 
@@ -189,11 +109,6 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
             return CHOICES - i;
         }
 
-        if( hover <= CHOICES )
-        {
-            //pageBufferUpdated = false;
-        }
-
         return NONE;
     }
 
@@ -208,23 +123,22 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
     }
 
     @Override
-    protected boolean advance()
+    protected boolean needRedraw()
     {
-        boolean needsRedraw = false;
+        boolean retVal = false;
         
-        //TODO need to detect the paged and action changed and redraw
-
-        if( overflow )
+        if( needRedraw )
         {
-            overflow = false;
+            needRedraw = false;
+            retVal = true;
         }
 
         if( hover != oldHover )
         {
-            needsRedraw = true;
+            retVal = true;
         }
 
-        return needsRedraw;
+        return retVal;
     }
 
     private void doAction( int i )
@@ -239,10 +153,12 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
         targetAction.setSelected( !originState );
 
+        //origin is true and now it is false
         if( originState )
         {
             page.setSelectedAction( null );
         }
+        //origin is false and now it is true
         else
         {
             page.setSelectedAction( targetAction );
@@ -254,26 +170,34 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
                     pageActions[j].setSelected( false );
                 }
             }
-
-            if( page.showNextPage() )
-            {
-                PageActionEvent event = new PageActionEvent();
-
-                event.setAction( targetAction );
-
-                event.setTargetPage( UpgradeView.getPage( select + 1 ) );
-
-                for( PageActionListener listener : actionListeners )
-                {
-                    listener.onPageAction( event );
-                }
-            }
         }
+        
+        PageActionEvent event = new PageActionEvent();
+
+        event.setAction( targetAction );
+        event.setTargetPage(null);
+
+        if( page.showNextPage() && !originState )
+        {
+            event.setTargetPage( UpgradeView.getPage( select + 1 ) );
+        }
+
+        for( PageActionListener listener : actionListeners )
+        {
+            listener.onPageAction( event );
+        }
+        
+        needRedraw = true;
     }
 
     public final int getAction( int x, int y )
     {
         PageAction[] actions = getSelectedPage().getActions();
+        
+        if(actions == null || actions.length < 1)
+        {
+            return NONE;
+        }
 
         for( int i = 0; i < actions.length; i++ )
         {
@@ -312,9 +236,10 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
     }
 
-    protected boolean onMouseDown( int x, int y )
+    @Override
+    protected void onMouseDown( int x, int y )
     {
-        boolean retVal = false;
+        boolean isNavigate = false;
 
         if( x != Integer.MIN_VALUE && y != Integer.MIN_VALUE )
         {
@@ -328,17 +253,17 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
                 {
                     event.setTargetPage( UpgradeView.getPage( select - 1 ) );
 
-                    retVal = true;
+                    isNavigate = true;
                 }
 
                 if( page.showNextPage() && nextBox != null && nextBox.contains( x, y ) )
                 {
                     event.setTargetPage( UpgradeView.getPage( select + 1  ) );
 
-                    retVal = true;
+                    isNavigate = true;
                 }
 
-                if( retVal == true )
+                if( isNavigate == true )
                 {
                     for( PageNavigatorListener listener : naviListeners )
                     {
@@ -346,17 +271,13 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
                     }
                 }
 
-                if( actionOnMouseDown( x, y ) )
-                {
-                    return true;
-                }
+                actionOnMouseDown( x, y );
             }
         }
-
-        return retVal;
     }
 
-    protected boolean onMouseMove( int x, int y )
+    @Override
+    protected void onMouseMove( int x, int y )
     {
         if( x != Integer.MIN_VALUE && y != Integer.MIN_VALUE )
         {
@@ -367,33 +288,30 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
                 if( page.showBackPage() && backBox != null && backBox.contains( x, y ) )
                 {
                     hover = BACK;
-                    return true;
+                    return ;
                 }
 
                 if( page.showNextPage() && nextBox != null && nextBox.contains( x, y ) )
                 {
                     hover = NEXT;
-                    return true;
+                    return ;
                 }
 
                 hover = actionOnMouseMove( x, y );
-
-                if( hover != NONE )
-                {
-                    return true;
-                }
+                return ;
             }
         }
-
-        hover = NONE;
-
-        return false;
+        else
+        {
+            hover = NONE;
+        }
     }
 
     @Override
     public void onSelectionChanged( int targetSelection )
     {
         select = targetSelection;
+        needRedraw = true;
     }
 
     @Override
@@ -418,9 +336,9 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
             nextBox = drawImage( gc, nextImages[hover == NEXT ? 1 : 0], getBounds().width / 2 + 200, answerY );
         }
 
-        //oldHover = hover;
-
         paintActions( gc, page );
+        
+        oldHover = hover;
     }
 
     public Rectangle paintAction( GC gc, int index, int x, int y, boolean hovered, boolean selected, PageAction action )

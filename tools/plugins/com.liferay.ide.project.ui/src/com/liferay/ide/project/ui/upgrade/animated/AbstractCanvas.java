@@ -24,6 +24,10 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseTrackAdapter;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
@@ -69,6 +73,38 @@ public abstract class AbstractCanvas extends Canvas
                 redraw();
             }
         } );
+        
+        addMouseTrackListener( new MouseTrackAdapter()
+        {
+            @Override
+            public void mouseExit( MouseEvent e )
+            {
+                onMouseMove( Integer.MIN_VALUE, Integer.MIN_VALUE );
+            }
+        } );
+
+        addMouseMoveListener( new MouseMoveListener()
+        {
+
+            public void mouseMove( MouseEvent e )
+            {
+                onMouseMove( e.x, e.y );
+            }
+        } );
+
+        addMouseListener( new MouseAdapter()
+        {
+
+            @Override
+            public void mouseDown( MouseEvent e )
+            {
+                // left button
+                if( e.button == 1 )
+                {
+                    onMouseDown( e.x, e.y );
+                }
+            }
+        } );
 
         addPaintListener( new PaintListener()
         {
@@ -98,6 +134,10 @@ public abstract class AbstractCanvas extends Canvas
         
     }
    
+    protected abstract void onMouseDown( int x, int y );
+
+    protected abstract void onMouseMove( int x, int y );
+
     protected abstract void paint( GC bufferGC );
 
     protected void init()
@@ -208,7 +248,7 @@ public abstract class AbstractCanvas extends Canvas
     protected final Image loadImage( String name )
     {
         URL url = null;
-        
+
         try
         {
             url  = ProjectUI.getDefault().getBundle().getEntry( "images/" + name );
@@ -290,7 +330,7 @@ public abstract class AbstractCanvas extends Canvas
             return;
         }
 
-        boolean needsRedraw = advance();
+        boolean needsRedraw = needRedraw();
 
         if( needsRedraw )
         {
@@ -302,5 +342,5 @@ public abstract class AbstractCanvas extends Canvas
         }
     }
 
-    protected abstract boolean advance();
+    protected abstract boolean needRedraw();
 }
