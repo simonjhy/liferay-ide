@@ -385,7 +385,7 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
 
       if( pageAction != null )
       {
-          badgeImage = pageAction.getImages()[4];
+          badgeImage = pageAction.getBageImage();
       }
 
       if ( badgeImage != null )
