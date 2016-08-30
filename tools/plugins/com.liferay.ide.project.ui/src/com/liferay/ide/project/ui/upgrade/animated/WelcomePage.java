@@ -15,7 +15,7 @@
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import java.io.File;
-import java.io.IOException;
+import java.net.URL;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -76,15 +76,15 @@ public class WelcomePage extends Page
             @Override
             public void handleEvent( Event event )
             {
-                try
-                {
-                    Runtime.getRuntime().exec(
-                        "rundll32 url.dll,FileProtocolHandler https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/from-liferay-6-to-liferay-7" );
-                }
-                catch( IOException e )
-                {
-                }
+                    try
+                    {
+                        URL welcomeUrl = new URL("https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/from-liferay-6-to-liferay-7");
+                        PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(welcomeUrl);
+                    }
+                    catch( Exception e )
+                    {
 
+                    }
             }
         } );
 
