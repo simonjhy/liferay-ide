@@ -12,6 +12,7 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.core.ILiferayProjectImporter;
@@ -90,14 +91,15 @@ import org.eclipse.wst.server.ui.ServerUIUtil;
 @SuppressWarnings( "unused" )
 public class InitCofigurePrjectPage extends Page implements IServerLifecycleListener
 {
+
     private String pageId = "import";
-    
+
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
     private Text dirField;
     private Text projectNameField;
     private Combo layoutComb;
     private Label layoutLabel;
-    private String[] layoutNames = {"Upgrade to Liferay SDK 7", "Use Plugin SDK In Liferay Workspace"};
+    private String[] layoutNames = { "Upgrade to Liferay SDK 7", "Use Plugin SDK In Liferay Workspace" };
     private Label serverLabel;
     private Combo serverComb;
     private Button serverButton;
@@ -105,32 +107,34 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
     private static Color GRAY;
     protected Label blankLabel;
     private Button importButton;
-    
+
     private class LiferayUpgradeValidationListener extends Listener
     {
+
         @Override
         public void handle( Event event )
         {
             System.out.print( event.toString() );
-            if (event instanceof ValuePropertyContentEvent )
+            if( event instanceof ValuePropertyContentEvent )
             {
-                ValuePropertyContentEvent propertyEvetn  = (ValuePropertyContentEvent)event;
+                ValuePropertyContentEvent propertyEvetn = (ValuePropertyContentEvent) event;
                 Property property = propertyEvetn.property();
                 Status validation = Status.createOkStatus();
-                
-                if (property.name().equals( "SdkLocation" ))
+
+                if( property.name().equals( "SdkLocation" ) )
                 {
                     SdkLocationValidationService sdkValidate = property.service( SdkLocationValidationService.class );
-                    validation =  sdkValidate.compute();
+                    validation = sdkValidate.compute();
                 }
-                
-                if (property.name().equals( "ProjectName" ))
+
+                if( property.name().equals( "ProjectName" ) )
                 {
-                    ProjectNameValidationService projectNameValidate = property.service( ProjectNameValidationService.class );
-                    validation =  projectNameValidate.compute();                    
+                    ProjectNameValidationService projectNameValidate =
+                        property.service( ProjectNameValidationService.class );
+                    validation = projectNameValidate.compute();
                 }
-                
-                if ( !validation.ok() )
+
+                if( !validation.ok() )
                 {
                     errorMessageLabel.setVisible( true );
                     errorMessageLabel.setText( validation.message() );
@@ -139,48 +143,47 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 {
                     errorMessageLabel.setVisible( false );
                     errorMessageLabel.setText( "" );
-                }                         
+                }
             }
-            
+
             validate();
         }
     }
-    
+
     public InitCofigurePrjectPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
         this.setPageId( pageId );
-        
-        GridLayout layout = new GridLayout(2, false);
 
-        setLayout(layout);
-        setLayoutData(new GridData( GridData.FILL_BOTH ));
+        GridLayout layout = new GridLayout( 2, false );
+
+        setLayout( layout );
+        setLayoutData( new GridData( GridData.FILL_BOTH ) );
         setBackground( GRAY );
-        
+
         errorMessageLabel = new CLabel( this, SWT.LEFT_TO_RIGHT );
         errorMessageLabel.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );
-        errorMessageLabel.setImage( PlatformUI.getWorkbench().getSharedImages().getImage(
-            ISharedImages.IMG_OBJS_ERROR_TSK ) );
+        errorMessageLabel.setImage(
+            PlatformUI.getWorkbench().getSharedImages().getImage( ISharedImages.IMG_OBJS_ERROR_TSK ) );
         errorMessageLabel.setVisible( false );
-        
+
         this.dirField = createTextField( "Liferay SDK folder:" );
-        dirField.addModifyListener
-        (
-            new ModifyListener()
+        dirField.addModifyListener( new ModifyListener()
+        {
+
+            public void modifyText( ModifyEvent e )
             {
-                public void modifyText( ModifyEvent e )
+                if( e.getSource().equals( dirField ) )
                 {
-                    if ( e.getSource().equals( dirField ) )
-                    {
-                        dataModel.setSdkLocation( dirField.getText() );
-                    }
+                    dataModel.setSdkLocation( dirField.getText() );
                 }
             }
-        );   
+        } );
         dirField.setText( "" );
-        
+
         SWTUtil.createButton( this, "Browse..." ).addSelectionListener( new SelectionAdapter()
         {
+
             @Override
             public void widgetSelected( SelectionEvent e )
             {
@@ -194,23 +197,21 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     dirField.setText( selectedDir );
                 }
             }
-        });
+        } );
         this.projectNameField = createTextField( "Project Name:" );
-        projectNameField.addModifyListener
-        (
-            new ModifyListener()
+        projectNameField.addModifyListener( new ModifyListener()
+        {
+
+            public void modifyText( ModifyEvent e )
             {
-                public void modifyText( ModifyEvent e )
+                if( e.getSource().equals( projectNameField ) )
                 {
-                    if ( e.getSource().equals( projectNameField ) )
-                    {
-                        dataModel.setProjectName( projectNameField.getText() );
-                    }
-                    
+                    dataModel.setProjectName( projectNameField.getText() );
                 }
+
             }
-        ); 
-        
+        } );
+
         layoutLabel = createLabel( "Select Migrate Layout:" );
         layoutComb = new Combo( this, SWT.DROP_DOWN | SWT.READ_ONLY );
         layoutComb.setLayoutData( new GridData( GridData.FILL_HORIZONTAL ) );
@@ -218,14 +219,15 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         layoutComb.select( 0 );
         layoutComb.addModifyListener( new ModifyListener()
         {
+
             @Override
             public void modifyText( ModifyEvent e )
             {
-                if ( e.getSource().equals( layoutComb ) )
+                if( e.getSource().equals( layoutComb ) )
                 {
                     int sel = layoutComb.getSelectionIndex();
 
-                    if ( sel == 0 )
+                    if( sel == 0 )
                     {
                         serverLabel.setVisible( true );
                         serverButton.setVisible( true );
@@ -235,56 +237,51 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     {
                         serverLabel.setVisible( false );
                         serverButton.setVisible( false );
-                        serverComb.setVisible( false );                       
+                        serverComb.setVisible( false );
                     }
-                    
 
                     dataModel.setLayout( layoutComb.getText() );
                 }
             }
         } );
-        
+
         serverLabel = createLabel( "Liferay Server Name:" );
         serverComb = new Combo( this, SWT.DROP_DOWN | SWT.READ_ONLY );
         serverComb.setLayoutData( new GridData( GridData.FILL_HORIZONTAL ) );
-        
-        serverComb.addModifyListener
-        (
-            new ModifyListener()
+
+        serverComb.addModifyListener( new ModifyListener()
+        {
+
+            public void modifyText( ModifyEvent e )
             {
-                public void modifyText( ModifyEvent e )
+                if( e.getSource().equals( serverComb ) )
                 {
-                    if ( e.getSource().equals( serverComb ) )
-                    {
-                        dataModel.setLiferayServerName( serverComb.getText() );
-                    }
-                    
+                    dataModel.setLiferayServerName( serverComb.getText() );
                 }
+
             }
-        ); 
-        
+        } );
+
         serverButton = SWTUtil.createButton( this, "Add Server..." );
         serverButton.addSelectionListener( new SelectionAdapter()
         {
+
             @Override
             public void widgetSelected( SelectionEvent e )
             {
-                ServerUIUtil.showNewServerWizard( parent.getShell(), "liferay.bundle", null,
-                                "com.liferay." );
+                ServerUIUtil.showNewServerWizard( parent.getShell(), "liferay.bundle", null, "com.liferay." );
             }
-        });  
+        } );
 
-        
-        
-        if ( layoutComb.getSelectionIndex() == 0 )
+        if( layoutComb.getSelectionIndex() == 0 )
         {
             serverLabel.setVisible( true );
             serverButton.setVisible( true );
             serverComb.setVisible( true );
         }
-        
+
         ServerCore.addServerLifecycleListener( this );
-        
+
         IServer[] servers = ServerCore.getServers();
         List<String> serverNames = new ArrayList<String>();
 
@@ -298,74 +295,76 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 }
             }
         }
-        
-        serverComb.setItems( serverNames.toArray( new String[serverNames.size()] ) );    
+
+        serverComb.setItems( serverNames.toArray( new String[serverNames.size()] ) );
         serverComb.select( 0 );
         setActions( actions );
-        
-        dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener());
-        dataModel.getProjectName().attach( new LiferayUpgradeValidationListener());
-        
-        
+
+        dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener() );
+        dataModel.getProjectName().attach( new LiferayUpgradeValidationListener() );
+
         SWTUtil.createHorizontalSpacer( this, 3 );
         SWTUtil.createSeparator( this, 3 );
-        
+
         blankLabel = new Label( this, SWT.LEFT_TO_RIGHT );
-        
+
         importButton = SWTUtil.createButton( this, "Import SDK Project..." );
         importButton.addSelectionListener( new SelectionAdapter()
         {
+
             @Override
             public void widgetSelected( SelectionEvent e )
             {
                 importButton.setEnabled( false );
                 importProject();
                 importButton.setEnabled( true );
-                
+
                 PageNavigateEvent event = new PageNavigateEvent();
-                
+
                 if( showNextPage() )
                 {
-                    event.setTargetPage( UpgradeView.getPage( getIndex() + 1  ) );
+                    event.setTargetPage( UpgradeView.getPage( getIndex() + 1 ) );
                 }
-                
+
                 for( PageNavigatorListener listener : naviListeners )
                 {
                     listener.onPageNavigate( event );
                 }
             }
-        });
-        
+        } );
+
         startCheckThread();
     }
 
     private void validate()
     {
-        UIUtil.async( new Runnable(){
+        UIUtil.async( new Runnable()
+        {
 
             @Override
             public void run()
             {
-                if ( dirField.getText().length() == 0 )
+                if( dirField.getText().length() == 0 )
                 {
                     errorMessageLabel.setVisible( true );
                     errorMessageLabel.setText( "This sdk location is empty " );
                 }
-                
-                if ( projectNameField.getText().length() == 0 )
+
+                if( projectNameField.getText().length() == 0 )
                 {
                     errorMessageLabel.setVisible( true );
                     errorMessageLabel.setText( "This new upgrade sdk name should not be null." );
-                } 
+                }
             }
-        });
+        } );
 
     }
-    
+
     private void startCheckThread()
     {
         final Thread t = new Thread()
         {
+
             @Override
             public void run()
             {
@@ -375,7 +374,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
         t.start();
     }
-    
+
     @Override
     protected boolean showBackPage()
     {
@@ -393,6 +392,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
     {
         UIUtil.async( new Runnable()
         {
+
             @Override
             public void run()
             {
@@ -401,8 +401,8 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 if( serverComb != null && !serverComb.isDisposed() )
                 {
                     String[] serverNames = serverComb.getItems();
-                    List<String> serverList = new ArrayList<>(Arrays.asList(serverNames));
-                    
+                    List<String> serverList = new ArrayList<>( Arrays.asList( serverNames ) );
+
                     for( String serverName : serverList )
                     {
                         if( server.getName().equals( serverName ) )
@@ -414,7 +414,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     {
                         serverList.add( server.getName() );
                         serverComb.setItems( serverList.toArray( new String[serverList.size()] ) );
-                        serverComb.select( serverList.size()-1);
+                        serverComb.select( serverList.size() - 1 );
                     }
                 }
             }
@@ -435,16 +435,16 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
             @Override
             public void run()
             {
-                if ( serverComb != null && !serverComb.isDisposed())
+                if( serverComb != null && !serverComb.isDisposed() )
                 {
                     String[] serverNames = serverComb.getItems();
-                    List<String> serverList = new ArrayList<>(Arrays.asList(serverNames));
-                    
+                    List<String> serverList = new ArrayList<>( Arrays.asList( serverNames ) );
+
                     Iterator<String> serverNameiterator = serverList.iterator();
-                    while(serverNameiterator.hasNext())
+                    while( serverNameiterator.hasNext() )
                     {
-                        String serverName = serverNameiterator.next(); 
-                        if ( server.getName().equals( serverName ) )
+                        String serverName = serverNameiterator.next();
+                        if( server.getName().equals( serverName ) )
                         {
                             serverNameiterator.remove();
                         }
@@ -453,23 +453,23 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     serverComb.select( 0 );
                 }
             }
-        });
+        } );
     }
-    
+
     private static String newPath = "";
-    
+
     protected void importProject()
     {
         String layout = this.layoutComb.getText();
         String serverName = this.serverComb.getText();
-        IPath location = PathBridge.create(dataModel.getSdkLocation().content() );
+        IPath location = PathBridge.create( dataModel.getSdkLocation().content() );
         String projectName = dataModel.getProjectName().content();
-        
-        
+
         try
         {
             PlatformUI.getWorkbench().getProgressService().busyCursorWhile( new IRunnableWithProgress()
             {
+
                 public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException
                 {
                     try
@@ -496,9 +496,9 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
                             IPath serverPath = server.getRuntime().getLocation();
 
-                            //SDK sdk = new SDK( location );
-                            
-                            SDK sdk = SDKUtil.createSDKFromLocation( location );    
+                            // SDK sdk = new SDK( location );
+
+                            SDK sdk = SDKUtil.createSDKFromLocation( location );
                             sdk.addOrUpdateServerProperties( serverPath );
 
                             newPath = renameProjectFolder( location, projectName, monitor );
@@ -512,7 +512,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     }
                     catch( Exception e )
                     {
-                        e.printStackTrace( );
+                        e.printStackTrace();
                     }
                 }
             } );
@@ -582,38 +582,44 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         targetSDKLocation.toFile().renameTo( newFolder );
         return newFolder.toPath().toString();
     }
-    
+
     private void checkProjectType( IProject project )
     {
-        if ( ProjectUtil.isPortletProject( project ))
+        if( ProjectUtil.isPortletProject( project ) )
         {
             dataModel.setHasPortlet( true );
-        }else if ( ProjectUtil.isHookProject( project ))
+        }
+        else if( ProjectUtil.isHookProject( project ) )
         {
             dataModel.setHasHook( true );
-        }else if ( ProjectUtil.isLayoutTplProject( project ))
+        }
+        else if( ProjectUtil.isLayoutTplProject( project ) )
         {
             dataModel.setHasLayout( true );
-        }else if ( ProjectUtil.isThemeProject( project ))
+        }
+        else if( ProjectUtil.isThemeProject( project ) )
         {
             dataModel.setHasTheme( true );
-        }else if ( ProjectUtil.isExtProject( project ))
+        }
+        else if( ProjectUtil.isExtProject( project ) )
         {
             dataModel.setHasExt( true );
-        }else if ( ProjectUtil.isWebProject( project ))
+        }
+        else if( ProjectUtil.isWebProject( project ) )
         {
             dataModel.setHasWeb( true );
-        }else 
+        }
+        else
         {
             List<IFile> searchFiles = new SearchFilesVisitor().searchFiles( project, "service.xml" );
-            
-            if ( searchFiles.size() > 0 )
+
+            if( searchFiles.size() > 0 )
             {
-                dataModel.setHasWeb( true );    
+                dataModel.setHasServiceBuilder( true );
             }
-        }    
+        }
     }
-    
+
     private void importSDKProject( IPath targetSDKLocation, IProgressMonitor monitor )
     {
         Collection<File> eclipseProjectFiles = new ArrayList<File>();
@@ -629,9 +635,9 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 {
                     IProject importProject =
                         ProjectImportUtil.importProject( new Path( project.getPath() ), monitor, null );
-                    
-                    checkProjectType(importProject);
-                    
+
+                    checkProjectType( importProject );
+
                     if( ProjectUtil.isExtProject( importProject ) || ProjectUtil.isThemeProject( importProject ) ||
                         importProject.getName().startsWith( "resources-importer-web" ) )
                     {
@@ -649,9 +655,9 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 {
                     IProject importProject =
                         ProjectImportUtil.importProject( new Path( project.getParent() ), monitor, null );
-                    
-                    checkProjectType(importProject);
-                    
+
+                    checkProjectType( importProject );
+
                     if( ProjectUtil.isExtProject( importProject ) || ProjectUtil.isThemeProject( importProject ) ||
                         importProject.getName().startsWith( "resources-importer-web" ) )
                     {

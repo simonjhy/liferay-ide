@@ -1,3 +1,17 @@
+/*******************************************************************************
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ *******************************************************************************/
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
@@ -25,7 +39,13 @@ import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 
-public class GearControl extends AbstractCanvas implements PageNavigatorListener, PageActionListener, PageValidationListener
+/**
+ * @author Andy
+ * @author Simon Jiang
+ */
+
+public class GearControl extends AbstractCanvas
+    implements PageNavigatorListener, PageActionListener, PageValidationListener
 {
 
     public static final int BORDER = 20;
@@ -38,7 +58,7 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
 
     static final int BIG_FONT_PX = 48;
 
-    static final int NORMAL_FONT_PX = (int)(BIG_FONT_PX * .75);
+    static final int NORMAL_FONT_PX = (int) ( BIG_FONT_PX * .75 );
 
     private static Color WHITE;
 
@@ -47,9 +67,9 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
     private static Color DARK_GRAY;
 
     private final List<SelectionChangedListener> selectionChangedListeners =
-                    Collections.synchronizedList( new ArrayList<SelectionChangedListener>() );
+        Collections.synchronizedList( new ArrayList<SelectionChangedListener>() );
 
-    public int gearsNumber = 10 ;
+    public int gearsNumber = 10;
 
     private Color tooltipColor;
 
@@ -83,53 +103,54 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
 
     private int oldHover = NONE;
 
-    private Display display ;
+    private Display display;
 
-    private static Path drawGear(GC gc, Display display, double cx, double cy, double outerR, double innerR, float angleOffset)
+    private static Path drawGear(
+        GC gc, Display display, double cx, double cy, double outerR, double innerR, float angleOffset )
     {
-      double radian2 = ANGLE / 2 * RADIAN;
-      double radian3 = .06;
+        double radian2 = ANGLE / 2 * RADIAN;
+        double radian3 = .06;
 
-      Path path = new Path(display);
+        Path path = new Path( display );
 
-      for (int i = 0; i < TEETH; i++)
-      {
-        double radian = (i * ANGLE + angleOffset) * RADIAN;
-
-        double x = cx + outerR * Math.cos(radian);
-        double y = cy - outerR * Math.sin(radian);
-
-        if (i == 0)
+        for( int i = 0; i < TEETH; i++ )
         {
-          path.moveTo((int)x, (int)y);
+            double radian = ( i * ANGLE + angleOffset ) * RADIAN;
+
+            double x = cx + outerR * Math.cos( radian );
+            double y = cy - outerR * Math.sin( radian );
+
+            if( i == 0 )
+            {
+                path.moveTo( (int) x, (int) y );
+            }
+
+            double r1 = radian + radian3;
+            double r3 = radian + radian2;
+            double r2 = r3 - radian3;
+            double r4 = r3 + radian2;
+
+            x = cx + innerR * Math.cos( r1 );
+            y = cy - innerR * Math.sin( r1 );
+            path.lineTo( (int) x, (int) y );
+
+            x = cx + innerR * Math.cos( r2 );
+            y = cy - innerR * Math.sin( r2 );
+            path.lineTo( (int) x, (int) y );
+
+            x = cx + outerR * Math.cos( r3 );
+            y = cy - outerR * Math.sin( r3 );
+            path.lineTo( (int) x, (int) y );
+
+            x = cx + outerR * Math.cos( r4 );
+            y = cy - outerR * Math.sin( r4 );
+            path.lineTo( (int) x, (int) y );
         }
 
-        double r1 = radian + radian3;
-        double r3 = radian + radian2;
-        double r2 = r3 - radian3;
-        double r4 = r3 + radian2;
-
-        x = cx + innerR * Math.cos(r1);
-        y = cy - innerR * Math.sin(r1);
-        path.lineTo((int)x, (int)y);
-
-        x = cx + innerR * Math.cos(r2);
-        y = cy - innerR * Math.sin(r2);
-        path.lineTo((int)x, (int)y);
-
-        x = cx + outerR * Math.cos(r3);
-        y = cy - outerR * Math.sin(r3);
-        path.lineTo((int)x, (int)y);
-
-        x = cx + outerR * Math.cos(r4);
-        y = cy - outerR * Math.sin(r4);
-        path.lineTo((int)x, (int)y);
-      }
-
-      path.close();
-      gc.fillPath(path);
-      gc.drawPath(path);
-      return path;
+        path.close();
+        gc.fillPath( path );
+        gc.drawPath( path );
+        return path;
     }
 
     public GearControl( Composite parent, int style )
@@ -138,6 +159,7 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
 
         addMouseTrackListener( new MouseTrackAdapter()
         {
+
             @Override
             public void mouseExit( MouseEvent e )
             {
@@ -147,6 +169,7 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
 
         addMouseMoveListener( new MouseMoveListener()
         {
+
             public void mouseMove( MouseEvent e )
             {
                 onMouseMove( e.x, e.y );
@@ -155,10 +178,11 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
 
         addMouseListener( new MouseAdapter()
         {
+
             @Override
             public void mouseDown( MouseEvent e )
             {
-                //left button
+                // left button
                 if( e.button == 1 )
                 {
                     onMouseDown( e.x, e.y );
@@ -179,45 +203,44 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
     @Override
     protected boolean advance()
     {
-      boolean needsRedraw = false;
+        boolean needsRedraw = false;
 
-      if (overflow)
-      {
-        overflow = false;
-        needsRedraw = true;
-      }
+        if( overflow )
+        {
+            overflow = false;
+            needsRedraw = true;
+        }
 
-      if (hover != oldHover)
-      {
-        needsRedraw = true;
-      }
+        if( hover != oldHover )
+        {
+            needsRedraw = true;
+        }
 
-      if (speed >= ANGLE)
-      {
-        startAnimation = 0;
+        if( speed >= ANGLE )
+        {
+            startAnimation = 0;
 
-        return needsRedraw;
-      }
+            return needsRedraw;
+        }
 
-      long now = System.currentTimeMillis();
+        long now = System.currentTimeMillis();
 
-      if (startAnimation == 0)
-      {
-        startAnimation = now;
-      }
+        if( startAnimation == 0 )
+        {
+            startAnimation = now;
+        }
 
-      long timeSinceStart = now - startAnimation;
+        long timeSinceStart = now - startAnimation;
 
-      speed = timeSinceStart * ANGLE / 1900;
-      angle += speed;
+        speed = timeSinceStart * ANGLE / 1900;
+        angle += speed;
 
-      return true;
+        return true;
     }
 
-
-    protected final Font createFont(int pixelHeight)
+    protected final Font createFont( int pixelHeight )
     {
-      return createFont(pixelHeight, 0);
+        return createFont( pixelHeight, 0 );
     }
 
     public int getGearsNumber()
@@ -227,7 +250,7 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
 
     public final int getSelection()
     {
-      return selection;
+        return selection;
     }
 
     protected void init()
@@ -236,90 +259,90 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
 
         display = getDisplay();
 
-        WHITE = display.getSystemColor(SWT.COLOR_WHITE);
-        GRAY = display.getSystemColor(SWT.COLOR_GRAY);
-        DARK_GRAY = display.getSystemColor(SWT.COLOR_DARK_GRAY);
+        WHITE = display.getSystemColor( SWT.COLOR_WHITE );
+        GRAY = display.getSystemColor( SWT.COLOR_GRAY );
+        DARK_GRAY = display.getSystemColor( SWT.COLOR_DARK_GRAY );
 
         setBackground( WHITE );
 
         Font initialFont = getFont();
         FontData[] fontData = initialFont.getFontData();
 
-        for (int i = 0; i < fontData.length; i++)
+        for( int i = 0; i < fontData.length; i++ )
         {
-          fontData[i].setHeight(16);
-          fontData[i].setStyle(SWT.BOLD);
+            fontData[i].setHeight( 16 );
+            fontData[i].setStyle( SWT.BOLD );
         }
 
-        baseFont = new Font(display, fontData);
+        baseFont = new Font( display, fontData );
 
-        numberFont = createFont(24);
-        tooltipFont = createFont(24);
+        numberFont = createFont( 24 );
+        tooltipFont = createFont( 24 );
 
         radius = 32;
-        setSize((int)(gearsNumber * 2 * radius), (int)(2 * radius));
+        setSize( (int) ( gearsNumber * 2 * radius ), (int) ( 2 * radius ) );
 
         // Not selected.
-        gearBackground[0] = createColor(169, 171, 202);
-        gearForeground[0] = createColor(140, 132, 171);
+        gearBackground[0] = createColor( 169, 171, 202 );
+        gearForeground[0] = createColor( 140, 132, 171 );
 
         // Selected.
-        gearBackground[1] = createColor(247, 148, 30);
-        gearForeground[1] = createColor(207, 108, 0);
+        gearBackground[1] = createColor( 247, 148, 30 );
+        gearForeground[1] = createColor( 207, 108, 0 );
 
-        tooltipColor = createColor(253, 232, 206);
+        tooltipColor = createColor( 253, 232, 206 );
     }
 
-    protected boolean onMouseDown(int x, int y)
+    protected boolean onMouseDown( int x, int y )
     {
-      if (x != Integer.MIN_VALUE && y != Integer.MIN_VALUE)
-      {
-        GC gc = new GC( this );
-
-        for (int i = 0; i < gearPaths.length; i++)
+        if( x != Integer.MIN_VALUE && y != Integer.MIN_VALUE )
         {
-          Path path = gearPaths[i];
+            GC gc = new GC( this );
 
-          if (path != null && path.contains(x, y, gc, false))
-          {
-            if (i != getSelection())
+            for( int i = 0; i < gearPaths.length; i++ )
             {
-              setSelection(i);
+                Path path = gearPaths[i];
+
+                if( path != null && path.contains( x, y, gc, false ) )
+                {
+                    if( i != getSelection() )
+                    {
+                        setSelection( i );
+                    }
+
+                    return true;
+                }
             }
-
-            return true;
-          }
         }
-      }
 
-      return false;
+        return false;
     }
 
-    protected boolean onMouseMove(int x, int y)
+    protected boolean onMouseMove( int x, int y )
     {
-      if (x != Integer.MIN_VALUE && y != Integer.MIN_VALUE)
-      {
-        GC gc = new GC( this );
-
-        for (int i = 0; i < gearPaths.length; i++)
+        if( x != Integer.MIN_VALUE && y != Integer.MIN_VALUE )
         {
-          Path path = gearPaths[i];
+            GC gc = new GC( this );
 
-          if (path != null && path.contains(x, y, gc, false))
-          {
-            if (i != hover)
+            for( int i = 0; i < gearPaths.length; i++ )
             {
-              hover = i;
+                Path path = gearPaths[i];
+
+                if( path != null && path.contains( x, y, gc, false ) )
+                {
+                    if( i != hover )
+                    {
+                        hover = i;
+                    }
+
+                    return true;
+                }
             }
-
-            return true;
-          }
         }
-      }
 
-      hover = NONE;
+        hover = NONE;
 
-      return false;
+        return false;
     }
 
     @Override
@@ -327,7 +350,7 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
     {
         Page targetPage = event.getTargetPage();
 
-        setSelection(targetPage.getIndex());
+        setSelection( targetPage.getIndex() );
     }
 
     @Override
@@ -373,169 +396,167 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
         oldHover = hover;
     }
 
-    private Point paintBadge(GC gc, double x, double y, double outerR, int i, int alpha)
+    private Point paintBadge( GC gc, double x, double y, double outerR, int i, int alpha )
     {
-      if ( selection >= gearsNumber)
-      {
-        gc.setAlpha(255 - alpha);
-      }
-      else if (oldSelection >= gearsNumber)
-      {
-        gc.setAlpha(alpha);
-      }
+        if( selection >= gearsNumber )
+        {
+            gc.setAlpha( 255 - alpha );
+        }
+        else if( oldSelection >= gearsNumber )
+        {
+            gc.setAlpha( alpha );
+        }
 
-      Image badgeImage = null;
+        Image badgeImage = null;
 
-      Page page = UpgradeView.getPage( i );
+        Page page = UpgradeView.getPage( i );
 
-      PageAction pageAction = page.getSelectedAction();
+        PageAction pageAction = page.getSelectedAction();
 
-      if( pageAction != null )
-      {
-          badgeImage = pageAction.getImages()[4];
-      }
+        if( pageAction != null )
+        {
+            badgeImage = pageAction.getImages()[4];
+        }
 
-      if ( badgeImage != null )
-      {
-          gc.drawImage(badgeImage, (int)(x - badgeImage.getBounds().width / 2), (int)(y - outerR - 12));
-          gc.setAlpha(255);
-      }
+        if( badgeImage != null )
+        {
+            gc.drawImage( badgeImage, (int) ( x - badgeImage.getBounds().width / 2 ), (int) ( y - outerR - 12 ) );
+            gc.setAlpha( 255 );
+        }
 
-      return new Point((int)x, (int)(y + outerR));
+        return new Point( (int) x, (int) ( y + outerR ) );
     }
 
-    private Point paintGear(GC gc, int i, int alpha)
+    private Point paintGear( GC gc, int i, int alpha )
     {
-      double offset = 2 * i * radius;
-      double x = BORDER + radius + offset;
-      double y = BORDER + radius;
-      double r2 = (double)radius * .8f;
-      double r3 = (double)radius * .5f;
+        double offset = 2 * i * radius;
+        double x = BORDER + radius + offset;
+        double y = BORDER + radius;
+        double r2 = (double) radius * .8f;
+        double r3 = (double) radius * .5f;
 
-      int selected = 0;
-      double factor = 1;
+        int selected = 0;
+        double factor = 1;
 
-      if (i == oldSelection)
-      {
-        if (speed < ANGLE / 2)
+        if( i == oldSelection )
         {
-          selected = 1;
+            if( speed < ANGLE / 2 )
+            {
+                selected = 1;
+            }
         }
-      }
-      else if (i == selection)
-      {
-        if (speed >= ANGLE / 2)
+        else if( i == selection )
         {
-          selected = 1;
-          factor += (ANGLE - speed) * .02;
+            if( speed >= ANGLE / 2 )
+            {
+                selected = 1;
+                factor += ( ANGLE - speed ) * .02;
+            }
+            else
+            {
+                factor += speed * .02;
+            }
         }
-        else
+
+        boolean hovered = false;
+
+        if( i == hover )
         {
-          factor += speed * .02;
+            factor += .1;
+            oldHover = hover;
+            if( selected == 0 )
+            {
+                hovered = true;
+            }
         }
-      }
 
-      boolean hovered = false;
+        double outerR = factor * radius;
+        double innerR = factor * r2;
+        float angleOffset = ( angle + i * ANGLE ) * ( i % 2 == 1 ? -1 : 1 );
 
-      if (i == hover)
-      {
-        factor += .1;
-        oldHover = hover;
-        if (selected == 0)
+        gc.setForeground( hovered ? DARK_GRAY : gearForeground[selected] );
+        gc.setBackground( hovered ? GRAY : gearBackground[selected] );
+
+        Display display = getDisplay();
+
+        Path path = drawGear( gc, display, x, y, outerR, innerR, angleOffset );
+
+        if( gearPaths[i] != null )
         {
-          hovered = true;
+            gearPaths[i].dispose();
         }
-      }
 
-      double outerR = factor * radius;
-      double innerR = factor * r2;
-      float angleOffset = (angle + i * ANGLE) * (i % 2 == 1 ? -1 : 1);
+        gearPaths[i] = path;
 
-      gc.setForeground(hovered ? DARK_GRAY : gearForeground[selected]);
-      gc.setBackground(hovered ? GRAY : gearBackground[selected]);
+        int ovalX = (int) ( x - factor * r3 );
+        int ovalY = (int) ( y - factor * r3 );
+        int ovalR = (int) ( 2 * factor * r3 );
+        gc.setBackground( WHITE );
+        gc.fillOval( ovalX, ovalY, ovalR, ovalR );
+        gc.drawOval( ovalX, ovalY, ovalR, ovalR );
 
-      Display display = getDisplay();
+        if( i < gearsNumber )
+        {
+            String number = Integer.toString( i + 1 );
 
-      Path path = drawGear(gc, display, x, y, outerR, innerR, angleOffset);
+            gc.setForeground( selected == 1 ? gearForeground[1] : GRAY );
+            gc.setFont( numberFont );
 
-      if (gearPaths[i] != null)
-      {
-        gearPaths[i].dispose();
-      }
+            drawText( gc, x, y - 1, number );
+        }
 
-      gearPaths[i] = path;
-
-      int ovalX = (int)(x - factor * r3);
-      int ovalY = (int)(y - factor * r3);
-      int ovalR = (int)(2 * factor * r3);
-      gc.setBackground(WHITE);
-      gc.fillOval(ovalX, ovalY, ovalR, ovalR);
-      gc.drawOval(ovalX, ovalY, ovalR, ovalR);
-
-      if (i < gearsNumber )
-      {
-        String number = Integer.toString( i + 1 );
-
-        gc.setForeground(selected == 1 ? gearForeground[1] : GRAY);
-        gc.setFont(numberFont);
-
-        drawText(gc, x, y - 1, number);
-      }
-
-      return paintBadge(gc, x, y, outerR, i, alpha);
+        return paintBadge( gc, x, y, outerR, i, alpha );
     }
 
     public void restart()
     {
-      angle = 0;
-      speed = 0;
+        angle = 0;
+        speed = 0;
     }
-
- 
 
     public void setGearsNumber( int gearsNumber )
     {
         this.gearsNumber = gearsNumber;
     }
 
-    public final void setSelection(int selection)
+    public final void setSelection( int selection )
     {
-      hover = NONE;
-      oldHover = NONE;
+        hover = NONE;
+        oldHover = NONE;
 
-      if (selection < 0)
-      {
-        selection = 0;
-        overflow = true;
-      }
-      else if (selection > gearsNumber - 1)
-      {
-        selection = gearsNumber - 1;
-        overflow = true;
-      }
-
-      if (overflow)
-      {
-        overflow = false;
-        while (advance())
+        if( selection < 0 )
         {
-          // Just advance.
+            selection = 0;
+            overflow = true;
+        }
+        else if( selection > gearsNumber - 1 )
+        {
+            selection = gearsNumber - 1;
+            overflow = true;
         }
 
-        overflow = true;
-        return;
-      }
+        if( overflow )
+        {
+            overflow = false;
+            while( advance() )
+            {
+                // Just advance.
+            }
 
-      oldSelection = this.selection;
+            overflow = true;
+            return;
+        }
 
-      this.selection = selection;
+        oldSelection = this.selection;
 
-      for( SelectionChangedListener listener : selectionChangedListeners )
-      {
-          listener.onSelectionChanged( selection );
-      }
+        this.selection = selection;
 
-      restart();
+        for( SelectionChangedListener listener : selectionChangedListeners )
+        {
+            listener.onSelectionChanged( selection );
+        }
+
+        restart();
     }
 
     @Override
