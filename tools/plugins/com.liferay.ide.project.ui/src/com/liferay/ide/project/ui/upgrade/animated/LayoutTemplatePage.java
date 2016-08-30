@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 public class LayoutTemplatePage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
+    private String pageId = "layout";
     
     public LayoutTemplatePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -19,5 +20,6 @@ public class LayoutTemplatePage extends Page
         button.setText( "Layout Template" );
 
         setActions( actions );
+        this.setPageId( pageId );
     }
 }

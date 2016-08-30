@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 public class CustomJspPage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
+    private String pageId = "customjsp";
     
     public CustomJspPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -19,6 +20,7 @@ public class CustomJspPage extends Page
         button.setText( "Custom Jsp" );
 
         setActions( actions );
+        this.setPageId( pageId );
     }
 
 }

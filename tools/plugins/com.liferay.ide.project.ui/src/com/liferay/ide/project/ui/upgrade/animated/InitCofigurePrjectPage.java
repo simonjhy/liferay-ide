@@ -90,6 +90,8 @@ import org.eclipse.wst.server.ui.ServerUIUtil;
 @SuppressWarnings( "unused" )
 public class InitCofigurePrjectPage extends Page implements IServerLifecycleListener
 {
+    private String pageId = "import";
+    
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
     private Text dirField;
     private Text projectNameField;
@@ -147,7 +149,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
     public InitCofigurePrjectPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
-
+        this.setPageId( pageId );
         
         GridLayout layout = new GridLayout(2, false);
 
@@ -297,7 +299,8 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
             }
         }
         
-        serverComb.setItems( serverNames.toArray( new String[serverNames.size()] ) );        
+        serverComb.setItems( serverNames.toArray( new String[serverNames.size()] ) );    
+        serverComb.select( 0 );
         setActions( actions );
         
         dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener());

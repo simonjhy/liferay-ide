@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 public class FindBreakingChangesPage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
+    private String pageId = "breaking-changes";
     
     public FindBreakingChangesPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -19,5 +20,6 @@ public class FindBreakingChangesPage extends Page
         button.setText( "Find Breaking Changes" );
 
         setActions( actions );
+        this.setPageId( pageId );
     }
 }

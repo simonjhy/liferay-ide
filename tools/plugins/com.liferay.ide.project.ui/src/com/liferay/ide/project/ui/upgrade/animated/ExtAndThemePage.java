@@ -8,6 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 public class ExtAndThemePage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
+    private String pageId = "ext";
     
     public ExtAndThemePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -19,5 +20,6 @@ public class ExtAndThemePage extends Page
         button.setText( "Ext and theme" );
 
         setActions( actions );
+        this.setPageId( pageId );
     }
 }
