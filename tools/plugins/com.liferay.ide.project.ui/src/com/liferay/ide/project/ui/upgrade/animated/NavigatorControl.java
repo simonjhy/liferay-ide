@@ -43,7 +43,6 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
     private boolean overflow;
     private boolean oldShowOverlay;
     private int hover = NONE;
-    private int oldHover = NONE;
     private final Image[] backImages = new Image[2];
     private final Image[] nextImages = new Image[2];
     private int buttonR;
@@ -200,12 +199,9 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
     protected boolean advance()
     {
-        boolean needsRedraw = false;
-
         if( overflow )
         {
             overflow = false;
-            needsRedraw = true;
         }
 
         boolean showOverlay = shouldShowOverlay();
@@ -213,12 +209,6 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         if( showOverlay != oldShowOverlay )
         {
             oldShowOverlay = showOverlay;
-            needsRedraw = true;
-        }
-
-        if( hover != oldHover )
-        {
-            needsRedraw = true;
         }
 
         return true;
@@ -357,7 +347,6 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
                 if( retVal == true )
                 {
-
                     for( PageNavigatorListener listener : naviListeners )
                     {
                         listener.onPageNavigate( event );
@@ -435,7 +424,7 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
             nextBox = drawImage( gc, nextImages[hover == NEXT ? 1 : 0], getBounds().width / 2 + 200, answerY );
         }
 
-        oldHover = hover;
+        //oldHover = hover;
 
         paintActions( gc, page );
     }
@@ -467,7 +456,7 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
         Point sizes[] = new Point[actions.length];
 
-        int width = ( actions.length - 1 ) * BORDER;
+        //int width = ( actions.length - 1 ) * BORDER;
         int height = 0;
 
         for( int i = 0; i < actions.length; i++ )
@@ -476,12 +465,12 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
             if( CHOICES - i == hover )
             {
-                oldHover = hover;
+                //oldHover = hover;
                 hovereds[i] = true;
             }
 
             sizes[i] = actions[i].getSize();
-            width += sizes[i].x;
+            //width += sizes[i].x;
             height = Math.max( height, sizes[i].y );
         }
 

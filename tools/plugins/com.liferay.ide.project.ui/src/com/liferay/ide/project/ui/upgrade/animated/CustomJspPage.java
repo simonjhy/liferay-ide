@@ -21,15 +21,4 @@ public class CustomJspPage extends Page
         setActions( actions );
     }
 
-    @Override
-    protected boolean showBackPage()
-    {
-        return true;
-    }
-
-    @Override
-    protected boolean showNextPage()
-    {
-        return true;
-    }
 }
