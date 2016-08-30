@@ -14,14 +14,21 @@
  *******************************************************************************/
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import java.io.IOException;
+
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.swt.widgets.Listener;
 
 /**
  * @author Adny
  * @author Simon Jiang
+ * @author Joye Luo
  */
 public class LayoutTemplatePage extends Page
 {
@@ -31,11 +38,38 @@ public class LayoutTemplatePage extends Page
     public LayoutTemplatePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style,dataModel );
-        
-        this.setLayout( new FillLayout() );
-        
-        Button button = new Button(this, SWT.PUSH);
-        button.setText( "Layout Template" );
+        GridLayout layout = new GridLayout( 1, true );
+        this.setLayout( layout );
+
+        Label title = new Label( this, SWT.LEFT );
+        title.setText( "Upgrade Layout Template" );
+        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
+
+        Link link = new Link( this, SWT.MULTI );
+        final String layouttpl =
+            "This step will upgrade layout template file from 6.2 to 7.0.\n" +
+            "The layout template's rows and columns are affected by the new grid system syntax of Bootsrap.\n" +
+            "For more details, please see <a>Upgrading Layout Templates</a>.\n";
+        link.setText( layouttpl );
+        link.addListener( SWT.Selection, new Listener()
+        {
+
+            @Override
+            public void handleEvent( Event event )
+            {
+                try
+                {
+                    Runtime.getRuntime().exec(
+                        "rundll32 url.dll,FileProtocolHandler https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/upgrading-layout-templates" );
+                }
+                catch( IOException e )
+                {
+                }
+
+            }
+        } );
+
+        new  LiferayLayouttplUpgradeTableViewCustomPart(this, SWT.NONE);
 
         setActions( actions );
         this.setPageId( pageId );

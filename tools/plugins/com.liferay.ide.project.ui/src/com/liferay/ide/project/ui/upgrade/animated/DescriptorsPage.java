@@ -15,13 +15,16 @@
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 
 /**
  * @author Adny
  * @author Simon Jiang
+ * @author Joye Luo
  */
 public class DescriptorsPage extends Page
 {
@@ -31,11 +34,22 @@ public class DescriptorsPage extends Page
     public DescriptorsPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style,dataModel );
+        GridLayout layout = new GridLayout( 1, false );
+        this.setLayout( layout );
+
+        Label title = new Label( this, SWT.LEFT );
+        title.setText( "Upgrade Descriptor Files" );
+        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
         
-        this.setLayout( new FillLayout() );
-        
-        Button button = new Button(this, SWT.PUSH);
-        button.setText( "Descriptors" );
+        Text content = new Text( this, SWT.MULTI );
+        final String descriptor =
+            "This step will upgrade descriptor xml dtd version from 6.2 to 7.0 and " +
+            "delete wap-template-path \ntag in liferay-layout-template.xml.\n" +
+            "Double click the file in the list. It will popup a comparison page" +
+            " which shows the differences \nbetween your original source file and the upgrade preview file.\n";
+        content.setText( descriptor );
+
+        new LiferayDescriptorUpgradeTableViewCustomPart(this, SWT.NONE);
 
         setActions( actions );
         this.setPageId( pageId );
