@@ -32,6 +32,7 @@ import org.eclipse.ui.part.ViewPart;
 
 public class UpgradeView extends ViewPart implements SelectionChangedListener
 {
+    public static final String ID = "com.liferay.ide.project.ui.upgradeView";
     protected LiferayUpgradeDataModel dataModel;
     
     private LiferayUpgradeDataModel createUpgradeModel()
