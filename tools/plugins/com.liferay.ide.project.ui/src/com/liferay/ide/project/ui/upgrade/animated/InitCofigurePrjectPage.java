@@ -97,7 +97,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
     private Text dirField;
-    private Text projectNameField;
+    private Text newSDKField;
     private Combo layoutComb;
     private Label layoutLabel;
     private String[] layoutNames = { "Upgrade to Liferay SDK 7", "Use Plugin SDK In Liferay Workspace" };
@@ -159,7 +159,6 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
         setLayout( layout );
         setLayoutData( new GridData( GridData.FILL_BOTH ) );
-        setBackground( GRAY );
 
         errorMessageLabel = new CLabel( this, SWT.LEFT_TO_RIGHT );
         errorMessageLabel.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );
@@ -213,15 +212,15 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 }
             }
         } );
-        this.projectNameField = createTextField( "Project Name:" );
-        projectNameField.addModifyListener( new ModifyListener()
+        this.newSDKField = createTextField( "New SDK Name:" );
+        newSDKField.addModifyListener( new ModifyListener()
         {
 
             public void modifyText( ModifyEvent e )
             {
-                if( e.getSource().equals( projectNameField ) )
+                if( e.getSource().equals( newSDKField ) )
                 {
-                    dataModel.setProjectName( projectNameField.getText() );
+                    dataModel.setProjectName( newSDKField.getText() );
                 }
 
             }
@@ -365,7 +364,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     errorMessageLabel.setText( "This sdk location is empty " );
                 }
 
-                if( projectNameField.getText().length() == 0 )
+                if( newSDKField.getText().length() == 0 )
                 {
                     errorMessageLabel.setVisible( true );
                     errorMessageLabel.setText( "This new upgrade sdk name should not be null." );
