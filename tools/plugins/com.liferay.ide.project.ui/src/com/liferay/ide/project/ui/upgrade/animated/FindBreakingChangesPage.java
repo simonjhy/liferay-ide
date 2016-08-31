@@ -57,6 +57,7 @@ public class FindBreakingChangesPage extends Page
                         "Others will be solved at step ¡°Build Service¡±. ";
 
         content.setText( descriptor );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT) );
 
         Button findBCButton = new Button(this, SWT.PUSH);
 
