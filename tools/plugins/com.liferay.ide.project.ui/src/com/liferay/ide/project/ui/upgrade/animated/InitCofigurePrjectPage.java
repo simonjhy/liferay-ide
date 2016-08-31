@@ -18,6 +18,7 @@ package com.liferay.ide.project.ui.upgrade.animated;
 import com.liferay.ide.core.ILiferayProjectImporter;
 import com.liferay.ide.core.LiferayCore;
 import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.core.util.IOUtil;
 import com.liferay.ide.core.util.ZipUtil;
 import com.liferay.ide.project.core.ProjectCore;
@@ -467,6 +468,8 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         IPath location = PathBridge.create( dataModel.getSdkLocation().content() );
         String projectName = dataModel.getProjectName().content();
 
+        deleteEclipseConfigFiles( location.toFile() );
+
         try
         {
             PlatformUI.getWorkbench().getProgressService().busyCursorWhile( new IRunnableWithProgress()
@@ -573,6 +576,22 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         BladeCLI.execute( sb.toString() );
     }
 
+    private void deleteEclipseConfigFiles( File project )
+   {
+        for( File file : project.listFiles() )
+        {
+            if( file.getName().contentEquals( ".classpath" ) || file.getName().contentEquals( ".settings" ) ||
+                file.getName().contentEquals( ".project" ) )
+            {
+                if( file.isDirectory() )
+                {
+                    FileUtil.deleteDir( file, true );
+                }
+                file.delete();
+            }
+        }
+    }
+
     private String renameProjectFolder( IPath targetSDKLocation, String newName, IProgressMonitor monitor )
     {
         if( newName == null || newName.equals( "" ) )
@@ -635,6 +654,8 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
             {
                 try
                 {
+                    deleteEclipseConfigFiles( project );
+
                     IProject importProject =
                         ProjectImportUtil.importProject( new Path( project.getPath() ), monitor, null );
 
@@ -655,6 +676,8 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
             {
                 try
                 {
+                    deleteEclipseConfigFiles( project.getParentFile() );
+
                     IProject importProject =
                         ProjectImportUtil.importProject( new Path( project.getParent() ), monitor, null );
 

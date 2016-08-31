@@ -14,10 +14,8 @@
  *******************************************************************************/
 package com.liferay.ide.project.ui.upgrade.animated;
 
-import java.io.File;
 import java.net.URL;
 
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -30,10 +28,8 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PlatformUI;
-import com.liferay.ide.project.core.ProjectCore;
+import com.liferay.ide.project.ui.upgrade.CustomJspConverter;
 import com.liferay.ide.ui.util.UIUtil;
 
 /**
@@ -102,6 +98,8 @@ public class WelcomePage extends Page
 
                 if( openNewLiferayProjectWizard )
                 {
+                    CustomJspConverter.clearConvertResults();
+                    /*
                     IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
 
                     IEditorPart editor = page.getActiveEditor();
@@ -126,7 +124,8 @@ public class WelcomePage extends Page
                     catch( Exception e1 )
                     {
                     }
-                }
+                */
+                    }
 
             }
         } );
