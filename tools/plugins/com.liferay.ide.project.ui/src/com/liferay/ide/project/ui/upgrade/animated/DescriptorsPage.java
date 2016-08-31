@@ -29,7 +29,6 @@ import org.eclipse.swt.widgets.Text;
 public class DescriptorsPage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    private String pageId = "descriptor";
     
     public DescriptorsPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -48,11 +47,12 @@ public class DescriptorsPage extends Page
             "Double click the file in the list. It will popup a comparison page" +
             " which shows the differences \nbetween your original source file and the upgrade preview file.\n";
         content.setText( descriptor );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT) );
 
         new LiferayDescriptorUpgradeTableViewCustomPart(this, SWT.NONE);
 
         setActions( actions );
-        this.setPageId( pageId );
+        this.setPageId( DESCRIPTORS_PAGE_ID );
     }
 
 

@@ -79,7 +79,7 @@ import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
 
 /**
- * @author Adny
+ * @author Andy Wu
  * @author Simon Jiang
  * @author Lovett Li
  */
@@ -227,7 +227,7 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         } );
 
         setActions( actions );
-        this.setPageId( pageId );
+        this.setPageId( FINDBREACKINGCHANGES_PAGE_ID );
     }
 
     public List<ProblemsContainer> getInitalInput()

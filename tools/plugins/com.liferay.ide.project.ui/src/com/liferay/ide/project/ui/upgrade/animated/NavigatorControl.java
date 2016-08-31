@@ -144,42 +144,25 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
     private void doAction( int i )
     {
         Page page = getSelectedPage();
-
+        PageAction oldSelection = page.getSelectedAction();
         PageAction[] pageActions = page.getActions();
 
         PageAction targetAction = pageActions[i];
 
-        boolean originState = targetAction.isSelected();
-
-        targetAction.setSelected( !originState );
-
-        //origin is true and now it is false
-        if( originState )
+        if ( targetAction.equals( oldSelection ))
         {
-            page.setSelectedAction( null );
+            targetAction = null;
         }
-        //origin is false and now it is true
-        else
-        {
-            page.setSelectedAction( targetAction );
 
-            for(int j = 0 ; j < pageActions.length ; j++)
-            {
-                if(j != i)
-                {
-                    pageActions[j].setSelected( false );
-                }
-            }
-        }
-        
+        page.setSelectedAction( targetAction );
+
         PageActionEvent event = new PageActionEvent();
 
-        event.setAction( targetAction );
-        event.setTargetPage(null);
+        event.setTargetPageIndex( NONE );
 
-        if( page.showNextPage() && !originState )
+        if( page.showNextPage() && targetAction != null )
         {
-            event.setTargetPage( UpgradeView.getPage( select + 1 ) );
+            event.setTargetPageIndex( select + 1 );
         }
 
         for( PageActionListener listener : actionListeners )
@@ -251,19 +234,19 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
                 if( page.showBackPage() && backBox != null && backBox.contains( x, y ) )
                 {
-                    event.setTargetPage( UpgradeView.getPage( select - 1 ) );
+                    event.setTargetPage( select - 1  );
 
                     isNavigate = true;
                 }
 
                 if( page.showNextPage() && nextBox != null && nextBox.contains( x, y ) )
                 {
-                    event.setTargetPage( UpgradeView.getPage( select + 1  ) );
+                    event.setTargetPage( select + 1 );
 
                     isNavigate = true;
                 }
 
-                if( isNavigate == true )
+                if( isNavigate )
                 {
                     for( PageNavigatorListener listener : naviListeners )
                     {
@@ -311,6 +294,7 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
     public void onSelectionChanged( int targetSelection )
     {
         select = targetSelection;
+
         needRedraw = true;
     }
 
@@ -362,6 +346,12 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
     private void paintActions( GC gc, Page page )
     {
         PageAction[] actions = page.getActions();
+        PageAction selectedAction = page.getSelectedAction();
+        
+        if( actions == null )
+        {
+            return ;
+        }
 
         boolean selecteds[] = new boolean[actions.length];
         boolean hovereds[] = new boolean[actions.length];
@@ -373,7 +363,7 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
         for( int i = 0; i < actions.length; i++ )
         {
-            selecteds[i] = actions[i].isSelected();
+            selecteds[i] = actions[i].equals( selectedAction );
 
             if( CHOICES - i == hover )
             {

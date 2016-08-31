@@ -62,7 +62,7 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
     private final List<SelectionChangedListener> selectionChangedListeners =
                     Collections.synchronizedList( new ArrayList<SelectionChangedListener>() );
 
-    public int gearsNumber = 10 ;
+    public static int GearsNumber = 10 ;
 
     private Color tooltipColor;
 
@@ -70,9 +70,9 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
 
     private Font numberFont;
 
-    private final Point[] tooltipPoints = new Point[gearsNumber];
+    private final Point[] tooltipPoints = new Point[GearsNumber];
 
-    private final Path[] gearPaths = new Path[gearsNumber];
+    private final Path[] gearPaths = new Path[GearsNumber];
 
     private final Color[] gearBackground = new Color[2];
 
@@ -211,11 +211,6 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
       return createFont(pixelHeight, 0);
     }
 
-    public int getGearsNumber()
-    {
-        return gearsNumber;
-    }
-
     public final int getSelection()
     {
       return selection;
@@ -248,7 +243,7 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
         tooltipFont = createFont(24);
 
         radius = 32;
-        setSize((int)(gearsNumber * 2 * radius), (int)(2 * radius));
+        setSize((int)(GearsNumber * 2 * radius), (int)(2 * radius));
 
         // Not selected.
         gearBackground[0] = createColor(169, 171, 202);
@@ -290,7 +285,9 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
       {
         GC gc = new GC( this );
 
-        for (int i = 0; i < gearPaths.length; i++)
+        int number = UpgradeView.getPageNumber();
+        
+        for (int i = 0; i < number ; i++)
         {
           Path path = gearPaths[i];
 
@@ -312,23 +309,21 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
     @Override
     public void onPageAction( PageActionEvent event )
     {
-        Page targetPage = event.getTargetPage();
- 
-        needRedraw =true;
+        int targetPageIndex = event.getTargetPageIndex();
 
-        if( targetPage != null )
+        needRedraw = true;
+
+        if( targetPageIndex != NONE )
         {
-            setSelection(targetPage.getIndex());
+            setSelection( targetPageIndex );
         }
- 
+
     }
 
     @Override
     public void onPageNavigate( PageNavigateEvent event )
     {
-        Page targetPage = event.getTargetPage();
-
-        setSelection( targetPage.getIndex() );
+        setSelection( event.getTargetPage() );
     }
 
     @Override
@@ -339,8 +334,10 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
         gc.setAntialias( SWT.ON );
 
         int alpha = Math.min( (int) ( 255 * speed / ANGLE ), 255 );
+        
+        int number = UpgradeView.getPageNumber();
 
-        for( int i = 0; i < gearsNumber; i++ )
+        for( int i = 0; i < number; i++ )
         {
             tooltipPoints[i] = paintGear( gc, i, alpha );
         }
@@ -368,11 +365,11 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
 
     private Point paintBadge(GC gc, double x, double y, double outerR, int i, int alpha)
     {
-      if ( selection >= gearsNumber)
+      if ( selection >= GearsNumber)
       {
         gc.setAlpha(255 - alpha);
       }
-      else if (oldSelection >= gearsNumber)
+      else if (oldSelection >= GearsNumber)
       {
         gc.setAlpha(alpha);
       }
@@ -385,7 +382,7 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
 
       if( pageAction != null )
       {
-          badgeImage = pageAction.getImages()[4];
+          badgeImage = pageAction.getBageImage();
       }
 
       if ( badgeImage != null )
@@ -465,7 +462,7 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
       gc.fillOval(ovalX, ovalY, ovalR, ovalR);
       gc.drawOval(ovalX, ovalY, ovalR, ovalR);
 
-      if (i < gearsNumber )
+      if (i < GearsNumber )
       {
         String number = Integer.toString( i + 1 );
 
@@ -486,10 +483,6 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
 
  
 
-    public void setGearsNumber( int gearsNumber )
-    {
-        this.gearsNumber = gearsNumber;
-    }
 
     public final void setSelection(int selection)
     {
@@ -501,9 +494,9 @@ public class GearControl extends AbstractCanvas implements PageNavigatorListener
         selection = 0;
         overflow = true;
       }
-      else if (selection > gearsNumber - 1)
+      else if (selection > GearsNumber - 1)
       {
-        selection = gearsNumber - 1;
+        selection = GearsNumber - 1;
         overflow = true;
       }
 

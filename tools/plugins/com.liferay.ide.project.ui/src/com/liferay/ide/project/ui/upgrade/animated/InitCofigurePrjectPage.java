@@ -28,6 +28,7 @@ import com.liferay.ide.project.core.util.ProjectUtil;
 import com.liferay.ide.project.core.util.SearchFilesVisitor;
 import com.liferay.ide.project.ui.ProjectUI;
 import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageNavigatorListener;
+import com.liferay.ide.sdk.core.ISDKConstants;
 import com.liferay.ide.sdk.core.SDK;
 import com.liferay.ide.sdk.core.SDKUtil;
 import com.liferay.ide.server.core.LiferayServerCore;
@@ -36,7 +37,11 @@ import com.liferay.ide.ui.util.SWTUtil;
 import com.liferay.ide.ui.util.UIUtil;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -44,9 +49,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -60,20 +67,20 @@ import org.eclipse.sapphire.Property;
 import org.eclipse.sapphire.ValuePropertyContentEvent;
 import org.eclipse.sapphire.modeling.Status;
 import org.eclipse.sapphire.platform.PathBridge;
-import org.eclipse.sapphire.services.ValidationService;
-import org.eclipse.sapphire.ui.Presentation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -92,21 +99,8 @@ import org.eclipse.wst.server.ui.ServerUIUtil;
 public class InitCofigurePrjectPage extends Page implements IServerLifecycleListener
 {
 
-    private String pageId = "import";
-
-    PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    private Text dirField;
-    private Text projectNameField;
-    private Combo layoutComb;
-    private Label layoutLabel;
-    private String[] layoutNames = { "Upgrade to Liferay SDK 7", "Use Plugin SDK In Liferay Workspace" };
-    private Label serverLabel;
-    private Combo serverComb;
-    private Button serverButton;
-    protected CLabel errorMessageLabel;
-    private static Color GRAY;
-    protected Label blankLabel;
-    private Button importButton;
+    private boolean inputValidation = true;
+    private boolean layoutValidation = true;
 
     private class LiferayUpgradeValidationListener extends Listener
     {
@@ -114,35 +108,44 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         @Override
         public void handle( Event event )
         {
-            System.out.print( event.toString() );
             if( event instanceof ValuePropertyContentEvent )
             {
                 ValuePropertyContentEvent propertyEvetn = (ValuePropertyContentEvent) event;
                 Property property = propertyEvetn.property();
-                Status validation = Status.createOkStatus();
+                Status validationStatus = Status.createOkStatus();
 
                 if( property.name().equals( "SdkLocation" ) )
                 {
                     SdkLocationValidationService sdkValidate = property.service( SdkLocationValidationService.class );
-                    validation = sdkValidate.compute();
+                    validationStatus = sdkValidate.compute();
                 }
-
-                if( property.name().equals( "ProjectName" ) )
+                else if( property.name().equals( "ProjectName" ) )
                 {
                     ProjectNameValidationService projectNameValidate =
                         property.service( ProjectNameValidationService.class );
-                    validation = projectNameValidate.compute();
+                    validationStatus = projectNameValidate.compute();
+                }else if( property.name().equals( "BundleName" ) )
+                {
+                    BundleNameValidationService bundleNameValidate =
+                        property.service( BundleNameValidationService.class );
+                    validationStatus = bundleNameValidate.compute();
+                }else if( property.name().equals( "BundleUrl" ) )
+                {
+                    BundleUrlValidationService bundleUrlValidate = property.service( BundleUrlValidationService.class );
+                    validationStatus = bundleUrlValidate.compute();
                 }
 
-                if( !validation.ok() )
+                if( !validationStatus.ok() )
                 {
                     errorMessageLabel.setVisible( true );
-                    errorMessageLabel.setText( validation.message() );
+                    errorMessageLabel.setText( validationStatus.message() );
+                    inputValidation = false;
                 }
                 else
                 {
                     errorMessageLabel.setVisible( false );
                     errorMessageLabel.setText( "" );
+                    inputValidation = true;
                 }
             }
 
@@ -150,32 +153,69 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         }
     }
 
-    public InitCofigurePrjectPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
+    private static Color GRAY;
+    private static String newPath = "";
+    private Label dirLabel;
+    private Text dirField;
+    private Label newProjectLabel;
+    private Text newProjectField;
+    private Combo layoutComb;
+    private Label layoutLabel;
+    private String[] layoutNames = { "Upgrade to Liferay SDK 7", "Use Plugin SDK In Liferay Workspace" };
+    private Label serverLabel;
+    private Combo serverComb;
+    private Button serverButton;
+    protected CLabel errorMessageLabel;
+    protected Label blankLabel;
+    private Button importButton;
+    private Label bundleNameLabel;
+    private Label bundleUrlLabel;
+    private Text bundleNameField;
+    private Text bundleUrlField;
+    private Composite composite;
+
+    private Control createHorizontalSpacer;
+
+    private Control createSeparator;
+
+    public InitCofigurePrjectPage( final Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
-        this.setPageId( pageId );
+        this.setPageId( IMPORT_PAGE_ID );
+        composite = this;
 
         GridLayout layout = new GridLayout( 2, false );
 
         setLayout( layout );
         setLayoutData( new GridData( GridData.FILL_BOTH ) );
-        setBackground( GRAY );
 
-        errorMessageLabel = new CLabel( this, SWT.LEFT_TO_RIGHT );
+        errorMessageLabel = new CLabel( composite, SWT.LEFT_TO_RIGHT );
         errorMessageLabel.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );
         errorMessageLabel.setImage(
             PlatformUI.getWorkbench().getSharedImages().getImage( ISharedImages.IMG_OBJS_ERROR_TSK ) );
         errorMessageLabel.setVisible( false );
 
-        this.dirField = createTextField( "Liferay SDK folder:" );
+        dirLabel = createLabel( composite, "Liferay Server Name:" );
+        dirField = createTextField( composite, SWT.NONE );
         dirField.addModifyListener( new ModifyListener()
         {
-
             public void modifyText( ModifyEvent e )
             {
-                if( e.getSource().equals( dirField ) )
+                dataModel.setSdkLocation( dirField.getText() );
+                SDK sdk = SDKUtil.createSDKFromLocation( new Path( dirField.getText() ) );
+
+                try
                 {
-                    dataModel.setSdkLocation( dirField.getText() );
+                    if( sdk != null )
+                    {
+                        final String liferay62ServerLocation = (String) ( sdk.getBuildProperties( true ).get(
+                            ISDKConstants.PROPERTY_APP_SERVER_PARENT_DIR ) );
+                        dataModel.setLiferay62ServerLocation( liferay62ServerLocation );
+                    }
+                }
+                catch( Exception xe )
+                {
+                    ProjectUI.logError( xe );
                 }
             }
         } );
@@ -198,61 +238,273 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 }
             }
         } );
-        this.projectNameField = createTextField( "Project Name:" );
-        projectNameField.addModifyListener( new ModifyListener()
+        newProjectLabel = createLabel( composite, "New SDK Name:" );
+        newProjectField = createTextField( composite, SWT.NONE );
+        newProjectField.addModifyListener( new ModifyListener()
         {
-
             public void modifyText( ModifyEvent e )
             {
-                if( e.getSource().equals( projectNameField ) )
-                {
-                    dataModel.setProjectName( projectNameField.getText() );
-                }
-
+                dataModel.setProjectName( newProjectField.getText() );
             }
         } );
 
-        layoutLabel = createLabel( "Select Migrate Layout:" );
+        layoutLabel = createLabel( composite, "Select Migrate Layout:" );
         layoutComb = new Combo( this, SWT.DROP_DOWN | SWT.READ_ONLY );
         layoutComb.setLayoutData( new GridData( GridData.FILL_HORIZONTAL ) );
         layoutComb.setItems( layoutNames );
         layoutComb.select( 0 );
-        layoutComb.addModifyListener( new ModifyListener()
+        layoutComb.addSelectionListener( new SelectionListener()
         {
 
             @Override
+            public void widgetDefaultSelected( SelectionEvent e )
+            {
+            }
+
+            @Override
+            public void widgetSelected( SelectionEvent e )
+            {
+                int sel = layoutComb.getSelectionIndex();
+
+                if( sel == 0 )
+                {
+                    disposeBundleElement();
+
+                    disposeLayoutElement();
+
+                    disposeImportElement();
+
+                    createServerElement();
+
+                    createImportElement();
+
+                }
+                else
+                {
+                    disposeServerEelment();
+
+                    disposeImportElement();
+
+                    disposeBundleElement();
+
+                    disposeLayoutElement();
+
+                    createBundleElement();
+
+                    createImportElement();
+                }
+
+                composite.layout();
+                dataModel.setLayout( layoutComb.getText() );
+                validate();
+            }
+
+        } );
+
+        createServerElement();
+
+        dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener() );
+        dataModel.getProjectName().attach( new LiferayUpgradeValidationListener() );
+        dataModel.getBundleName().attach( new LiferayUpgradeValidationListener() );
+        dataModel.getBundleUrl().attach( new LiferayUpgradeValidationListener() );
+
+        createImportElement();
+
+        startCheckThread();
+    }
+    
+    private void resetPages()
+    {
+        UpgradeView.resumePages();
+        
+        if( !dataModel.getHasServiceBuilder().content())
+        {
+            UpgradeView.removePage( BUILDSERVICE_PAGE_ID );
+        }
+        
+        if( ! dataModel.getHasLayout().content())
+        {
+            UpgradeView.removePage( LAYOUTTEMPLATE_PAGE_ID );
+        }
+        
+        if( ! dataModel.getHasHook().content())
+        {
+            UpgradeView.removePage( CUSTOMJSP_PAGE_ID );
+        }
+        
+        if( !dataModel.getHasExt().content() && !dataModel.getHasTheme().content() )
+        {
+            UpgradeView.removePage( EXTANDTHEME_PAGE_ID );
+        }
+
+        UpgradeView.resetPages();
+    }
+
+    private void checkProjectType( IProject project )
+    {
+        if( ProjectUtil.isPortletProject( project ) )
+        {
+            dataModel.setHasPortlet( true );
+        }
+        else if( ProjectUtil.isHookProject( project ) )
+        {
+            dataModel.setHasHook( true );
+        }
+        else if( ProjectUtil.isLayoutTplProject( project ) )
+        {
+            dataModel.setHasLayout( true );
+        }
+        else if( ProjectUtil.isThemeProject( project ) )
+        {
+            dataModel.setHasTheme( true );
+        }
+        else if( ProjectUtil.isExtProject( project ) )
+        {
+            dataModel.setHasExt( true );
+        }
+        else if( ProjectUtil.isWebProject( project ) )
+        {
+            dataModel.setHasWeb( true );
+        }
+        else
+        {
+            List<IFile> searchFiles = new SearchFilesVisitor().searchFiles( project, "service.xml" );
+
+            if( searchFiles.size() > 0 )
+            {
+                dataModel.setHasServiceBuilder( true );
+            }
+        }
+    }
+
+    private void clearWorkspaceSDKAndProjects( IPath targetSDKLocation, IProgressMonitor monitor ) throws CoreException
+    {
+        IProject sdkProject = SDKUtil.getWorkspaceSDKProject();
+
+        if( sdkProject != null && sdkProject.getLocation().equals( targetSDKLocation ) )
+        {
+            IProject[] projects = ProjectUtil.getAllPluginsSDKProjects();
+
+            for( IProject project : projects )
+            {
+                project.delete( false, true, monitor );
+            }
+
+            sdkProject.delete( false, true, monitor );
+        }
+
+    }
+
+    private void copyNewSDK( IPath targetSDKLocation, IProgressMonitor monitor ) throws IOException
+    {
+        final URL sdkZipUrl = Platform.getBundle( "com.liferay.ide.project.ui" ).getEntry( "resources/sdk70ga2.zip" );
+
+        final File sdkZipFile = new File( FileLocator.toFileURL( sdkZipUrl ).getFile() );
+
+        final IPath stateLocation = ProjectCore.getDefault().getStateLocation();
+
+        File stateDir = stateLocation.toFile();
+
+        ZipUtil.unzip( sdkZipFile, stateDir );
+
+        IOUtil.copyDirToDir( new File( stateDir, "com.liferay.portal.plugins.sdk-7.0" ), targetSDKLocation.toFile() );
+    }
+
+    private void createBundleElement()
+    {
+        bundleNameLabel = createLabel( composite, "Bundle Name:" );
+        bundleNameField = createTextField( composite, SWT.NONE );
+        bundleNameField.addModifyListener( new ModifyListener()
+        {
             public void modifyText( ModifyEvent e )
             {
-                if( e.getSource().equals( layoutComb ) )
-                {
-                    int sel = layoutComb.getSelectionIndex();
-
-                    if( sel == 0 )
-                    {
-                        serverLabel.setVisible( true );
-                        serverButton.setVisible( true );
-                        serverComb.setVisible( true );
-                    }
-                    else
-                    {
-                        serverLabel.setVisible( false );
-                        serverButton.setVisible( false );
-                        serverComb.setVisible( false );
-                    }
-
-                    dataModel.setLayout( layoutComb.getText() );
-                }
+                dataModel.setBundleName( bundleNameField.getText() );
             }
         } );
 
-        serverLabel = createLabel( "Liferay Server Name:" );
-        serverComb = new Combo( this, SWT.DROP_DOWN | SWT.READ_ONLY );
-        serverComb.setLayoutData( new GridData( GridData.FILL_HORIZONTAL ) );
+        bundleUrlLabel = createLabel( composite, "Bundle Name:" );
+        bundleUrlField = createTextField( composite, SWT.NONE );
+        bundleUrlField.addModifyListener( new ModifyListener()
+        {
+            public void modifyText( ModifyEvent e )
+            {
+                dataModel.setBundleUrl( bundleUrlField.getText() );
+            }
+        } );
+    }
 
-        serverComb.addModifyListener( new ModifyListener()
+    private void createImportElement()
+    {
+        createHorizontalSpacer = createHorizontalSpacer( this, 3 );
+        createSeparator = createSeparator( this, 3 );
+
+        blankLabel = new Label( this, SWT.LEFT_TO_RIGHT );
+
+        importButton = SWTUtil.createButton( this, "Import SDK Project..." );
+        importButton.addSelectionListener( new SelectionAdapter()
         {
 
-            public void modifyText( ModifyEvent e )
+            @Override
+            public void widgetSelected( SelectionEvent e )
+            {
+                importButton.setEnabled( false );
+                importProject();
+                
+                resetPages();
+
+                PageNavigateEvent event = new PageNavigateEvent();
+
+                event.setTargetPage( 2 );
+                
+                for( PageNavigatorListener listener : naviListeners )
+                {
+                    listener.onPageNavigate( event );
+                }
+
+                setNextPage( true );
+                importButton.setEnabled( true );
+            }
+        } );
+    }
+
+    private void createLiferayWorkspace( IPath targetSDKLocation, IProgressMonitor monitor ) throws BladeCLIException
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "-b " );
+        sb.append( "\"" + targetSDKLocation.toFile().getAbsolutePath() + "\" " );
+        sb.append( "init -u" );
+
+        BladeCLI.execute( sb.toString() );
+    }
+
+    private void getLiferayBudnle( IPath targetSDKLocation, IProgressMonitor monitor ) throws BladeCLIException
+    {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append( "-b " );
+        sb.append( "\"" + targetSDKLocation.toFile().getAbsolutePath() + "\" " );
+        sb.append( "init" );
+
+        BladeCLI.execute( sb.toString() );
+    }
+
+    private void createServerElement()
+    {
+        serverLabel = createLabel( composite, "Liferay Server Name:" );
+        serverComb = new Combo( composite, SWT.DROP_DOWN | SWT.READ_ONLY );
+        serverComb.setLayoutData( new GridData( GridData.FILL_HORIZONTAL ) );
+
+        serverComb.addSelectionListener( new SelectionListener()
+        {
+
+            @Override
+            public void widgetDefaultSelected( SelectionEvent e )
+            {
+            }
+
+            @Override
+            public void widgetSelected( SelectionEvent e )
             {
                 if( e.getSource().equals( serverComb ) )
                 {
@@ -262,23 +514,16 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
             }
         } );
 
-        serverButton = SWTUtil.createButton( this, "Add Server..." );
+        serverButton = SWTUtil.createButton( composite, "Add Server..." );
         serverButton.addSelectionListener( new SelectionAdapter()
         {
 
             @Override
             public void widgetSelected( SelectionEvent e )
             {
-                ServerUIUtil.showNewServerWizard( parent.getShell(), "liferay.bundle", null, "com.liferay." );
+                ServerUIUtil.showNewServerWizard( composite.getShell(), "liferay.bundle", null, "com.liferay." );
             }
         } );
-
-        if( layoutComb.getSelectionIndex() == 0 )
-        {
-            serverLabel.setVisible( true );
-            serverButton.setVisible( true );
-            serverComb.setVisible( true );
-        }
 
         ServerCore.addServerLifecycleListener( this );
 
@@ -298,153 +543,49 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
         serverComb.setItems( serverNames.toArray( new String[serverNames.size()] ) );
         serverComb.select( 0 );
-        setActions( actions );
-
-        dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener() );
-        dataModel.getProjectName().attach( new LiferayUpgradeValidationListener() );
-
-        SWTUtil.createHorizontalSpacer( this, 3 );
-        SWTUtil.createSeparator( this, 3 );
-
-        blankLabel = new Label( this, SWT.LEFT_TO_RIGHT );
-
-        importButton = SWTUtil.createButton( this, "Import SDK Project..." );
-        importButton.addSelectionListener( new SelectionAdapter()
-        {
-
-            @Override
-            public void widgetSelected( SelectionEvent e )
-            {
-                importButton.setEnabled( false );
-                importProject();
-                importButton.setEnabled( true );
-
-                PageNavigateEvent event = new PageNavigateEvent();
-
-                if( showNextPage() )
-                {
-                    event.setTargetPage( UpgradeView.getPage( getIndex() + 1 ) );
-                }
-
-                for( PageNavigatorListener listener : naviListeners )
-                {
-                    listener.onPageNavigate( event );
-                }
-            }
-        } );
-
-        startCheckThread();
+        dataModel.setLiferayServerName( serverComb.getText() );
     }
 
-    private void validate()
+    private void disposeBundleElement()
     {
-        UIUtil.async( new Runnable()
+        if( bundleNameField != null && bundleUrlField != null )
         {
-
-            @Override
-            public void run()
-            {
-                if( dirField.getText().length() == 0 )
-                {
-                    errorMessageLabel.setVisible( true );
-                    errorMessageLabel.setText( "This sdk location is empty " );
-                }
-
-                if( projectNameField.getText().length() == 0 )
-                {
-                    errorMessageLabel.setVisible( true );
-                    errorMessageLabel.setText( "This new upgrade sdk name should not be null." );
-                }
-            }
-        } );
-
+            bundleNameField.dispose();
+            bundleUrlField.dispose();
+            bundleNameLabel.dispose();
+            bundleUrlLabel.dispose();
+        }
     }
 
-    private void startCheckThread()
+    private void disposeImportElement()
     {
-        final Thread t = new Thread()
+        blankLabel.dispose();
+        importButton.dispose();
+        createSeparator.dispose();
+        createHorizontalSpacer.dispose();
+    }
+
+    private void disposeLayoutElement()
+    {
+        if( blankLabel != null && importButton != null && createSeparator != null && createHorizontalSpacer != null &&
+            serverLabel != null && serverComb != null && serverButton != null )
         {
-
-            @Override
-            public void run()
-            {
-                validate();
-            }
-        };
-
-        t.start();
+            disposeImportElement();
+            serverLabel.dispose();
+            serverComb.dispose();
+            serverButton.dispose();
+        }
     }
 
-    @Override
-    public void serverAdded( IServer server )
+    private void disposeServerEelment()
     {
-        UIUtil.async( new Runnable()
+        if( serverLabel != null && serverComb != null && serverButton != null )
         {
-
-            @Override
-            public void run()
-            {
-                boolean serverExisted = false;
-
-                if( serverComb != null && !serverComb.isDisposed() )
-                {
-                    String[] serverNames = serverComb.getItems();
-                    List<String> serverList = new ArrayList<>( Arrays.asList( serverNames ) );
-
-                    for( String serverName : serverList )
-                    {
-                        if( server.getName().equals( serverName ) )
-                        {
-                            serverExisted = true;
-                        }
-                    }
-                    if( serverExisted == false )
-                    {
-                        serverList.add( server.getName() );
-                        serverComb.setItems( serverList.toArray( new String[serverList.size()] ) );
-                        serverComb.select( serverList.size() - 1 );
-                    }
-                }
-            }
-        } );
+            serverLabel.dispose();
+            serverComb.dispose();
+            serverButton.dispose();
+        }
     }
-
-    @Override
-    public void serverChanged( IServer server )
-    {
-    }
-
-    @Override
-    public void serverRemoved( IServer server )
-    {
-        UIUtil.async( new Runnable()
-        {
-
-            @Override
-            public void run()
-            {
-                if( serverComb != null && !serverComb.isDisposed() )
-                {
-                    String[] serverNames = serverComb.getItems();
-                    List<String> serverList = new ArrayList<>( Arrays.asList( serverNames ) );
-
-                    Iterator<String> serverNameiterator = serverList.iterator();
-                    while( serverNameiterator.hasNext() )
-                    {
-                        String serverName = serverNameiterator.next();
-                        if( server.getName().equals( serverName ) )
-                        {
-                            serverNameiterator.remove();
-                        }
-                    }
-                    serverComb.setItems( serverList.toArray( new String[serverList.size()] ) );
-                    serverComb.select( 0 );
-                }
-            }
-        } );
-    }
-
-    private static String newPath = "";
 
     protected void importProject()
     {
@@ -500,7 +641,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     }
                     catch( Exception e )
                     {
-                        e.printStackTrace();
+                        ProjectUI.logError( e );
                     }
                 }
             } );
@@ -513,99 +654,6 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         dataModel.setNewLocation( newPath );
 
         newPath = "";
-    }
-
-    private void clearWorkspaceSDKAndProjects( IPath targetSDKLocation, IProgressMonitor monitor ) throws CoreException
-    {
-        IProject sdkProject = SDKUtil.getWorkspaceSDKProject();
-
-        if( sdkProject != null && sdkProject.getLocation().equals( targetSDKLocation ) )
-        {
-            IProject[] projects = ProjectUtil.getAllPluginsSDKProjects();
-
-            for( IProject project : projects )
-            {
-                project.delete( false, true, monitor );
-            }
-
-            sdkProject.delete( false, true, monitor );
-        }
-
-    }
-
-    private void copyNewSDK( IPath targetSDKLocation, IProgressMonitor monitor ) throws IOException
-    {
-        final URL sdkZipUrl = Platform.getBundle( "com.liferay.ide.project.ui" ).getEntry( "resources/sdk70ga2.zip" );
-
-        final File sdkZipFile = new File( FileLocator.toFileURL( sdkZipUrl ).getFile() );
-
-        final IPath stateLocation = ProjectCore.getDefault().getStateLocation();
-
-        File stateDir = stateLocation.toFile();
-
-        ZipUtil.unzip( sdkZipFile, stateDir );
-
-        IOUtil.copyDirToDir( new File( stateDir, "com.liferay.portal.plugins.sdk-7.0" ), targetSDKLocation.toFile() );
-    }
-
-    private void createLiferayWorkspace( IPath targetSDKLocation, IProgressMonitor monitor ) throws BladeCLIException
-    {
-        StringBuilder sb = new StringBuilder();
-
-        sb.append( "-b " );
-        sb.append( "\"" + targetSDKLocation.toFile().getAbsolutePath() + "\" " );
-        sb.append( "init" );
-
-        BladeCLI.execute( sb.toString() );
-    }
-
-    private String renameProjectFolder( IPath targetSDKLocation, String newName, IProgressMonitor monitor )
-    {
-        if( newName == null || newName.equals( "" ) )
-        {
-            return targetSDKLocation.toString();
-        }
-
-        File newFolder = targetSDKLocation.removeLastSegments( 1 ).append( newName ).toFile();
-        targetSDKLocation.toFile().renameTo( newFolder );
-        return newFolder.toPath().toString();
-    }
-
-    private void checkProjectType( IProject project )
-    {
-        if( ProjectUtil.isPortletProject( project ) )
-        {
-            dataModel.setHasPortlet( true );
-        }
-        else if( ProjectUtil.isHookProject( project ) )
-        {
-            dataModel.setHasHook( true );
-        }
-        else if( ProjectUtil.isLayoutTplProject( project ) )
-        {
-            dataModel.setHasLayout( true );
-        }
-        else if( ProjectUtil.isThemeProject( project ) )
-        {
-            dataModel.setHasTheme( true );
-        }
-        else if( ProjectUtil.isExtProject( project ) )
-        {
-            dataModel.setHasExt( true );
-        }
-        else if( ProjectUtil.isWebProject( project ) )
-        {
-            dataModel.setHasWeb( true );
-        }
-        else
-        {
-            List<IFile> searchFiles = new SearchFilesVisitor().searchFiles( project, "service.xml" );
-
-            if( searchFiles.size() > 0 )
-            {
-                dataModel.setHasServiceBuilder( true );
-            }
-        }
     }
 
     private void importSDKProject( IPath targetSDKLocation, IProgressMonitor monitor )
@@ -657,5 +705,165 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 }
             }
         }
+    }
+
+    private String renameProjectFolder( IPath targetSDKLocation, String newName, IProgressMonitor monitor )
+    {
+        if( newName == null || newName.equals( "" ) )
+        {
+            return targetSDKLocation.toString();
+        }
+
+        File newFolder = targetSDKLocation.removeLastSegments( 1 ).append( newName ).toFile();
+        targetSDKLocation.toFile().renameTo( newFolder );
+        return newFolder.toPath().toString();
+    }
+
+    @Override
+    public void serverAdded( IServer server )
+    {
+        UIUtil.async( new Runnable()
+        {
+
+            @Override
+            public void run()
+            {
+                boolean serverExisted = false;
+
+                if( serverComb != null && !serverComb.isDisposed() )
+                {
+                    String[] serverNames = serverComb.getItems();
+                    List<String> serverList = new ArrayList<>( Arrays.asList( serverNames ) );
+
+                    for( String serverName : serverList )
+                    {
+                        if( server.getName().equals( serverName ) )
+                        {
+                            serverExisted = true;
+                        }
+                    }
+                    if( serverExisted == false )
+                    {
+                        serverList.add( server.getName() );
+                        serverComb.setItems( serverList.toArray( new String[serverList.size()] ) );
+                        serverComb.select( serverList.size() - 1 );
+                    }
+                    validate();
+                }
+            }
+        } );
+    }
+
+    @Override
+    public void serverChanged( IServer server )
+    {
+    }
+
+    @Override
+    public void serverRemoved( IServer server )
+    {
+        UIUtil.async( new Runnable()
+        {
+
+            @Override
+            public void run()
+            {
+                if( serverComb != null && !serverComb.isDisposed() )
+                {
+                    String[] serverNames = serverComb.getItems();
+                    List<String> serverList = new ArrayList<>( Arrays.asList( serverNames ) );
+
+                    Iterator<String> serverNameiterator = serverList.iterator();
+                    while( serverNameiterator.hasNext() )
+                    {
+                        String serverName = serverNameiterator.next();
+                        if( server.getName().equals( serverName ) )
+                        {
+                            serverNameiterator.remove();
+                        }
+                    }
+                    serverComb.setItems( serverList.toArray( new String[serverList.size()] ) );
+                    serverComb.select( 0 );
+                    validate();
+                }
+            }
+        } );
+    }
+
+    private void startCheckThread()
+    {
+        final Thread t = new Thread()
+        {
+
+            @Override
+            public void run()
+            {
+                validate();
+            }
+        };
+
+        t.start();
+    }
+
+    private void validate()
+    {
+        UIUtil.async( new Runnable()
+        {
+
+            @Override
+            public void run()
+            {
+                if( dirField.getText().length() == 0 )
+                {
+                    errorMessageLabel.setVisible( true );
+                    errorMessageLabel.setText( "This sdk location should not be  empty." );
+                    inputValidation = false;
+                }else if( newProjectField.getText().length() == 0 )
+                {
+                    errorMessageLabel.setVisible( true );
+                    errorMessageLabel.setText( "This new upgrade sdk name should not be emptry." );
+                    inputValidation = false;
+                }else if( layoutComb.getSelectionIndex() == 0 )
+                {
+                    final int itemCount = serverComb.getItemCount();
+                    if( itemCount < 1 )
+                    {
+                        errorMessageLabel.setVisible( true );
+                        errorMessageLabel.setText( "You shoulde add at least one Liferay 7 portal bundle." );
+                        layoutValidation = false;
+                    }
+                    else
+                    {
+                        if ( inputValidation == true )
+                        {
+                            layoutValidation = true;
+                            errorMessageLabel.setVisible( false );
+                            errorMessageLabel.setText( "" );
+                        }
+                    }
+                }else if( layoutComb.getSelectionIndex() == 1 )
+                {
+                    if( bundleNameField.getText().length() == 0 )
+                    {
+                        errorMessageLabel.setVisible( true );
+                        errorMessageLabel.setText( "This bundleName should not be  empty." );
+                        layoutValidation = false;
+                    }else if( bundleUrlField.getText().length() == 0 )
+                    {
+                        errorMessageLabel.setVisible( true );
+                        errorMessageLabel.setText( "This bundle's download URL should not be  empty." );
+                        layoutValidation = false;
+                    }
+                    else
+                    {
+                        errorMessageLabel.setVisible( false );
+                        errorMessageLabel.setText( "" );
+                        layoutValidation = true;
+                    }
+                }
+                importButton.setEnabled( layoutValidation && inputValidation );
+            }
+        } );
+
     }
 }

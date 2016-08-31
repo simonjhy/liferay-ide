@@ -12,23 +12,41 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import org.apache.xerces.util.URI;
+import org.eclipse.sapphire.modeling.Status;
+import org.eclipse.sapphire.services.ValidationService;
+
 /**
- * @author Simon Jiang
- * @author Andy Wu
+ * @author Terry Jia
  */
-public class PageNavigateEvent
+public class BundleUrlValidationService extends ValidationService
 {
-    private int targetPageIndex;
-    
-    public int getTargetPage()
+
+    @Override
+    protected Status compute()
     {
-        return this.targetPageIndex;
+        Status retval = Status.createOkStatus();
+
+        String bundleUrl = op().getBundleUrl().content();
+
+        try
+        {
+            new URI( bundleUrl );
+        }
+        catch( Exception e )
+        {
+            retval = Status.createErrorStatus( "The bundle URL should be a vaild URL." );
+        }
+
+        return retval;
     }
-   
-    public void setTargetPage( int targetPage )
+
+    private LiferayUpgradeDataModel op()
     {
-        this.targetPageIndex = targetPage;
+        return context( LiferayUpgradeDataModel.class );
     }
+
 }

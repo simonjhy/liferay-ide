@@ -12,23 +12,39 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import org.eclipse.sapphire.modeling.Status;
+import org.eclipse.sapphire.services.ValidationService;
+import org.eclipse.wst.server.core.internal.ServerPlugin;
+
 /**
- * @author Simon Jiang
  * @author Andy Wu
  */
-public class PageNavigateEvent
+@SuppressWarnings( "restriction" )
+public class BundleNameValidationService extends ValidationService
 {
-    private int targetPageIndex;
-    
-    public int getTargetPage()
+
+    @Override
+    protected Status compute()
     {
-        return this.targetPageIndex;
+        Status retval = Status.createOkStatus();
+
+        String serverName = op().getBundleName().content();
+
+        if( ServerPlugin.isNameInUse( null, serverName ) )
+        {
+            retval = Status.createErrorStatus(
+                "The server or runtime name is already in use. Specify a different name." );
+        }
+
+        return retval;
     }
-   
-    public void setTargetPage( int targetPage )
+
+    private LiferayUpgradeDataModel op()
     {
-        this.targetPageIndex = targetPage;
+        return context( LiferayUpgradeDataModel.class );
     }
+
 }

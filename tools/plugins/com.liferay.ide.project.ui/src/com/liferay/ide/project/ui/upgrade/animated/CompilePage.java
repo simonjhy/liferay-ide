@@ -14,30 +14,60 @@
  *******************************************************************************/
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import org.eclipse.jface.action.Action;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
+
+import com.liferay.ide.project.ui.upgrade.action.CompileAction;
+import com.liferay.ide.ui.util.UIUtil;
 
 /**
- * @author Adny
+ * @author Andy Wu
  * @author Simon Jiang
+ * @author Joye Luo
  */
 public class CompilePage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    private String pageId = "service";
     
     public CompilePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style,dataModel );
+        GridLayout layout = new GridLayout( 1, true );
+        this.setLayout( layout );
+
+        Label title = new Label( this, SWT.LEFT );
+        title.setText( "Compile" );
+        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
         
-        this.setLayout( new FillLayout() );
-        
-        Button button = new Button(this, SWT.PUSH);
-        button.setText( "Compile" );
+        Text content = new Text( this, SWT.MULTI );
+        final String descriptor =
+            "This step will try to package your upgraded projects to see if it can run successfully.\n" +
+            "If it failed, you can see error logs in console view.\n";
+        content.setText( descriptor );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT) );
+
+        Button compileButton = new Button(this, SWT.PUSH);
+        compileButton.setText( "Compile" );
+        compileButton.addSelectionListener( new SelectionAdapter()
+        {
+
+            @Override
+            public void widgetSelected( SelectionEvent e )
+            {
+                Action compile = new CompileAction("compile",UIUtil.getActiveShell());
+                compile.run();
+            }
+        } );
 
         setActions( actions );
-        this.setPageId( pageId );
+        this.setPageId( COMPILE_PAGE_ID );
     }
 }
