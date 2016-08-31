@@ -28,6 +28,7 @@ import com.liferay.ide.project.core.util.ProjectUtil;
 import com.liferay.ide.project.core.util.SearchFilesVisitor;
 import com.liferay.ide.project.ui.ProjectUI;
 import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageNavigatorListener;
+import com.liferay.ide.sdk.core.ISDKConstants;
 import com.liferay.ide.sdk.core.SDK;
 import com.liferay.ide.sdk.core.SDKUtil;
 import com.liferay.ide.server.core.LiferayServerCore;
@@ -96,7 +97,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
     private Text dirField;
-    private Text projectNameField;
+    private Text newSDKField;
     private Combo layoutComb;
     private Label layoutLabel;
     private String[] layoutNames = { "Upgrade to Liferay SDK 7", "Use Plugin SDK In Liferay Workspace" };
@@ -114,7 +115,6 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         @Override
         public void handle( Event event )
         {
-            System.out.print( event.toString() );
             if( event instanceof ValuePropertyContentEvent )
             {
                 ValuePropertyContentEvent propertyEvetn = (ValuePropertyContentEvent) event;
@@ -159,7 +159,6 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
         setLayout( layout );
         setLayoutData( new GridData( GridData.FILL_BOTH ) );
-        setBackground( GRAY );
 
         errorMessageLabel = new CLabel( this, SWT.LEFT_TO_RIGHT );
         errorMessageLabel.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );
@@ -176,6 +175,21 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 if( e.getSource().equals( dirField ) )
                 {
                     dataModel.setSdkLocation( dirField.getText() );
+                    SDK sdk = SDKUtil.createSDKFromLocation( new Path(dirField.getText()) );
+
+                    try
+                    {
+                        if( sdk != null )
+                        {
+                            final String liferay62ServerLocation =
+                                (String) ( sdk.getBuildProperties( true ).get( ISDKConstants.PROPERTY_APP_SERVER_PARENT_DIR ) );
+                            dataModel.setLiferay62ServerLocation( liferay62ServerLocation );
+                        }
+                    }
+                    catch( Exception xe )
+                    {
+                        ProjectUI.logError( xe );
+                    }
                 }
             }
         } );
@@ -198,15 +212,15 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 }
             }
         } );
-        this.projectNameField = createTextField( "Project Name:" );
-        projectNameField.addModifyListener( new ModifyListener()
+        this.newSDKField = createTextField( "New SDK Name:" );
+        newSDKField.addModifyListener( new ModifyListener()
         {
 
             public void modifyText( ModifyEvent e )
             {
-                if( e.getSource().equals( projectNameField ) )
+                if( e.getSource().equals( newSDKField ) )
                 {
-                    dataModel.setProjectName( projectNameField.getText() );
+                    dataModel.setProjectName( newSDKField.getText() );
                 }
 
             }
@@ -298,7 +312,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
         serverComb.setItems( serverNames.toArray( new String[serverNames.size()] ) );
         serverComb.select( 0 );
-        setActions( actions );
+        dataModel.setLiferayServerName( serverComb.getText() );
 
         dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener() );
         dataModel.getProjectName().attach( new LiferayUpgradeValidationListener() );
@@ -317,22 +331,22 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
             {
                 importButton.setEnabled( false );
                 importProject();
-                importButton.setEnabled( true );
 
                 PageNavigateEvent event = new PageNavigateEvent();
 
-                if( showNextPage() )
-                {
-                    event.setTargetPage( UpgradeView.getPage( getIndex() + 1 ) );
-                }
+                event.setTargetPage( UpgradeView.getPage( getIndex() + 1 ) );
 
                 for( PageNavigatorListener listener : naviListeners )
                 {
                     listener.onPageNavigate( event );
                 }
+
+                setNextPage( true );
+                importButton.setEnabled( true );
             }
         } );
 
+        setActions( actions );
         startCheckThread();
     }
 
@@ -350,7 +364,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     errorMessageLabel.setText( "This sdk location is empty " );
                 }
 
-                if( projectNameField.getText().length() == 0 )
+                if( newSDKField.getText().length() == 0 )
                 {
                     errorMessageLabel.setVisible( true );
                     errorMessageLabel.setText( "This new upgrade sdk name should not be null." );
@@ -500,7 +514,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     }
                     catch( Exception e )
                     {
-                        e.printStackTrace();
+                        ProjectUI.logError( e );
                     }
                 }
             } );

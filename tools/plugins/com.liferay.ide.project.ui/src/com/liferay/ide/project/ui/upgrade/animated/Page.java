@@ -41,6 +41,7 @@ public abstract class Page extends Composite
     public Page( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style );
+        setBackground(getDisplay().getSystemColor( SWT.COLOR_GRAY ));
         this.dataModel = dataModel;
     }
 
