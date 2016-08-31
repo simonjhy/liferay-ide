@@ -29,14 +29,13 @@ import com.liferay.ide.project.ui.upgrade.action.CompileAction;
 import com.liferay.ide.ui.util.UIUtil;
 
 /**
- * @author Adny
+ * @author Andy Wu
  * @author Simon Jiang
  * @author Joye Luo
  */
 public class CompilePage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    private String pageId = "service";
     
     public CompilePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -68,6 +67,6 @@ public class CompilePage extends Page
         } );
 
         setActions( actions );
-        this.setPageId( pageId );
+        this.setPageId( COMPILE_PAGE_ID );
     }
 }

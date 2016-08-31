@@ -32,9 +32,18 @@ import org.eclipse.ui.part.ViewPart;
 
 public class UpgradeView extends ViewPart implements SelectionChangedListener
 {
-    protected LiferayUpgradeDataModel dataModel;
     
-    private LiferayUpgradeDataModel createUpgradeModel()
+    private LiferayUpgradeDataModel dataModel;
+    
+    private static List<Page> currentPageList = new ArrayList<Page>();
+    
+    private static List<Page> staticPageList = new ArrayList<Page>();
+    
+    private static Composite pagesSwitchControler = null;
+
+    private static Page[] pages = null;
+    
+    private static LiferayUpgradeDataModel createUpgradeModel()
     {
         return LiferayUpgradeDataModel.TYPE.instantiate();
     }
@@ -42,12 +51,37 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
     public UpgradeView()
     {
         super();
-        this.dataModel = createUpgradeModel();
+        dataModel = createUpgradeModel();
+    }
+    
+    public static void resumePages()
+    {
+        currentPageList.clear();
+        currentPageList.addAll( staticPageList );
+    }
+    
+    public static void removePage(String pageid)
+    {
+        for(Page page : currentPageList)
+        {
+            if (page.getPageId().equals( pageid ))
+            {
+                currentPageList.remove( page );
+
+                return ;
+            }
+        }
+    }
+    
+    public static void resetPages()
+    {
+        pages = currentPageList.toArray( new Page[0] );
     }
 
-    private static Composite pagesSwitchControler = null;
-
-    private static Page[] pages = null;
+    public static int getPageNumber()
+    {
+        return pages.length;
+    }
 
     public void setSelectPage( int i )
     {
@@ -73,7 +107,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
     @Override
     public void createPartControl( Composite parent )
     {
-        final Composite composite = SWTUtil.createComposite( parent, 1, 1, GridData.FILL_BOTH );
+        Composite composite = SWTUtil.createComposite( parent, 1, 1, GridData.FILL_BOTH );
 
         composite.setLayout( new GridLayout( 1, true ) );
 
@@ -91,8 +125,6 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
         gear.setLayoutData( gridData );
 
-        gear.setGearsNumber( 10 );
-
         StackLayout stackLayout = new StackLayout();
         
         pagesSwitchControler = new Composite( composite, SWT.BORDER );
@@ -105,11 +137,11 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         containerData.heightHint = 500;
         pagesSwitchControler.setLayoutData( containerData );
 
-        Page welcomePage = new WelcomePage( pagesSwitchControler, SWT.NONE, dataModel );
+ 
+        Page  welcomePage = new WelcomePage( pagesSwitchControler, SWT.NONE, dataModel );
         welcomePage.setIndex( 0 );
         welcomePage.setTitle( "Welcome" );
         welcomePage.setBackPage( false );
-       
 
         Page initCofigurePrjectPage = new InitCofigurePrjectPage( pagesSwitchControler, SWT.NONE, dataModel );
         initCofigurePrjectPage.setIndex( 1 );
@@ -149,21 +181,27 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         deployPage.setIndex( 9 );
         deployPage.setTitle( "Deploy" );
         deployPage.setNextPage( false );
-
-        List<Page> pageList = new ArrayList<Page>();
-                
-        pageList.add( welcomePage );
-        pageList.add( initCofigurePrjectPage );
-        pageList.add( descriptorsPage );
-        pageList.add( findBreakingChangesPage );
-        pageList.add( buildServicePage );
-        pageList.add( layoutTemplatePage );
-        pageList.add( customJspPage );
-        pageList.add( extAndThemePage );
-        pageList.add( compilePage );
-        pageList.add( deployPage );
         
-        pages = pageList.toArray(  new Page[0] );
+        
+        staticPageList.clear();
+        
+        staticPageList.add( welcomePage );
+        staticPageList.add( initCofigurePrjectPage );
+        staticPageList.add( descriptorsPage );
+        staticPageList.add( findBreakingChangesPage );
+        staticPageList.add( buildServicePage );
+        staticPageList.add( layoutTemplatePage );
+        staticPageList.add( customJspPage );
+        staticPageList.add( extAndThemePage );
+        staticPageList.add( compilePage );
+        staticPageList.add( deployPage );
+
+        currentPageList.clear();
+        
+        currentPageList.add( welcomePage );
+        currentPageList.add( initCofigurePrjectPage );
+        
+        resetPages();
 
         final NavigatorControl navigator = new NavigatorControl( composite, SWT.NONE );
 

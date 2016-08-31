@@ -16,23 +16,24 @@ package com.liferay.ide.project.ui.upgrade.animated;
 
 /**
  * @author Simon Jiang
+ * @author Andy Wu
  */
 public class PageActionEvent
 {
-    private Page targetPage;
+    private int targetPageIndex;
     
     private PageAction action;
     
-    public Page getTargetPage()
+    public int getTargetPageIndex()
     {
-        return this.targetPage;
+        return targetPageIndex;
     }
-   
-    public void setTargetPage( Page targetPage )
+
+    public void setTargetPageIndex( int targetPageIndex )
     {
-        this.targetPage = targetPage;
+        this.targetPageIndex = targetPageIndex;
     }
-    
+
     public void setAction( PageAction action)
     {
         this.action = action;

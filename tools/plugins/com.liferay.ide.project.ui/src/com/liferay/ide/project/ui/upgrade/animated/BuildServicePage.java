@@ -56,7 +56,6 @@ import com.liferay.ide.ui.util.UIUtil;
 public class BuildServicePage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    private String pageId = "service";
 
     public BuildServicePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -193,6 +192,6 @@ public class BuildServicePage extends Page
 
         setActions( actions );
         
-        this.setPageId( pageId );
+        this.setPageId( BUILDSERVICE_PAGE_ID );
     }
 }

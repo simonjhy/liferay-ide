@@ -34,7 +34,6 @@ import org.eclipse.ui.PlatformUI;
 public class ExtAndThemePage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    private String pageId = "ext";
     
     public ExtAndThemePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -69,6 +68,6 @@ public class ExtAndThemePage extends Page
             }
         } );
         setActions( actions );
-        this.setPageId( pageId );
+        this.setPageId( EXTANDTHEME_PAGE_ID );
     }
 }

@@ -34,7 +34,6 @@ import org.eclipse.ui.PlatformUI;
 public class LayoutTemplatePage extends Page
 {
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    private String pageId = "layout";
     
     public LayoutTemplatePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -73,6 +72,6 @@ public class LayoutTemplatePage extends Page
         new  LiferayLayouttplUpgradeTableViewCustomPart(this, SWT.NONE);
 
         setActions( actions );
-        this.setPageId( pageId );
+        this.setPageId( LAYOUTTEMPLATE_PAGE_ID );
     }
 }
