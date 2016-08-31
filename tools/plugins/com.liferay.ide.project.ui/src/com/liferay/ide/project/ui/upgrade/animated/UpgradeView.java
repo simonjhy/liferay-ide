@@ -37,7 +37,7 @@ import org.eclipse.ui.part.ViewPart;
 
 public class UpgradeView extends ViewPart implements SelectionChangedListener
 {
-    
+    public static final String ID = "com.liferay.ide.project.ui.upgradeView";
     private LiferayUpgradeDataModel dataModel;
     
     private static List<Page> currentPageList = new ArrayList<Page>();
@@ -47,7 +47,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
     private static Composite pagesSwitchControler = null;
 
     private static Page[] pages = null;
-    
+
     private LiferayUpgradeDataModel createUpgradeModel()
     {
         return LiferayUpgradeDataModel.TYPE.instantiate();
