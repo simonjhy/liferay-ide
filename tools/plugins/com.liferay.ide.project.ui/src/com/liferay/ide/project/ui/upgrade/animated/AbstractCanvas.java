@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MouseAdapter;
@@ -44,12 +46,12 @@ import org.eclipse.swt.widgets.Display;
 
 /**
  * @author Simon Jiang
+ * @author Andy Wu
  */
 
 public abstract class AbstractCanvas extends Canvas
 {
     protected Font baseFont;
-    protected Font bigFont;
     
     private static final int DEFAULT_TIMER_INTERVAL = 10;
     
@@ -71,6 +73,15 @@ public abstract class AbstractCanvas extends Canvas
             public void focusLost( FocusEvent e )
             {
                 redraw();
+            }
+        } );
+        
+        addDisposeListener( new DisposeListener()
+        {
+            @Override
+            public void widgetDisposed( DisposeEvent e )
+            {
+                dispose();
             }
         } );
         
@@ -189,6 +200,7 @@ public abstract class AbstractCanvas extends Canvas
           if (isFontSmallEnough(pixelHeight, pixelWidth, fontGC, testStrings))
           {
             resources.add(font);
+
             return font;
           }
 
@@ -230,19 +242,13 @@ public abstract class AbstractCanvas extends Canvas
     @Override
     public void dispose()
     {
-      dispose(resources.toArray(new Resource[resources.size()]));
-    }
-    
-    public static void dispose(Resource... resources)
-    {
-      for (int i = 0; i < resources.length; i++)
-      {
-        Resource resource = resources[i];
-        if (resource != null && !resource.isDisposed())
+        for (Resource resource : resources)
         {
-          resource.dispose();
+          if (resource != null && !resource.isDisposed())
+          {
+            resource.dispose();
+          }
         }
-      }
     }
 
     protected final Image loadImage( String name )

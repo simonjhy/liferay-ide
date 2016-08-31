@@ -48,7 +48,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
     private static Page[] pages = null;
     
-    private static LiferayUpgradeDataModel createUpgradeModel()
+    private LiferayUpgradeDataModel createUpgradeModel()
     {
         return LiferayUpgradeDataModel.TYPE.instantiate();
     }
@@ -157,7 +157,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         GridData containerData = new GridData( GridData.FILL_HORIZONTAL );
         containerData.grabExcessHorizontalSpace = true;
         containerData.widthHint = 400;
-        containerData.heightHint = 500;
+        containerData.heightHint = 435;
         pagesSwitchControler.setLayoutData( containerData );
 
  
@@ -223,6 +223,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         
         currentPageList.add( welcomePage );
         currentPageList.add( initCofigurePrjectPage );
+        //currentPageList.addAll( staticPageList );
         
         resetPages();
 
