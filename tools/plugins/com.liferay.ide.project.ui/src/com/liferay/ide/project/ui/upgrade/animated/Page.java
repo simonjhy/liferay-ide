@@ -12,6 +12,7 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageNavigatorListener;
@@ -25,6 +26,7 @@ import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
@@ -33,30 +35,29 @@ import org.eclipse.swt.widgets.Text;
  */
 public abstract class Page extends Composite
 {
+
     protected boolean canBack = true;
     protected boolean canNext = true;
-    
+
     protected LiferayUpgradeDataModel dataModel;
-    
+
     public Page( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style );
-        setBackground(getDisplay().getSystemColor( SWT.COLOR_GRAY ));
+        setBackground( getDisplay().getSystemColor( SWT.COLOR_GRAY ) );
         this.dataModel = dataModel;
     }
 
     protected final List<PageNavigatorListener> naviListeners =
-                    Collections.synchronizedList( new ArrayList<PageNavigatorListener>() );
-    
+        Collections.synchronizedList( new ArrayList<PageNavigatorListener>() );
+
     private String pageId;
-    
-    
+
     public String getPageId()
     {
         return pageId;
     }
 
-    
     public void setPageId( String pageId )
     {
         this.pageId = pageId;
@@ -65,26 +66,26 @@ public abstract class Page extends Composite
     private int index;
 
     private String title = "title";
-    
+
     protected PageAction[] actions;
-    
+
     private PageAction selectedAction;
 
     public final int getIndex()
     {
-      return index;
+        return index;
     }
-    
+
     public void setIndex( int index )
     {
         this.index = index;
     }
-    
+
     public void setTitle( String title )
     {
         this.title = title;
     }
-    
+
     public String getTitle()
     {
         return this.title;
@@ -95,9 +96,9 @@ public abstract class Page extends Composite
         return this.actions;
     }
 
-    public final void setActions(PageAction[] actions)
+    public final void setActions( PageAction[] actions )
     {
-      this.actions = actions;
+        this.actions = actions;
     }
 
     protected boolean showBackPage()
@@ -109,12 +110,12 @@ public abstract class Page extends Composite
     {
         return canNext;
     }
-    
+
     protected void setBackPage( boolean canBack )
     {
         this.canBack = canBack;
     }
-    
+
     protected void setNextPage( boolean canBack )
     {
         this.canNext = canBack;
@@ -123,10 +124,10 @@ public abstract class Page extends Composite
     @Override
     public boolean equals( Object obj )
     {
-        Page comp = (Page)obj;
+        Page comp = (Page) obj;
         return this.pageId == comp.pageId;
     }
-    
+
     public PageAction getSelectedAction()
     {
         return selectedAction;
@@ -136,47 +137,53 @@ public abstract class Page extends Composite
     {
         this.selectedAction = selectedAction;
     }
-    
-    
-    protected Text createTextField( String labelText, int style )
-    {
-        createLabel( labelText );
 
-        Text text = new Text( this, SWT.BORDER | style );
+    protected Text createTextField( Composite composite, int style )
+    {
+        Text text = new Text( composite, SWT.BORDER | style );
         text.setLayoutData( new GridData( GridData.FILL_HORIZONTAL ) );
 
         return text;
     }
-    
-    protected Label createLabel( String text )
+
+    public static Control createSeparator( Composite parent, int hspan )
     {
-        Label label = new Label( this, SWT.NONE );
+        Label label = new Label( parent, SWT.SEPARATOR | SWT.HORIZONTAL );
+        GridData gd = new GridData( SWT.FILL, SWT.CENTER, true, false, hspan, 1 );
+        label.setLayoutData( gd );
+        return label;
+    }
+
+    public static Control createHorizontalSpacer( Composite comp, int hSpan )
+    {
+        Label l = new Label( comp, SWT.NONE );
+        GridData gd = new GridData( GridData.FILL_HORIZONTAL );
+        gd.horizontalSpan = hSpan;
+        l.setLayoutData( gd );
+        return l;
+    }
+
+    protected Label createLabel( Composite composite, String text )
+    {
+        Label label = new Label( composite, SWT.NONE );
         label.setText( text );
 
         GridDataFactory.generate( label, 2, 1 );
 
         return label;
     }
-    
-    protected Text createTextField( String labelText )
-    {
-        return createTextField( labelText, SWT.NONE );
-    }
-    
-    
+
     protected final List<PageValidationListener> pageValidationListeners =
-                    Collections.synchronizedList( new ArrayList<PageValidationListener>() );
+        Collections.synchronizedList( new ArrayList<PageValidationListener>() );
 
     public void addPageValidationListener( PageValidationListener listener )
     {
         this.pageValidationListeners.add( listener );
     }
-    
+
     public void addPageNavigateListener( PageNavigatorListener listener )
     {
         this.naviListeners.add( listener );
     }
-    
-    
-    
+
 }
