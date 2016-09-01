@@ -15,10 +15,14 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.project.core.upgrade.UpgradeAssistantSettingsUtil;
+import com.liferay.ide.project.ui.ProjectUI;
+import com.liferay.ide.project.ui.migration.MigrationProblemsContainer;
 import com.liferay.ide.project.ui.upgrade.CustomJspConverter;
 import com.liferay.ide.ui.util.SWTUtil;
 import com.liferay.ide.ui.util.UIUtil;
 
+import java.io.IOException;
 import java.net.URL;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -112,6 +116,22 @@ public class WelcomePage extends Page
                 if( openNewLiferayProjectWizard )
                 {
                     CustomJspConverter.clearConvertResults();
+
+                    try
+                    {
+                        MigrationProblemsContainer container =
+                            UpgradeAssistantSettingsUtil.getObjectFromStore( MigrationProblemsContainer.class );
+
+                        if( container != null )
+                        {
+                            container.setProblemsArray( null );
+                            UpgradeAssistantSettingsUtil.setObjectToStore( MigrationProblemsContainer.class, null );
+                        }
+                    }
+                    catch( IOException excepiton )
+                    {
+                        ProjectUI.logError( excepiton );
+                    }
                     /*
                      * IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
                      * IEditorPart editor = page.getActiveEditor(); page.closeEditor( editor, false ); final IPath

@@ -32,7 +32,6 @@ import com.liferay.ide.project.ui.migration.MigratorComparator;
 import com.liferay.ide.project.ui.migration.ProblemsContainer;
 import com.liferay.ide.project.ui.migration.RemoveAction;
 import com.liferay.ide.project.ui.migration.RunMigrationToolAction;
-import com.liferay.ide.ui.util.SWTUtil;
 import com.liferay.ide.ui.util.UIUtil;
 
 import java.io.IOException;
@@ -64,17 +63,19 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
 
@@ -105,16 +106,37 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
     {
         super( parent, style, dataModel );
 
-        GridLayout gridLayout = new GridLayout( 3, false );
+        setLayout( new GridLayout( 1, false ) );
 
-        setLayout( gridLayout );
+        Label title = new Label( this, SWT.LEFT );
+        title.setText( "Find Breaking Changes" );
+        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
+
+        Text content = new Text( this, SWT.MULTI );
+        final String descriptor =
+            "This step will help you to find  breaking changes for type of java , jsp , xml and properties file.\n" +
+                "It  will not support to find the front-end codes( e.g., javascript, css). For service builder, you\n" +
+                "just need to modify the changes on xxxServiceImp.class, xxxFinder.class, xxxModel.class.\n" +
+                "Others will be solved at step “Build Service”.";
+        content.setText( descriptor );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ) );
+
+        final Composite findBreakingchangesContainer = new Composite( this, SWT.NONE );
+        findBreakingchangesContainer.setLayout( new GridLayout( 3, false ) );
 
         GridData grData = new GridData( GridData.FILL_BOTH );
-        grData.heightHint = 300;
-        grData.widthHint = 300;
+        grData.grabExcessVerticalSpace = true;
+        grData.grabExcessHorizontalSpace = true;
 
-        _treeViewer = new TreeViewer( this );
-        _treeViewer.getTree().setLayoutData( grData );
+        findBreakingchangesContainer.setLayoutData( grData );
+
+        GridData treeData = new GridData( GridData.FILL_BOTH );
+        treeData.grabExcessVerticalSpace = true;
+        treeData.grabExcessHorizontalSpace = true;
+        treeData.horizontalAlignment = SWT.FILL;
+
+        _treeViewer = new TreeViewer( findBreakingchangesContainer );
+        _treeViewer.getTree().setLayoutData( treeData );
 
         migrationContentProvider = new MigrationContentProvider();
 
@@ -132,7 +154,7 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         _treeViewer.getTree().setMenu( menu );
         _treeViewer.expandAll();
 
-        createTableView();
+        createTableView( findBreakingchangesContainer );
 
         _treeViewer.addSelectionChangedListener( new ISelectionChangedListener()
         {
@@ -180,11 +202,13 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
             }
         } );
 
-        final Composite composite = SWTUtil.createComposite( this, 1, 1, GridData.CENTER );
+        Composite buttonContainer = new Composite( findBreakingchangesContainer, SWT.NONE );
+        buttonContainer.setLayout( new GridLayout( 1, false ) );
+        buttonContainer.setLayoutData( new GridData( SWT.FILL, SWT.TOP, false, false, 1, 1 ) );
 
-        Button b_findbreakingchanges = new Button( composite, SWT.PUSH );
+        Button b_findbreakingchanges = new Button( buttonContainer, SWT.NONE );
         b_findbreakingchanges.setText( "Find Breaking Changes" );
-        b_findbreakingchanges.setLayoutData( new GridData( 150, 30 ) );
+        b_findbreakingchanges.setLayoutData( new GridData( SWT.FILL, SWT.TOP, false, false, 1, 1 ) );
 
         b_findbreakingchanges.addListener( SWT.Selection, new Listener()
         {
@@ -197,9 +221,9 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
             }
         } );
 
-        Button openAll = new Button( composite, SWT.PUSH );
+        Button openAll = new Button( buttonContainer, SWT.NONE );
         openAll.setText( "Expand All" );
-        openAll.setLayoutData( new GridData( 150, 30 ) );
+        openAll.setLayoutData( new GridData( SWT.FILL, SWT.TOP, false, false, 1, 1 ) );
 
         openAll.addListener( SWT.Selection, new Listener()
         {
@@ -211,9 +235,9 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
             }
         } );
 
-        Button collapseAll = new Button( composite, SWT.PUSH );
+        Button collapseAll = new Button( buttonContainer, SWT.NONE );
         collapseAll.setText( "Collapse All" );
-        collapseAll.setLayoutData( new GridData( 150, 30 ) );
+        collapseAll.setLayoutData( new GridData( SWT.FILL, SWT.TOP, false, false, 1, 1 ) );
 
         collapseAll.addListener( SWT.Selection, new Listener()
         {
@@ -255,14 +279,27 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         return _problems;
     }
 
-    public void createTableView()
+    public void createTableView( Composite container )
     {
-        final Composite parent = SWTUtil.createComposite( this, 1, 1, GridData.CENTER );
+        final Composite parent = new Composite( container, SWT.NONE );
+        GridData parentData = new GridData( GridData.FILL_BOTH );
+        parentData.grabExcessVerticalSpace = true;
+        parentData.grabExcessHorizontalSpace = true;
+        parentData.horizontalAlignment = SWT.FILL;
+
+        parent.setLayout( new GridLayout( 1, false ) );
+        parent.setLayoutData( parentData );
 
         SashForm viewParent = new SashForm( parent, SWT.HORIZONTAL );
 
-        viewParent.setLayout( new FillLayout( SWT.HORIZONTAL ) );
-        viewParent.setLayoutData( new GridData( 500, 600 ) );
+        viewParent.setLayout( new GridLayout( 1, false ) );
+
+        GridData gridData = new GridData( GridData.FILL_BOTH );
+        gridData.grabExcessVerticalSpace = true;
+        gridData.grabExcessHorizontalSpace = true;
+        gridData.horizontalAlignment = SWT.FILL;
+
+        viewParent.setLayoutData( gridData );
 
         SashForm detailParent = new SashForm( viewParent, SWT.VERTICAL );
 
