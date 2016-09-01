@@ -15,18 +15,22 @@
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.ui.upgrade.CustomJspConverter;
+import com.liferay.ide.ui.util.SWTUtil;
 import com.liferay.ide.ui.util.UIUtil;
 
 import java.net.URL;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
@@ -40,19 +44,23 @@ import org.eclipse.ui.PlatformUI;
  */
 public class WelcomePage extends Page
 {
+    @SuppressWarnings( "unused" )
     public WelcomePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
-        GridLayout layout = new GridLayout( 1, false );
-        this.setLayout( layout );
-        
         this.setPageId( WELCOME_PAGE_ID );
 
-        Label title = new Label( this, SWT.LEFT );
+        GridLayout layout = new GridLayout( 2, false );
+        setLayout( layout );
+        setLayoutData( new GridData( GridData.FILL_BOTH ) );
+
+        Label title = new Label( this, SWT.LEFT_TO_RIGHT );
+        title.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );
         title.setText( "Welcome to Liferay Code Upgrade Tool" );
         title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
 
         Link link = new Link( this, SWT.MULTI );
+        link.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 1, 1 ) );
         final String WELCOME =
             "This tool will help you to convert Liferay 6.2 projects into Liferay 7.0 projects.\n\n" +
                 "The key functions are described below:\n" +
@@ -84,8 +92,11 @@ public class WelcomePage extends Page
             }
         } );
 
-        Button reRunButton = new Button( this, SWT.CENTER );
-        reRunButton.setText( "Rerun" );
+        Control createHorizontalSpacer = createHorizontalSpacer( this, 3 );
+        Control createHorizontalSperator = createSeparator( this, 3 );
+
+        Label blankLabel = new Label( this, SWT.LEFT_TO_RIGHT );
+        Button reRunButton = SWTUtil.createButton( this, "Rerun..." );
         reRunButton.addSelectionListener( new SelectionAdapter()
         {
 
