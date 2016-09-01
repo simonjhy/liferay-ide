@@ -82,6 +82,10 @@ public abstract class AbstractLiferayTableViewCustomPart extends Composite
         super( parent, style );
 
         this.setLayout( new GridLayout( 2, false ) );
+        final GridData descData = new GridData( GridData.FILL_BOTH );
+        descData.grabExcessVerticalSpace = true;
+        descData.grabExcessHorizontalSpace = true;
+        this.setLayoutData( descData );
 
         tableViewer = new TableViewer( this );
 
@@ -101,10 +105,10 @@ public abstract class AbstractLiferayTableViewCustomPart extends Composite
 
         final Table table = tableViewer.getTable();
         final GridData tableData = new GridData( GridData.FILL_BOTH );
-        tableData.heightHint = 225;
-        tableData.widthHint = 700;
+        tableData.grabExcessVerticalSpace = true;
+        tableData.grabExcessHorizontalSpace = true;
+        tableData.horizontalAlignment = SWT.FILL;
         table.setLayoutData( tableData );
-
         Composite buttonContainer = new Composite( this, SWT.NONE );
         buttonContainer.setLayout( new GridLayout( 1, false ) );
         buttonContainer.setLayoutData( new GridData( SWT.FILL, SWT.TOP, false, false, 1, 1 ) );
