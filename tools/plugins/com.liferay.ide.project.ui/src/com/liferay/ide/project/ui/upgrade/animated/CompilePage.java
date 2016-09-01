@@ -52,6 +52,7 @@ public class CompilePage extends Page
             "This step will try to package your upgraded projects to see if it can run successfully.\n" +
             "If it failed, you can see error logs in console view.\n";
         content.setText( descriptor );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT) );
 
         Button compileButton = new Button(this, SWT.PUSH);
         compileButton.setText( "Compile" );
