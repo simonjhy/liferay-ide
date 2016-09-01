@@ -13,7 +13,6 @@
  *
  *******************************************************************************/
 
-
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.ui.ProjectUI;
@@ -177,6 +176,11 @@ public abstract class AbstractCanvas extends Canvas
         return baseFont;
     }
 
+    protected final Font createFont( int pixelHeight )
+    {
+        return createFont( pixelHeight, 0 );
+    }
+
     protected final Font createFont( int pixelHeight, int pixelWidth, String... testStrings )
     {
         if( testStrings.length == 0 )
@@ -211,6 +215,7 @@ public abstract class AbstractCanvas extends Canvas
                 }
 
                 font.dispose();
+
                 --fontSize;
             }
 

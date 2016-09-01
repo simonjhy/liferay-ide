@@ -43,66 +43,71 @@ public class GearControl extends AbstractCanvas
     implements PageNavigatorListener, PageActionListener, PageValidationListener
 {
 
-    public static final int BORDER = 20;
+    private float angle;
 
-    private static final int TEETH = 8;
+    private final int BORDER = 20;
 
-    private static final float ANGLE = 360 / TEETH;
+    private Display display;
 
-    private static final double RADIAN = 2 * Math.PI / 360;
+    private final Color[] gearBackground = new Color[2];
+    private final Color[] gearForeground = new Color[2];
 
-    static final int BIG_FONT_PX = 48;
+    private int gearMaxNumber = 10;
 
-    static final int NORMAL_FONT_PX = (int) ( BIG_FONT_PX * .75 );
+    private final Path[] gearPaths = new Path[gearMaxNumber];
+    private final Point[] tooltipPoints = new Point[gearMaxNumber];
 
-    private static Color WHITE;
+    private Color DARK_GRAY;
+    private Color GRAY;
+    private Color WHITE;
+    private Color tooltipColor;
 
-    private static Color GRAY;
+    private int hover = NONE;
 
-    private static Color DARK_GRAY;
+    private boolean needRedraw = false;
+
+    private Font numberFont;
+
+    private int oldHover = NONE;
+
+    private int oldSelection = NONE;
+
+    private boolean overflow;
+
+    private final double RADIAN = 2 * Math.PI / 360;
+
+    private float radius;
+
+    private int selection;
 
     private final List<SelectionChangedListener> selectionChangedListeners =
         Collections.synchronizedList( new ArrayList<SelectionChangedListener>() );
 
-    public static int GearsNumber = 10;
-
-    private Color tooltipColor;
-
-    private Font tooltipFont;
-
-    private Font numberFont;
-
-    private final Point[] tooltipPoints = new Point[GearsNumber];
-
-    private final Path[] gearPaths = new Path[GearsNumber];
-
-    private final Color[] gearBackground = new Color[2];
-
-    private final Color[] gearForeground = new Color[2];
-
-    private float radius;
+    private float speed;
 
     private long startAnimation;
 
-    private float speed;
+    private final int TEETH = 8;
 
-    private float angle;
+    private final float ANGLE = 360 / TEETH;
 
-    private boolean overflow;
+    private Font tooltipFont;
 
-    private boolean needRedraw = false;
+    public GearControl( Composite parent, int style )
+    {
+        super( parent, style );
 
-    private int selection;
+        init();
 
-    private int oldSelection = NONE;
+        scheduleRun();
+    }
 
-    private int hover = NONE;
+    public void addSelectionChangedListener( SelectionChangedListener listener )
+    {
+        selectionChangedListeners.add( listener );
+    }
 
-    private int oldHover = NONE;
-
-    private Display display;
-
-    private static Path drawGear(
+    private Path drawGear(
         GC gc, Display display, double cx, double cy, double outerR, double innerR, float angleOffset )
     {
         double radian2 = ANGLE / 2 * RADIAN;
@@ -113,7 +118,6 @@ public class GearControl extends AbstractCanvas
         for( int i = 0; i < TEETH; i++ )
         {
             double radian = ( i * ANGLE + angleOffset ) * RADIAN;
-
             double x = cx + outerR * Math.cos( radian );
             double y = cy - outerR * Math.sin( radian );
 
@@ -147,21 +151,51 @@ public class GearControl extends AbstractCanvas
         path.close();
         gc.fillPath( path );
         gc.drawPath( path );
+
         return path;
     }
 
-    public GearControl( Composite parent, int style )
+    public final int getSelection()
     {
-        super( parent, style );
-
-        init();
-
-        scheduleRun();
+        return selection;
     }
 
-    public void addSelectionChangedListener( SelectionChangedListener listener )
+    protected void init()
     {
-        selectionChangedListeners.add( listener );
+        super.init();
+
+        display = getDisplay();
+
+        WHITE = display.getSystemColor( SWT.COLOR_WHITE );
+        GRAY = display.getSystemColor( SWT.COLOR_GRAY );
+        DARK_GRAY = display.getSystemColor( SWT.COLOR_DARK_GRAY );
+
+        Font initialFont = getFont();
+        FontData[] fontData = initialFont.getFontData();
+
+        for( int i = 0; i < fontData.length; i++ )
+        {
+            fontData[i].setHeight( 16 );
+            fontData[i].setStyle( SWT.BOLD );
+        }
+
+        baseFont = new Font( display, fontData );
+
+        numberFont = createFont( 24 );
+        tooltipFont = createFont( 24 );
+
+        radius = 32;
+        setSize( (int) ( gearMaxNumber * 2 * radius ), (int) ( 2 * radius ) );
+
+        // Not selected.
+        gearBackground[0] = createColor( 169, 171, 202 );
+        gearForeground[0] = createColor( 140, 132, 171 );
+
+        // Selected.
+        gearBackground[1] = createColor( 247, 148, 30 );
+        gearForeground[1] = createColor( 207, 108, 0 );
+
+        tooltipColor = createColor( 253, 232, 206 );
     }
 
     @Override
@@ -202,60 +236,10 @@ public class GearControl extends AbstractCanvas
 
         long timeSinceStart = now - startAnimation;
 
-        speed = timeSinceStart * ANGLE / 1900;
+        speed = timeSinceStart * ANGLE / 400;
         angle += speed;
 
         return true;
-    }
-
-    protected final Font createFont( int pixelHeight )
-    {
-        return createFont( pixelHeight, 0 );
-    }
-
-    public final int getSelection()
-    {
-        return selection;
-    }
-
-    protected void init()
-    {
-        super.init();
-
-        display = getDisplay();
-
-        WHITE = display.getSystemColor( SWT.COLOR_WHITE );
-        GRAY = display.getSystemColor( SWT.COLOR_GRAY );
-        DARK_GRAY = display.getSystemColor( SWT.COLOR_DARK_GRAY );
-
-        setBackground( WHITE );
-
-        Font initialFont = getFont();
-        FontData[] fontData = initialFont.getFontData();
-
-        for( int i = 0; i < fontData.length; i++ )
-        {
-            fontData[i].setHeight( 16 );
-            fontData[i].setStyle( SWT.BOLD );
-        }
-
-        baseFont = new Font( display, fontData );
-
-        numberFont = createFont( 24 );
-        tooltipFont = createFont( 24 );
-
-        radius = 32;
-        setSize( (int) ( GearsNumber * 2 * radius ), (int) ( 2 * radius ) );
-
-        // Not selected.
-        gearBackground[0] = createColor( 169, 171, 202 );
-        gearForeground[0] = createColor( 140, 132, 171 );
-
-        // Selected.
-        gearBackground[1] = createColor( 247, 148, 30 );
-        gearForeground[1] = createColor( 207, 108, 0 );
-
-        tooltipColor = createColor( 253, 232, 206 );
     }
 
     @Override
@@ -329,6 +313,11 @@ public class GearControl extends AbstractCanvas
     }
 
     @Override
+    public void onValidation( PageValidateEvent event )
+    {
+    }
+
+    @Override
     protected void paint( GC gc )
     {
         gc.setFont( getBaseFont() );
@@ -344,7 +333,6 @@ public class GearControl extends AbstractCanvas
             tooltipPoints[i] = paintGear( gc, i, alpha );
         }
 
-        // show gear tooltip
         if( hover >= 0 && hover < tooltipPoints.length )
         {
             Point point = tooltipPoints[hover];
@@ -367,11 +355,11 @@ public class GearControl extends AbstractCanvas
 
     private Point paintBadge( GC gc, double x, double y, double outerR, int i, int alpha )
     {
-        if( selection >= GearsNumber )
+        if( selection >= gearMaxNumber )
         {
             gc.setAlpha( 255 - alpha );
         }
-        else if( oldSelection >= GearsNumber )
+        else if( oldSelection >= gearMaxNumber )
         {
             gc.setAlpha( alpha );
         }
@@ -441,12 +429,20 @@ public class GearControl extends AbstractCanvas
 
         double outerR = factor * radius;
         double innerR = factor * r2;
-        float angleOffset = ( angle + i * ANGLE ) * ( i % 2 == 1 ? -1 : 1 );
+        float angleOffset = ( angle + i * ANGLE ) * ( i % 2 == 1 ? -1 : 1 ) / 7;
 
         gc.setForeground( hovered ? DARK_GRAY : gearForeground[selected] );
         gc.setBackground( hovered ? GRAY : gearBackground[selected] );
 
-        Display display = getDisplay();
+        if( outerR < 32.0 )
+        {
+            outerR = 32.0D;
+        }
+
+        if( innerR < 25.0 )
+        {
+            innerR = 25.600000381469727D;
+        }
 
         Path path = drawGear( gc, display, x, y, outerR, innerR, angleOffset );
 
@@ -464,7 +460,7 @@ public class GearControl extends AbstractCanvas
         gc.fillOval( ovalX, ovalY, ovalR, ovalR );
         gc.drawOval( ovalX, ovalY, ovalR, ovalR );
 
-        if( i < GearsNumber )
+        if( i < gearMaxNumber )
         {
             String number = Integer.toString( i + 1 );
 
@@ -493,21 +489,22 @@ public class GearControl extends AbstractCanvas
             selection = 0;
             overflow = true;
         }
-        else if( selection > GearsNumber - 1 )
+        else if( selection > gearMaxNumber - 1 )
         {
-            selection = GearsNumber - 1;
+            selection = gearMaxNumber - 1;
             overflow = true;
         }
 
         if( overflow )
         {
             overflow = false;
+
             while( needRedraw() )
             {
-                // Just advance.
             }
 
             overflow = true;
+
             return;
         }
 
@@ -521,10 +518,5 @@ public class GearControl extends AbstractCanvas
         }
 
         restart();
-    }
-
-    @Override
-    public void onValidation( PageValidateEvent event )
-    {
     }
 }

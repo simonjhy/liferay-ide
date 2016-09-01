@@ -15,11 +15,6 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
-/**
- * @author Andy Wu
- * @author Simon Jiang
- * @author Joye Luo
- */
 import com.liferay.ide.ui.util.SWTUtil;
 
 import java.util.ArrayList;
@@ -36,10 +31,16 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.part.ViewPart;
 
+/**
+ * @author Andy Wu
+ * @author Simon Jiang
+ * @author Joye Luo
+ */
 public class UpgradeView extends ViewPart implements SelectionChangedListener
 {
 
     public static final String ID = "com.liferay.ide.project.ui.upgradeView";
+
     private LiferayUpgradeDataModel dataModel;
 
     private static List<Page> currentPageList = new ArrayList<Page>();
@@ -136,7 +137,6 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
                 Image image = GradientHelper.createGradientImageFor( composite, fontColor, backColor, true );
 
                 composite.setBackgroundImage( image );
-
             }
         } );
 
@@ -222,9 +222,9 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
         currentPageList.clear();
 
-        currentPageList.add( welcomePage );
-        currentPageList.add( initCofigurePrjectPage );
-        // currentPageList.addAll( staticPageList );
+        //currentPageList.add( welcomePage );
+        //currentPageList.add( initCofigurePrjectPage );
+        currentPageList.addAll( staticPageList );
 
         resetPages();
 
