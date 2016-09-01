@@ -34,7 +34,6 @@ import org.eclipse.swt.widgets.Display;
  * @author Simon Jiang
  * @author Andy Wu
  */
-
 public class NavigatorControl extends AbstractCanvas implements SelectionChangedListener
 {
 

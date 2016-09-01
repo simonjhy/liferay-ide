@@ -13,7 +13,6 @@
  *
  *******************************************************************************/
 
-
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.ui.ProjectUI;
@@ -211,6 +210,7 @@ public abstract class AbstractCanvas extends Canvas
                 }
 
                 font.dispose();
+
                 --fontSize;
             }
 

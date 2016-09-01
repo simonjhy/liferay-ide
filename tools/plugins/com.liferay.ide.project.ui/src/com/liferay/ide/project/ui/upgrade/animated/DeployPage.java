@@ -13,7 +13,6 @@
  *
  *******************************************************************************/
 
-
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import org.eclipse.jface.wizard.WizardDialog;
