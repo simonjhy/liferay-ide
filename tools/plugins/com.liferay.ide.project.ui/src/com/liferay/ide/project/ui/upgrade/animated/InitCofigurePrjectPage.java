@@ -197,7 +197,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
             PlatformUI.getWorkbench().getSharedImages().getImage( ISharedImages.IMG_OBJS_ERROR_TSK ) );
         errorMessageLabel.setVisible( false );
 
-        dirLabel = createLabel( composite, "Liferay Server Name:" );
+        dirLabel = createLabel( composite, "Liferay SDK Location:" );
         dirField = createTextField( composite, SWT.NONE );
         dirField.addModifyListener( new ModifyListener()
         {
@@ -425,7 +425,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
             }
         } );
 
-        bundleUrlLabel = createLabel( composite, "Bundle Name:" );
+        bundleUrlLabel = createLabel( composite, "Bundle URL:" );
         bundleUrlField = createTextField( composite, SWT.NONE );
         bundleUrlField.addModifyListener( new ModifyListener()
         {
