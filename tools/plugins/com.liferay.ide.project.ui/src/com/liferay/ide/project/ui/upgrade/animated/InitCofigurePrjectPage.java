@@ -183,28 +183,22 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
         GridLayout layout = new GridLayout( 2, false );
 
-        Label title = new Label( this, SWT.LEFT_TO_RIGHT );
-        title.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );
-        title.setText( "Config Source  and  Import Projects" );
-        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
-
-        Text content = new Text( this, SWT.MULTI );
-        content.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 1, 1 ) );
-        final String descriptor =
-            "The first step will help you convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to  Liferay Workspace. \n" +
-            "Note: In order to save time, downloading  7.0 ivy cache  locally could be a good choice to upgrade to liferay plugin sdk 7. \n" +
-            "\n" +
-            "Click the ¡°import¡± button to import your project into Eclipse workspace. " +
-            "We will backup your project to a zip file in your eclipse workspace directory. \n" + 
-            "\n" +
-            "Note: Theme and ext projects will be ignored for that we didn¡¯t provide support for them  at liferay 7.0. For more details, please see dev.liferay.com..\n";
-        content.setText( descriptor );
-        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT) );
-
         setLayout( layout );
         setLayoutData( new GridData( GridData.FILL_BOTH ) );
 
         createSeparator = createSeparator( this, 3 );
+        Label title = new Label( this, SWT.LEFT_TO_RIGHT );
+        title.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );
+        title.setText( "Configure Project" );
+        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
+
+        Text content = new Text( this, SWT.MULTI );
+        final String descriptor =
+            "This step will help you convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to  Liferay Workspace and\n" +
+            "backup your projects to a zip file at the root directory of Eclipse workspace.\n" +
+            "Click the ¡°import¡± button to import your projects into Eclipse workspace.";
+        content.setText( descriptor );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT) );
 
         errorMessageLabel = new CLabel( composite, SWT.LEFT_TO_RIGHT );
         errorMessageLabel.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );

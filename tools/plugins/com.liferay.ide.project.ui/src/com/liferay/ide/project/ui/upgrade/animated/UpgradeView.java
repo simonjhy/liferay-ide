@@ -120,25 +120,15 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         composite.setLayout( new GridLayout( 1, true ) );
 
         GridData grData = new GridData( GridData.FILL_BOTH );
-        // grData.heightHint = 600;
-        // grData.widthHint = 300;
-        grData.grabExcessVerticalSpace = true;
+        Color backGroundColor = composite.getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND );
+        //grData.heightHint = 600;
+        //grData.widthHint = 300;
+
+        grData.grabExcessVerticalSpace = true; 
         grData.grabExcessHorizontalSpace = true;
         composite.setLayoutData( grData );
-        composite.addListener( SWT.Resize, new Listener()
-        {
+        composite.setBackground( backGroundColor );
 
-            @Override
-            public void handleEvent( Event event )
-            {
-                Color fontColor = composite.getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND );
-                Color backColor = composite.getDisplay().getSystemColor( SWT.COLOR_WHITE );
-
-                Image image = GradientHelper.createGradientImageFor( composite, fontColor, backColor, true );
-
-                composite.setBackgroundImage( image );
-            }
-        } );
 
         final GearControl gear = new GearControl( composite, SWT.NONE );
 
@@ -148,14 +138,27 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         gridData.heightHint = 130;
 
         gear.setLayoutData( gridData );
-        gear.setBackground( gear.getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ) );
+        gear.setBackground( backGroundColor );
 
         StackLayout stackLayout = new StackLayout();
 
         pagesSwitchControler = new Composite( composite, SWT.BORDER );
 
         pagesSwitchControler.setLayout( stackLayout );
-        pagesSwitchControler.setBackground( pagesSwitchControler.getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ) );
+        pagesSwitchControler.addListener( SWT.Resize, new Listener()
+        {
+
+            @Override
+            public void handleEvent( Event event )
+            {
+                Color endColor = composite.getDisplay().getSystemColor( SWT.COLOR_WHITE );
+
+                Image image = GradientHelper.createGradientImageFor( pagesSwitchControler, backGroundColor, endColor, true);
+
+                pagesSwitchControler.setBackgroundImage( image );
+            }
+        } );
+        
 
         GridData containerData = new GridData( GridData.FILL_BOTH );
         containerData.grabExcessHorizontalSpace = true;
@@ -243,7 +246,8 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         navData.heightHint = 55;
 
         navigator.setLayoutData( navData );
-        navigator.setBackground( navigator.getDisplay().getSystemColor( SWT.COLOR_WHITE ) );
+        navigator.setBackground( backGroundColor );
+
 
         setSelectPage( 0 );
     }

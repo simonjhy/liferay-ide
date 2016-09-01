@@ -73,11 +73,15 @@ public class WelcomePage extends Page
                 "       2.Find  breaking changes in all projects" + " Update Descriptor files from 6.2 to 7.0\n" +
                 "       3.Update Descriptor files from 6.2 to 7.0\n" +
                 "       4.Update Layout Template files from 6.2 to 7.0\n" +
-                "       5.Convert projects with custom jsp hook to modules or fragments\n\n" + "Note:\n" +
+                "       5.Convert projects with custom jsp hook to modules or fragments\n" +
+                "       6.Upgrade Liferay Theme projects from 6.2 to 7.0.\n\n" + "Note:\n" +
                 "       This tool will help you to backup your sdk.\n" +
                 "       It is still highly recommended that you make back-up copies of your important files.\n" +
-                "       Theme and ext projects are not supported to upgrade in this tool currently.\n" +
-                "       For more details, please see <a>From Liferay 6 to Liferay 7</a>.\n\n";
+                "       Ext projects are not supported to upgrade in this tool currenttly.\n" +
+                "       For more details, please see <a>From Liferay 6 to Liferay 7</a>.\n\n"+
+                "       In addition to the mouse you can use left, right, y,n and the gear to work through\n" + 
+                "       the following pages. What's more, you can mark with y when one step is well done and\n" +
+                "       mark with n when it failed.";
         link.setText( WELCOME );
         link.addListener( SWT.Selection, new Listener()
         {

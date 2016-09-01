@@ -110,6 +110,7 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
 
         Label title = new Label( this, SWT.LEFT );
         title.setText( "Find Breaking Changes" );
+        title.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 3, 1 ) );
         title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
 
         Text content = new Text( this, SWT.MULTI );
@@ -117,7 +118,7 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
             "This step will help you to find  breaking changes for type of java , jsp , xml and properties file.\n" +
                 "It  will not support to find the front-end codes( e.g., javascript, css). For service builder, you\n" +
                 "just need to modify the changes on xxxServiceImp.class, xxxFinder.class, xxxModel.class.\n" +
-                "Others will be solved at step “Build Service”.";
+                "Others will be solved at step \"Build Service\".";
         content.setText( descriptor );
         content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ) );
 

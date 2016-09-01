@@ -48,8 +48,13 @@ public class ExtAndThemePage extends Page
         title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
 
         Link link = new Link( this, SWT.MULTI );
-        final String layouttpl = "Ext and Theme Projects will be supported in the future.\n" +
-            "For more details, please see <a>Introduction to Themes</a>.\n";
+
+        final String layouttpl =
+            "This step will help you convert Theme Projects from 6.2 to 7.0.\n" +
+            "For Ext Projects, we didn't provide support for them at Liferay 7.0.\n" +
+            "If you have ext projects, you can change them into modules.\n"+
+            "For more details, please see <a>Liferay Blade Samples</a>.\n";
+
         link.setText( layouttpl );
         link.addListener( SWT.Selection, new Listener()
         {
@@ -59,9 +64,8 @@ public class ExtAndThemePage extends Page
             {
                 try
                 {
-                    URL extAndThemeUrl = new URL(
-                        "https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/introduction-to-themes" );
-                    PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL( extAndThemeUrl );
+                    URL extAndThemeUrl = new URL("https://github.com/liferay/liferay-blade-samples");
+                    PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(extAndThemeUrl);
                 }
                 catch( Exception e )
                 {
