@@ -222,9 +222,9 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
         currentPageList.clear();
 
-        currentPageList.add( welcomePage );
-        currentPageList.add( initCofigurePrjectPage );
-        // currentPageList.addAll( staticPageList );
+        //currentPageList.add( welcomePage );
+        //currentPageList.add( initCofigurePrjectPage );
+        currentPageList.addAll( staticPageList );
 
         resetPages();
 

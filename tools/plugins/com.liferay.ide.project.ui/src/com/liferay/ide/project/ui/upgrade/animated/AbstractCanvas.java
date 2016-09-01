@@ -176,6 +176,11 @@ public abstract class AbstractCanvas extends Canvas
         return baseFont;
     }
 
+    protected final Font createFont( int pixelHeight )
+    {
+        return createFont( pixelHeight, 0 );
+    }
+
     protected final Font createFont( int pixelHeight, int pixelWidth, String... testStrings )
     {
         if( testStrings.length == 0 )
