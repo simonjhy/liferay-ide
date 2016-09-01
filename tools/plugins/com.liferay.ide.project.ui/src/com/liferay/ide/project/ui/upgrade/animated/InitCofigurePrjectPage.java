@@ -37,11 +37,7 @@ import com.liferay.ide.ui.util.SWTUtil;
 import com.liferay.ide.ui.util.UIUtil;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -49,11 +45,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -75,6 +70,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -188,8 +184,28 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
         GridLayout layout = new GridLayout( 2, false );
 
+        Label title = new Label( this, SWT.LEFT_TO_RIGHT );
+        title.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );
+        title.setText( "Config Source  and  Import Projects" );
+        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
+
+        Text content = new Text( this, SWT.MULTI );
+        content.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 1, 1 ) );
+        final String descriptor =
+            "The first step will help you convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to  Liferay Workspace. \n" +
+            "Note: In order to save time, downloading  7.0 ivy cache  locally could be a good choice to upgrade to liferay plugin sdk 7. \n" +
+            "\n" +
+            "Click the ¡°import¡± button to import your project into Eclipse workspace. " +
+            "We will backup your project to a zip file in your eclipse workspace directory. \n" + 
+            "\n" +
+            "Note: Theme and ext projects will be ignored for that we didn¡¯t provide support for them  at liferay 7.0. For more details, please see dev.liferay.com..\n";
+        content.setText( descriptor );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT) );
+
         setLayout( layout );
         setLayoutData( new GridData( GridData.FILL_BOTH ) );
+
+        createSeparator = createSeparator( this, 3 );
 
         errorMessageLabel = new CLabel( composite, SWT.LEFT_TO_RIGHT );
         errorMessageLabel.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );
@@ -315,6 +331,24 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         createImportElement();
 
         startCheckThread();
+    }
+
+    private void backupSDK()
+    {
+        try
+        {
+            org.eclipse.sapphire.modeling.Path originalSDKPath = dataModel.getSdkLocation().content();
+
+            if( originalSDKPath != null )
+            {
+                IPath backupLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation();
+                ZipUtil.zip( originalSDKPath.toFile(), backupLocation.append( "backup.zip" ).toFile() );
+            }
+        }
+        catch( IOException e )
+        {
+            ProjectUI.logError( "Error to backup original sdk folder.", e );
+        }
     }
 
     private void resetPages()
@@ -444,7 +478,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
         blankLabel = new Label( this, SWT.LEFT_TO_RIGHT );
 
-        importButton = SWTUtil.createButton( this, "Import SDK Project..." );
+        importButton = SWTUtil.createButton( this, "Import Project..." );
         importButton.addSelectionListener( new SelectionAdapter()
         {
 
@@ -609,6 +643,8 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 {
                     try
                     {
+                        backupSDK();
+
                         copyNewSDK( location, monitor );
 
                         clearWorkspaceSDKAndProjects( location, monitor );
