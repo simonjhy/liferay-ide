@@ -469,6 +469,8 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                 importButton.setEnabled( true );
             }
         } );
+
+        importButton.setEnabled( false );
     }
 
     private void createLiferayWorkspace( IPath targetSDKLocation, IProgressMonitor monitor ) throws BladeCLIException
