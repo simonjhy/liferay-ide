@@ -124,12 +124,14 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     ProjectNameValidationService projectNameValidate =
                         property.service( ProjectNameValidationService.class );
                     validationStatus = projectNameValidate.compute();
-                }else if( property.name().equals( "BundleName" ) )
+                }
+                else if( property.name().equals( "BundleName" ) )
                 {
                     BundleNameValidationService bundleNameValidate =
                         property.service( BundleNameValidationService.class );
                     validationStatus = bundleNameValidate.compute();
-                }else if( property.name().equals( "BundleUrl" ) )
+                }
+                else if( property.name().equals( "BundleUrl" ) )
                 {
                     BundleUrlValidationService bundleUrlValidate = property.service( BundleUrlValidationService.class );
                     validationStatus = bundleUrlValidate.compute();
@@ -199,6 +201,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         dirField = createTextField( composite, SWT.NONE );
         dirField.addModifyListener( new ModifyListener()
         {
+
             public void modifyText( ModifyEvent e )
             {
                 dataModel.setSdkLocation( dirField.getText() );
@@ -242,6 +245,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         newProjectField = createTextField( composite, SWT.NONE );
         newProjectField.addModifyListener( new ModifyListener()
         {
+
             public void modifyText( ModifyEvent e )
             {
                 dataModel.setProjectName( newProjectField.getText() );
@@ -312,26 +316,26 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
 
         startCheckThread();
     }
-    
+
     private void resetPages()
     {
         UpgradeView.resumePages();
-        
-        if( !dataModel.getHasServiceBuilder().content())
+
+        if( !dataModel.getHasServiceBuilder().content() )
         {
             UpgradeView.removePage( BUILDSERVICE_PAGE_ID );
         }
-        
-        if( ! dataModel.getHasLayout().content())
+
+        if( !dataModel.getHasLayout().content() )
         {
             UpgradeView.removePage( LAYOUTTEMPLATE_PAGE_ID );
         }
-        
-        if( ! dataModel.getHasHook().content())
+
+        if( !dataModel.getHasHook().content() )
         {
             UpgradeView.removePage( CUSTOMJSP_PAGE_ID );
         }
-        
+
         if( !dataModel.getHasExt().content() && !dataModel.getHasTheme().content() )
         {
             UpgradeView.removePage( EXTANDTHEME_PAGE_ID );
@@ -345,6 +349,13 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         if( ProjectUtil.isPortletProject( project ) )
         {
             dataModel.setHasPortlet( true );
+
+            List<IFile> searchFiles = new SearchFilesVisitor().searchFiles( project, "service.xml" );
+
+            if( searchFiles.size() > 0 )
+            {
+                dataModel.setHasServiceBuilder( true );
+            }
         }
         else if( ProjectUtil.isHookProject( project ) )
         {
@@ -365,15 +376,6 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         else if( ProjectUtil.isWebProject( project ) )
         {
             dataModel.setHasWeb( true );
-        }
-        else
-        {
-            List<IFile> searchFiles = new SearchFilesVisitor().searchFiles( project, "service.xml" );
-
-            if( searchFiles.size() > 0 )
-            {
-                dataModel.setHasServiceBuilder( true );
-            }
         }
     }
 
@@ -416,6 +418,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         bundleNameField = createTextField( composite, SWT.NONE );
         bundleNameField.addModifyListener( new ModifyListener()
         {
+
             public void modifyText( ModifyEvent e )
             {
                 dataModel.setBundleName( bundleNameField.getText() );
@@ -426,6 +429,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         bundleUrlField = createTextField( composite, SWT.NONE );
         bundleUrlField.addModifyListener( new ModifyListener()
         {
+
             public void modifyText( ModifyEvent e )
             {
                 dataModel.setBundleUrl( bundleUrlField.getText() );
@@ -449,13 +453,13 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
             {
                 importButton.setEnabled( false );
                 importProject();
-                
+
                 resetPages();
 
                 PageNavigateEvent event = new PageNavigateEvent();
 
                 event.setTargetPage( 2 );
-                
+
                 for( PageNavigatorListener listener : naviListeners )
                 {
                     listener.onPageNavigate( event );
@@ -672,12 +676,15 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     IProject importProject =
                         ProjectImportUtil.importProject( new Path( project.getPath() ), monitor, null );
 
-                    checkProjectType( importProject );
-
                     if( ProjectUtil.isExtProject( importProject ) || ProjectUtil.isThemeProject( importProject ) ||
                         importProject.getName().startsWith( "resources-importer-web" ) )
                     {
                         importProject.delete( false, true, monitor );
+                    }
+
+                    if( importProject != null && importProject.isAccessible() && importProject.isOpen() )
+                    {
+                        checkProjectType( importProject );
                     }
                 }
                 catch( CoreException e )
@@ -692,12 +699,15 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     IProject importProject =
                         ProjectImportUtil.importProject( new Path( project.getParent() ), monitor, null );
 
-                    checkProjectType( importProject );
-
                     if( ProjectUtil.isExtProject( importProject ) || ProjectUtil.isThemeProject( importProject ) ||
                         importProject.getName().startsWith( "resources-importer-web" ) )
                     {
                         importProject.delete( false, true, monitor );
+                    }
+
+                    if( importProject != null && importProject.isAccessible() && importProject.isOpen() )
+                    {
+                        checkProjectType( importProject );
                     }
                 }
                 catch( CoreException e )
@@ -818,12 +828,14 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     errorMessageLabel.setVisible( true );
                     errorMessageLabel.setText( "This sdk location should not be  empty." );
                     inputValidation = false;
-                }else if( newProjectField.getText().length() == 0 )
+                }
+                else if( newProjectField.getText().length() == 0 )
                 {
                     errorMessageLabel.setVisible( true );
                     errorMessageLabel.setText( "This new upgrade sdk name should not be emptry." );
                     inputValidation = false;
-                }else if( layoutComb.getSelectionIndex() == 0 )
+                }
+                else if( layoutComb.getSelectionIndex() == 0 )
                 {
                     final int itemCount = serverComb.getItemCount();
                     if( itemCount < 1 )
@@ -834,21 +846,23 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
                     }
                     else
                     {
-                        if ( inputValidation == true )
+                        if( inputValidation == true )
                         {
                             layoutValidation = true;
                             errorMessageLabel.setVisible( false );
                             errorMessageLabel.setText( "" );
                         }
                     }
-                }else if( layoutComb.getSelectionIndex() == 1 )
+                }
+                else if( layoutComb.getSelectionIndex() == 1 )
                 {
                     if( bundleNameField.getText().length() == 0 )
                     {
                         errorMessageLabel.setVisible( true );
                         errorMessageLabel.setText( "This bundleName should not be  empty." );
                         layoutValidation = false;
-                    }else if( bundleUrlField.getText().length() == 0 )
+                    }
+                    else if( bundleUrlField.getText().length() == 0 )
                     {
                         errorMessageLabel.setVisible( true );
                         errorMessageLabel.setText( "This bundle's download URL should not be  empty." );
