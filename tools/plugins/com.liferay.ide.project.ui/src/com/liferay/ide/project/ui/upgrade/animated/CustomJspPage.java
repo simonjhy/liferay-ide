@@ -86,6 +86,7 @@ import org.eclipse.wst.server.core.IRuntime;
  * @author Andy Wu
  * @author Simon Jiang
  */
+@SuppressWarnings( "deprecation" )
 public class CustomJspPage extends Page
 {
 
@@ -367,6 +368,7 @@ public class CustomJspPage extends Page
 
     class ViewContentProvider implements ITreeContentProvider
     {
+
         @Override
         public void dispose()
         {
@@ -427,7 +429,7 @@ public class CustomJspPage extends Page
     }
 
     private PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    
+
     private String compareType70 = "7.x";
     private String compareType62 = "6.2";
     private Image imageFile;
@@ -624,7 +626,8 @@ public class CustomJspPage extends Page
                 }
                 else
                 {
-                    MessageDialog.openInformation( Display.getDefault().getActiveShell(), "file not found",
+                    MessageDialog.openInformation(
+                        Display.getDefault().getActiveShell(), "file not found",
                         "there is no such file in liferay 62" );
                 }
             }
@@ -696,8 +699,8 @@ public class CustomJspPage extends Page
                 }
                 else
                 {
-                    MessageDialog.openInformation( Display.getDefault().getActiveShell(), "file not found",
-                        "there is no such file in liferay 7" );
+                    MessageDialog.openInformation(
+                        Display.getDefault().getActiveShell(), "file not found", "there is no such file in liferay 7" );
                 }
             }
         } );
@@ -944,7 +947,8 @@ public class CustomJspPage extends Page
 
         if( liferay70Runtime == null || CoreUtil.isNullOrEmpty( liferay62ServerLocation ) )
         {
-            MessageDialog.openError( Display.getDefault().getActiveShell(), "could not convert",
+            MessageDialog.openError(
+                Display.getDefault().getActiveShell(), "could not convert",
                 "countn't find liferay 70 or 62 server location" );
 
             return;

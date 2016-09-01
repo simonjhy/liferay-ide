@@ -12,6 +12,7 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.core.upgrade.UpgradeAssistantSettingsUtil;
@@ -47,6 +48,7 @@ import org.eclipse.ui.PlatformUI;
  */
 public class WelcomePage extends Page
 {
+
     @SuppressWarnings( "unused" )
     public WelcomePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -83,15 +85,16 @@ public class WelcomePage extends Page
             @Override
             public void handleEvent( Event event )
             {
-                    try
-                    {
-                        URL welcomeUrl = new URL("https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/from-liferay-6-to-liferay-7");
-                        PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(welcomeUrl);
-                    }
-                    catch( Exception e )
-                    {
+                try
+                {
+                    URL welcomeUrl = new URL(
+                        "https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/from-liferay-6-to-liferay-7" );
+                    PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL( welcomeUrl );
+                }
+                catch( Exception e )
+                {
 
-                    }
+                }
             }
         } );
 

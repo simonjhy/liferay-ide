@@ -12,6 +12,7 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageActionListener;
@@ -33,11 +34,11 @@ import org.eclipse.swt.widgets.Display;
  * @author Simon Jiang
  * @author Andy Wu
  */
-
 public class NavigatorControl extends AbstractCanvas implements SelectionChangedListener
 {
+
     public static final int BORDER = 30;
-    
+
     private static final int BACK = NONE - 1;
     private static final int NEXT = BACK - 1;
     private static final int CHOICES = NEXT - 1;
@@ -58,11 +59,11 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
     private int pageY;
 
     private Rectangle[] actionBoxes;
-    
-    private Display display; 
+
+    private Display display;
 
     private int select = 0;
-    
+
     private boolean needRedraw = false;
 
     private final List<PageNavigatorListener> naviListeners =
@@ -70,7 +71,6 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
     private final List<PageActionListener> actionListeners =
         Collections.synchronizedList( new ArrayList<PageActionListener>() );
-
 
     public NavigatorControl( Composite parent, int style )
     {
@@ -105,7 +105,7 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
         if( i != NONE )
         {
-            //pageBufferUpdated = false;
+            // pageBufferUpdated = false;
             return CHOICES - i;
         }
 
@@ -126,7 +126,7 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
     protected boolean needRedraw()
     {
         boolean retVal = false;
-        
+
         if( needRedraw )
         {
             needRedraw = false;
@@ -149,7 +149,7 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
         PageAction targetAction = pageActions[i];
 
-        if ( targetAction.equals( oldSelection ))
+        if( targetAction.equals( oldSelection ) )
         {
             targetAction = null;
         }
@@ -169,15 +169,15 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         {
             listener.onPageAction( event );
         }
-        
+
         needRedraw = true;
     }
 
     public final int getAction( int x, int y )
     {
         PageAction[] actions = getSelectedPage().getActions();
-        
-        if(actions == null || actions.length < 1)
+
+        if( actions == null || actions.length < 1 )
         {
             return NONE;
         }
@@ -194,7 +194,6 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
         return NONE;
     }
-
 
     private Page getSelectedPage()
     {
@@ -234,7 +233,7 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
                 if( page.showBackPage() && backBox != null && backBox.contains( x, y ) )
                 {
-                    event.setTargetPage( select - 1  );
+                    event.setTargetPage( select - 1 );
 
                     isNavigate = true;
                 }
@@ -271,17 +270,17 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
                 if( page.showBackPage() && backBox != null && backBox.contains( x, y ) )
                 {
                     hover = BACK;
-                    return ;
+                    return;
                 }
 
                 if( page.showNextPage() && nextBox != null && nextBox.contains( x, y ) )
                 {
                     hover = NEXT;
-                    return ;
+                    return;
                 }
 
                 hover = actionOnMouseMove( x, y );
-                return ;
+                return;
             }
         }
         else
@@ -321,7 +320,7 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         }
 
         paintActions( gc, page );
-        
+
         oldHover = hover;
     }
 
@@ -340,17 +339,17 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
             image = images[1];
         }
 
-        return drawImage( gc, image, x ,y );
+        return drawImage( gc, image, x, y );
     }
 
     private void paintActions( GC gc, Page page )
     {
         PageAction[] actions = page.getActions();
         PageAction selectedAction = page.getSelectedAction();
-        
+
         if( actions == null )
         {
-            return ;
+            return;
         }
 
         boolean selecteds[] = new boolean[actions.length];
@@ -358,7 +357,7 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
         Point sizes[] = new Point[actions.length];
 
-        //int width = ( actions.length - 1 ) * BORDER;
+        // int width = ( actions.length - 1 ) * BORDER;
         int height = 0;
 
         for( int i = 0; i < actions.length; i++ )
@@ -367,16 +366,16 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
             if( CHOICES - i == hover )
             {
-                //oldHover = hover;
+                // oldHover = hover;
                 hovereds[i] = true;
             }
 
             sizes[i] = actions[i].getSize();
-            //width += sizes[i].x;
+            // width += sizes[i].x;
             height = Math.max( height, sizes[i].y );
         }
 
-        int x = getBounds().width/2 - 40;
+        int x = getBounds().width / 2 - 40;
 
         int y = answerY - pageY;
 
@@ -386,7 +385,7 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
             actionBoxes[i] = paintAction( gc, i, x, y, hovereds[i], selecteds[i], action );
 
-            x = getBounds().width/2 + 40;
+            x = getBounds().width / 2 + 40;
         }
     }
 }

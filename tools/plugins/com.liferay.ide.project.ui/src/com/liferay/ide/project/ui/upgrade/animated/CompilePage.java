@@ -12,6 +12,7 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import org.eclipse.jface.action.Action;
@@ -35,26 +36,27 @@ import com.liferay.ide.ui.util.UIUtil;
  */
 public class CompilePage extends Page
 {
+
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    
+
     public CompilePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style,dataModel );
+        super( parent, style, dataModel );
         GridLayout layout = new GridLayout( 1, true );
         this.setLayout( layout );
 
         Label title = new Label( this, SWT.LEFT );
         title.setText( "Compile" );
         title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
-        
+
         Text content = new Text( this, SWT.MULTI );
         final String descriptor =
             "This step will try to package your upgraded projects to see if it can run successfully.\n" +
-            "If it failed, you can see error logs in console view.\n";
+                "If it failed, you can see error logs in console view.\n";
         content.setText( descriptor );
-        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT) );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ) );
 
-        Button compileButton = new Button(this, SWT.PUSH);
+        Button compileButton = new Button( this, SWT.PUSH );
         compileButton.setText( "Compile" );
         compileButton.addSelectionListener( new SelectionAdapter()
         {
@@ -62,7 +64,7 @@ public class CompilePage extends Page
             @Override
             public void widgetSelected( SelectionEvent e )
             {
-                Action compile = new CompileAction("compile",UIUtil.getActiveShell());
+                Action compile = new CompileAction( "compile", UIUtil.getActiveShell() );
                 compile.run();
             }
         } );

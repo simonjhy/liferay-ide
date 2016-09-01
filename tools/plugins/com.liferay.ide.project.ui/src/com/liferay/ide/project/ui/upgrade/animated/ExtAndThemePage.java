@@ -12,6 +12,7 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import java.net.URL;
@@ -33,11 +34,12 @@ import org.eclipse.ui.PlatformUI;
  */
 public class ExtAndThemePage extends Page
 {
+
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    
+
     public ExtAndThemePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style,dataModel );
+        super( parent, style, dataModel );
         GridLayout layout = new GridLayout( 1, true );
         this.setLayout( layout );
 
@@ -46,8 +48,7 @@ public class ExtAndThemePage extends Page
         title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
 
         Link link = new Link( this, SWT.MULTI );
-        final String layouttpl =
-            "Ext and Theme Projects will be supported in the future.\n" +
+        final String layouttpl = "Ext and Theme Projects will be supported in the future.\n" +
             "For more details, please see <a>Introduction to Themes</a>.\n";
         link.setText( layouttpl );
         link.addListener( SWT.Selection, new Listener()
@@ -58,8 +59,9 @@ public class ExtAndThemePage extends Page
             {
                 try
                 {
-                    URL extAndThemeUrl = new URL("https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/introduction-to-themes");
-                    PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(extAndThemeUrl);
+                    URL extAndThemeUrl = new URL(
+                        "https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/introduction-to-themes" );
+                    PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL( extAndThemeUrl );
                 }
                 catch( Exception e )
                 {
@@ -67,7 +69,9 @@ public class ExtAndThemePage extends Page
 
             }
         } );
+
         setActions( actions );
+
         this.setPageId( EXTANDTHEME_PAGE_ID );
     }
 }

@@ -12,6 +12,7 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import java.lang.reflect.InvocationTargetException;
@@ -55,27 +56,27 @@ import com.liferay.ide.ui.util.UIUtil;
 @SuppressWarnings( "restriction" )
 public class BuildServicePage extends Page
 {
+
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
 
     public BuildServicePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style,dataModel );
+        super( parent, style, dataModel );
         GridLayout layout = new GridLayout( 1, true );
         this.setLayout( layout );
 
         Label title = new Label( this, SWT.LEFT );
         title.setText( "Build Service" );
         title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
-        
+
         Text content = new Text( this, SWT.MULTI );
-        final String descriptor =
-            "In this step, we will delete some legacy servicebuilder related files" +
+        final String descriptor = "In this step, we will delete some legacy servicebuilder related files" +
             " and re-run build-service on servicebuilder projects.\n" +
             "Note: Please make sure the default installed jre is JDK 8  (Preferences-Java-Installed JREs)\n";
         content.setText( descriptor );
-        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT) );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ) );
 
-        Button buildServiceButton = new Button(this, SWT.PUSH);
+        Button buildServiceButton = new Button( this, SWT.PUSH );
         buildServiceButton.setText( "Build Service" );
         buildServiceButton.addSelectionListener( new SelectionAdapter()
         {
@@ -86,8 +87,7 @@ public class BuildServicePage extends Page
 
                 List<IProject> projects = getServiceBuilderProjects();
 
-                CustomProjectSelectionDialog dialog =
-                    new CustomProjectSelectionDialog( UIUtil.getActiveShell() );
+                CustomProjectSelectionDialog dialog = new CustomProjectSelectionDialog( UIUtil.getActiveShell() );
 
                 dialog.setProjects( projects );
 
@@ -115,7 +115,8 @@ public class BuildServicePage extends Page
                     PlatformUI.getWorkbench().getProgressService().busyCursorWhile( new IRunnableWithProgress()
                     {
 
-                        public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException
+                        public void run( IProgressMonitor monitor )
+                            throws InvocationTargetException, InterruptedException
                         {
                             try
                             {
@@ -125,7 +126,8 @@ public class BuildServicePage extends Page
 
                                     SDK sdk = SDKUtil.getSDK( project );
 
-                                    sdk.runCommand( project, project.getFile( "build.xml" ), ISDKConstants.TARGET_BUILD_SERVICE,
+                                    sdk.runCommand(
+                                        project, project.getFile( "build.xml" ), ISDKConstants.TARGET_BUILD_SERVICE,
                                         null, monitor );
 
                                     project.refreshLocal( IResource.DEPTH_INFINITE, monitor );
@@ -192,7 +194,7 @@ public class BuildServicePage extends Page
         } );
 
         setActions( actions );
-        
+
         this.setPageId( BUILDSERVICE_PAGE_ID );
     }
 }

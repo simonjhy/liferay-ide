@@ -12,6 +12,7 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 /**
@@ -19,15 +20,15 @@ package com.liferay.ide.project.ui.upgrade.animated;
  */
 public class PageFinishAction extends PageAction
 {
-    
+
     public PageFinishAction()
     {
         super();
 
-        images[0] = loadImage("yes.png");
-        images[1] = loadImage("yes_select.png");
-        images[2] = loadImage("yes_hover.png");
-        images[3] = loadImage("yes_big.png");
-        images[4] = loadImage("yes_badge.png");
+        images[0] = loadImage( "yes.png" );
+        images[1] = loadImage( "yes_select.png" );
+        images[2] = loadImage( "yes_hover.png" );
+        images[3] = loadImage( "yes_big.png" );
+        images[4] = loadImage( "yes_badge.png" );
     }
 }
