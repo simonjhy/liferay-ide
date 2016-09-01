@@ -12,6 +12,8 @@
  * details.
  *
  *******************************************************************************/
+
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import org.eclipse.jface.wizard.WizardDialog;
@@ -38,26 +40,26 @@ import com.liferay.ide.ui.util.UIUtil;
 @SuppressWarnings( "restriction" )
 public class DeployPage extends Page
 {
+
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    
+
     public DeployPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style,dataModel );
+        super( parent, style, dataModel );
         GridLayout layout = new GridLayout( 1, true );
         this.setLayout( layout );
 
         Label title = new Label( this, SWT.LEFT );
         title.setText( "Deploy" );
         title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
-        
+
         Text content = new Text( this, SWT.MULTI );
-        final String descriptor =
-            "This step will deploy your projects into the local server.\n" +
+        final String descriptor = "This step will deploy your projects into the local server.\n" +
             "Note: Please ensure that a local server is started.\n";
         content.setText( descriptor );
-        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT) );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ) );
 
-        Button deployButton = new Button(this, SWT.PUSH);
+        Button deployButton = new Button( this, SWT.PUSH );
         deployButton.setText( "Deploy" );
         deployButton.addSelectionListener( new SelectionAdapter()
         {

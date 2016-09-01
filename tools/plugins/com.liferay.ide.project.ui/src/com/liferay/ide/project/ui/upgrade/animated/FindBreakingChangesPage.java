@@ -294,7 +294,6 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         table.setMenu( menu );
 
         _problemsViewer.addDoubleClickListener( this );
-
     }
 
     @Override

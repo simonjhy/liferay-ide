@@ -12,6 +12,8 @@
  * details.
  *
  *******************************************************************************/
+
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 /**
@@ -19,5 +21,7 @@ package com.liferay.ide.project.ui.upgrade.animated;
  */
 public interface SelectionChangedListener
 {
-    public void onSelectionChanged( int targetSelection);
+
+    public void onSelectionChanged( int targetSelection );
+
 }

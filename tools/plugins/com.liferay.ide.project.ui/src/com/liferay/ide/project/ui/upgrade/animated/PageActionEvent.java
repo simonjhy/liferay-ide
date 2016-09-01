@@ -12,6 +12,7 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 /**
@@ -20,10 +21,11 @@ package com.liferay.ide.project.ui.upgrade.animated;
  */
 public class PageActionEvent
 {
+
     private int targetPageIndex;
-    
+
     private PageAction action;
-    
+
     public int getTargetPageIndex()
     {
         return targetPageIndex;
@@ -34,11 +36,11 @@ public class PageActionEvent
         this.targetPageIndex = targetPageIndex;
     }
 
-    public void setAction( PageAction action)
+    public void setAction( PageAction action )
     {
         this.action = action;
     }
-    
+
     public PageAction getAction()
     {
         return this.action;

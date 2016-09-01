@@ -12,6 +12,8 @@
  * details.
  *
  *******************************************************************************/
+
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import java.net.URL;
@@ -33,11 +35,12 @@ import org.eclipse.ui.PlatformUI;
  */
 public class LayoutTemplatePage extends Page
 {
+
     PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    
+
     public LayoutTemplatePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style,dataModel );
+        super( parent, style, dataModel );
         GridLayout layout = new GridLayout( 1, true );
         this.setLayout( layout );
 
@@ -46,8 +49,7 @@ public class LayoutTemplatePage extends Page
         title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
 
         Link link = new Link( this, SWT.MULTI );
-        final String layouttpl =
-            "This step will upgrade layout template file from 6.2 to 7.0.\n" +
+        final String layouttpl = "This step will upgrade layout template file from 6.2 to 7.0.\n" +
             "The layout template's rows and columns are affected by the new grid system syntax of Bootsrap.\n" +
             "For more details, please see <a>Upgrading Layout Templates</a>.\n";
         link.setText( layouttpl );
@@ -59,8 +61,9 @@ public class LayoutTemplatePage extends Page
             {
                 try
                 {
-                    URL layouttplUrl = new URL("https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/upgrading-layout-templates");
-                    PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(layouttplUrl);
+                    URL layouttplUrl = new URL(
+                        "https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/upgrading-layout-templates" );
+                    PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL( layouttplUrl );
                 }
                 catch( Exception e )
                 {
@@ -69,7 +72,7 @@ public class LayoutTemplatePage extends Page
             }
         } );
 
-        new  LiferayLayouttplUpgradeTableViewCustomPart(this, SWT.NONE);
+        new LiferayLayouttplUpgradeTableViewCustomPart( this, SWT.NONE );
 
         setActions( actions );
         this.setPageId( LAYOUTTEMPLATE_PAGE_ID );

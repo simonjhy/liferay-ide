@@ -31,7 +31,6 @@ import org.eclipse.sapphire.modeling.xml.annotations.XmlBinding;
 /**
  * @author Simon Jiang
  */
-
 public interface LiferayUpgradeDataModel extends Element
 {
 

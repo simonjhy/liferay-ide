@@ -12,6 +12,7 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.ui.upgrade.CustomJspConverter;
@@ -43,6 +44,7 @@ import org.eclipse.ui.PlatformUI;
  */
 public class WelcomePage extends Page
 {
+
     @SuppressWarnings( "unused" )
     public WelcomePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -79,15 +81,16 @@ public class WelcomePage extends Page
             @Override
             public void handleEvent( Event event )
             {
-                    try
-                    {
-                        URL welcomeUrl = new URL("https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/from-liferay-6-to-liferay-7");
-                        PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(welcomeUrl);
-                    }
-                    catch( Exception e )
-                    {
+                try
+                {
+                    URL welcomeUrl = new URL(
+                        "https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/from-liferay-6-to-liferay-7" );
+                    PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL( welcomeUrl );
+                }
+                catch( Exception e )
+                {
 
-                    }
+                }
             }
         } );
 
@@ -110,32 +113,14 @@ public class WelcomePage extends Page
                 {
                     CustomJspConverter.clearConvertResults();
                     /*
-                    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
-
-                    IEditorPart editor = page.getActiveEditor();
-
-                    page.closeEditor( editor, false );
-
-                    final IPath stateLocation = ProjectCore.getDefault().getStateLocation();
-
-                    File stateDir = stateLocation.toFile();
-
-                    final File codeUpgradeFile = new File( stateDir, "liferay-code-upgrade.xml" );
-
-                    try
-                    {
-                        if( codeUpgradeFile.exists() )
-                        {
-                            codeUpgradeFile.delete();
-                        }
-
-                        codeUpgradeFile.createNewFile();
-                    }
-                    catch( Exception e1 )
-                    {
-                    }
-                */
-                    }
+                     * IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+                     * IEditorPart editor = page.getActiveEditor(); page.closeEditor( editor, false ); final IPath
+                     * stateLocation = ProjectCore.getDefault().getStateLocation(); File stateDir =
+                     * stateLocation.toFile(); final File codeUpgradeFile = new File( stateDir,
+                     * "liferay-code-upgrade.xml" ); try { if( codeUpgradeFile.exists() ) { codeUpgradeFile.delete(); }
+                     * codeUpgradeFile.createNewFile(); } catch( Exception e1 ) { }
+                     */
+                }
 
             }
         } );
