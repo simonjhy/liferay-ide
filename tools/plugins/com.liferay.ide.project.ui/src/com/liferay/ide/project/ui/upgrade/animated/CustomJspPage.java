@@ -443,8 +443,7 @@ public class CustomJspPage extends Page
     public CustomJspPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
-
-        this.setLayout( new FillLayout() );
+        this.setLayout( new GridLayout( 1, true ) );
 
         setActions( actions );
 
