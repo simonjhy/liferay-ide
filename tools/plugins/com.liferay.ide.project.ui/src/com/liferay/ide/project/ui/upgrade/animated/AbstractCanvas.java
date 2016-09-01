@@ -12,6 +12,8 @@
  * details.
  *
  *******************************************************************************/
+
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.ui.ProjectUI;
@@ -48,23 +50,24 @@ import org.eclipse.swt.widgets.Display;
  * @author Simon Jiang
  * @author Andy Wu
  */
-
 public abstract class AbstractCanvas extends Canvas
 {
+
     protected Font baseFont;
-    
+
     private static final int DEFAULT_TIMER_INTERVAL = 10;
-    
+
     public static final int NONE = -1;
 
     private final List<Resource> resources = new ArrayList<Resource>();
-    
+
     public AbstractCanvas( Composite parent, int style )
     {
         super( parent, style | SWT.DOUBLE_BUFFERED );
-        
+
         addFocusListener( new FocusListener()
         {
+
             public void focusGained( FocusEvent e )
             {
                 redraw();
@@ -75,18 +78,20 @@ public abstract class AbstractCanvas extends Canvas
                 redraw();
             }
         } );
-        
+
         addDisposeListener( new DisposeListener()
         {
+
             @Override
             public void widgetDisposed( DisposeEvent e )
             {
                 dispose();
             }
         } );
-        
+
         addMouseTrackListener( new MouseTrackAdapter()
         {
+
             @Override
             public void mouseExit( MouseEvent e )
             {
@@ -119,6 +124,7 @@ public abstract class AbstractCanvas extends Canvas
 
         addPaintListener( new PaintListener()
         {
+
             @Override
             public void paintControl( PaintEvent e )
             {
@@ -142,9 +148,9 @@ public abstract class AbstractCanvas extends Canvas
                 scheduleRun();
             }
         } );
-        
+
     }
-   
+
     protected abstract void onMouseDown( int x, int y );
 
     protected abstract void onMouseMove( int x, int y );
@@ -153,101 +159,100 @@ public abstract class AbstractCanvas extends Canvas
 
     protected void init()
     {
-      Display display = getDisplay();
-      
-      Font initialFont = getFont();
-      FontData[] fontData = initialFont.getFontData();
-      for (int i = 0; i < fontData.length; i++)
-      {
-        fontData[i].setHeight(16);
-        fontData[i].setStyle(SWT.BOLD);
-      }
+        Display display = getDisplay();
 
-      baseFont = new Font(display, fontData);
+        Font initialFont = getFont();
+        FontData[] fontData = initialFont.getFontData();
+        for( int i = 0; i < fontData.length; i++ )
+        {
+            fontData[i].setHeight( 16 );
+            fontData[i].setStyle( SWT.BOLD );
+        }
+
+        baseFont = new Font( display, fontData );
     }
-    
+
     protected final Font getBaseFont()
     {
-      return baseFont;
+        return baseFont;
     }
-    
-    protected final Font createFont(int pixelHeight, int pixelWidth, String... testStrings)
+
+    protected final Font createFont( int pixelHeight, int pixelWidth, String... testStrings )
     {
-      if (testStrings.length == 0)
-      {
-        pixelWidth = Integer.MAX_VALUE;
-        testStrings = new String[] { "Ag" };
-      }
-
-      Display display = getDisplay();
-      GC fontGC = new GC(display);
-
-      try
-      {
-        FontData[] fontData = baseFont.getFontData();
-        int fontSize = 40;
-        while (fontSize > 0)
+        if( testStrings.length == 0 )
         {
-          for (int i = 0; i < fontData.length; i++)
-          {
-            fontData[i].setHeight(fontSize);
-            fontData[i].setStyle(SWT.BOLD);
-          }
-
-          Font font = new Font(display, fontData);
-          fontGC.setFont(font);
-
-          if (isFontSmallEnough(pixelHeight, pixelWidth, fontGC, testStrings))
-          {
-            resources.add(font);
-
-            return font;
-          }
-
-          font.dispose();
-          --fontSize;
+            pixelWidth = Integer.MAX_VALUE;
+            testStrings = new String[] { "Ag" };
         }
 
-        throw new RuntimeException("Could not create font: " + pixelHeight);
-      }
-      finally
-      {
-        fontGC.dispose();
-      }
-    }
-    
-    private boolean isFontSmallEnough(int pixelHeight, int pixelWidth, GC fontGC, String[] testStrings)
-    {
-      for (String testString : testStrings)
-      {
-        Point extent = fontGC.stringExtent(testString);
-        if (extent.y > pixelHeight || extent.x > pixelWidth)
+        Display display = getDisplay();
+        GC fontGC = new GC( display );
+
+        try
         {
-          return false;
+            FontData[] fontData = baseFont.getFontData();
+            int fontSize = 40;
+            while( fontSize > 0 )
+            {
+                for( int i = 0; i < fontData.length; i++ )
+                {
+                    fontData[i].setHeight( fontSize );
+                    fontData[i].setStyle( SWT.BOLD );
+                }
+
+                Font font = new Font( display, fontData );
+                fontGC.setFont( font );
+
+                if( isFontSmallEnough( pixelHeight, pixelWidth, fontGC, testStrings ) )
+                {
+                    resources.add( font );
+
+                    return font;
+                }
+
+                font.dispose();
+                --fontSize;
+            }
+
+            throw new RuntimeException( "Could not create font: " + pixelHeight );
         }
-      }
-
-      return true;
+        finally
+        {
+            fontGC.dispose();
+        }
     }
-    
 
-    protected final Color createColor(int r, int g, int b)
+    private boolean isFontSmallEnough( int pixelHeight, int pixelWidth, GC fontGC, String[] testStrings )
     {
-      Display display = getDisplay();
-      Color color = new Color(display, r, g, b);
-      resources.add(color);
-      return color;
+        for( String testString : testStrings )
+        {
+            Point extent = fontGC.stringExtent( testString );
+            if( extent.y > pixelHeight || extent.x > pixelWidth )
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
-    
+
+    protected final Color createColor( int r, int g, int b )
+    {
+        Display display = getDisplay();
+        Color color = new Color( display, r, g, b );
+        resources.add( color );
+        return color;
+    }
+
     @Override
     public void dispose()
     {
-        for (Resource resource : resources)
+        for( Resource resource : resources )
         {
-          if (resource != null && !resource.isDisposed())
-          {
-            resource.dispose();
-          }
+            if( resource != null && !resource.isDisposed() )
+            {
+                resource.dispose();
+            }
         }
     }
 
@@ -257,7 +262,7 @@ public abstract class AbstractCanvas extends Canvas
 
         try
         {
-            url  = ProjectUI.getDefault().getBundle().getEntry( "images/" + name );
+            url = ProjectUI.getDefault().getBundle().getEntry( "images/" + name );
         }
         catch( Exception e )
         {
@@ -265,70 +270,71 @@ public abstract class AbstractCanvas extends Canvas
 
         ImageDescriptor imagedesc = ImageDescriptor.createFromURL( url );
 
-         Image image = imagedesc.createImage();
+        Image image = imagedesc.createImage();
 
         resources.add( image );
 
         return image;
     }
-    
-    public Rectangle drawImage(GC gc, Image image, int cX, int cY)
+
+    public Rectangle drawImage( GC gc, Image image, int cX, int cY )
     {
-      Rectangle bounds = image.getBounds();
-      cX -= bounds.width / 2;
-      cY -= bounds.height / 2;
-      gc.drawImage(image, cX, cY);
-      
-      return new Rectangle(cX, cY, bounds.width, bounds.height);
-    }
-    
-    public static Rectangle drawText(GC gc, double cX, double cY, String text)
-    {
-      return drawText(gc, cX, cY, text, 0);
+        Rectangle bounds = image.getBounds();
+        cX -= bounds.width / 2;
+        cY -= bounds.height / 2;
+        gc.drawImage( image, cX, cY );
+
+        return new Rectangle( cX, cY, bounds.width, bounds.height );
     }
 
-    public static Rectangle drawText(GC gc, double cX, double cY, String text, int box)
+    public static Rectangle drawText( GC gc, double cX, double cY, String text )
     {
-      Point extent = gc.stringExtent(text);
-
-      int x = (int)(cX - extent.x / 2);
-      int y = (int)(cY - extent.y / 2);
-
-      if (x < box)
-      {
-        x = box;
-      }
-
-      Rectangle rectangle = new Rectangle(x, y, extent.x, extent.y);
-
-      if (box > 0)
-      {
-        rectangle.x -= box;
-        rectangle.y -= box;
-        rectangle.width += 2 * box;
-        rectangle.height += 2 * box;
-
-        gc.fillRectangle(rectangle);
-      }
-
-      gc.drawText(text, x, y, true);
-
-      return rectangle;
+        return drawText( gc, cX, cY, text, 0 );
     }
-    
+
+    public static Rectangle drawText( GC gc, double cX, double cY, String text, int box )
+    {
+        Point extent = gc.stringExtent( text );
+
+        int x = (int) ( cX - extent.x / 2 );
+        int y = (int) ( cY - extent.y / 2 );
+
+        if( x < box )
+        {
+            x = box;
+        }
+
+        Rectangle rectangle = new Rectangle( x, y, extent.x, extent.y );
+
+        if( box > 0 )
+        {
+            rectangle.x -= box;
+            rectangle.y -= box;
+            rectangle.width += 2 * box;
+            rectangle.height += 2 * box;
+
+            gc.fillRectangle( rectangle );
+        }
+
+        gc.drawText( text, x, y, true );
+
+        return rectangle;
+    }
+
     protected void scheduleRun()
     {
         getDisplay().timerExec( DEFAULT_TIMER_INTERVAL, runnable );
     }
-    
+
     private final Runnable runnable = new Runnable()
     {
+
         public void run()
         {
             doRun();
         }
     };
-    
+
     protected synchronized void doRun()
     {
         if( isDisposed() )

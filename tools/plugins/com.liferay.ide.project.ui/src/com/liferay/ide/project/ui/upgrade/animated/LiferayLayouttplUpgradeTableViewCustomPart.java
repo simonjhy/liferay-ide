@@ -49,7 +49,7 @@ public class LiferayLayouttplUpgradeTableViewCustomPart extends AbstractLiferayT
 
     public LiferayLayouttplUpgradeTableViewCustomPart( Composite parent, int style )
     {
-        super(parent, style);
+        super( parent, style );
 
     }
 

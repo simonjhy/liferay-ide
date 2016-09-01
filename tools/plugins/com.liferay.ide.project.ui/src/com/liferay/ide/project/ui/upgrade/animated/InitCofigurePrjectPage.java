@@ -94,7 +94,6 @@ import org.eclipse.wst.server.ui.ServerUIUtil;
 /**
  * @author Simon Jiang
  */
-
 @SuppressWarnings( "unused" )
 public class InitCofigurePrjectPage extends Page implements IServerLifecycleListener
 {

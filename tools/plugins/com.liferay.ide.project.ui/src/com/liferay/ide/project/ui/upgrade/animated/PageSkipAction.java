@@ -12,6 +12,7 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 /**
@@ -19,14 +20,15 @@ package com.liferay.ide.project.ui.upgrade.animated;
  */
 public class PageSkipAction extends PageAction
 {
-    protected PageSkipAction( )
+
+    protected PageSkipAction()
     {
         super();
 
-        images[0] = loadImage("no.png");
-        images[1] = loadImage("no_select.png");
-        images[2] = loadImage("no_hover.png");
-        images[3] = loadImage("no_big.png");
-        images[4] = loadImage("no_badge.png");
+        images[0] = loadImage( "no.png" );
+        images[1] = loadImage( "no_select.png" );
+        images[2] = loadImage( "no_hover.png" );
+        images[3] = loadImage( "no_big.png" );
+        images[4] = loadImage( "no_badge.png" );
     }
 }

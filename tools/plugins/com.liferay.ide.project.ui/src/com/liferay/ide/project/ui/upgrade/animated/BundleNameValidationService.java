@@ -35,8 +35,8 @@ public class BundleNameValidationService extends ValidationService
 
         if( ServerPlugin.isNameInUse( null, serverName ) )
         {
-            retval = Status.createErrorStatus(
-                "The server or runtime name is already in use. Specify a different name." );
+            retval =
+                Status.createErrorStatus( "The server or runtime name is already in use. Specify a different name." );
         }
 
         return retval;

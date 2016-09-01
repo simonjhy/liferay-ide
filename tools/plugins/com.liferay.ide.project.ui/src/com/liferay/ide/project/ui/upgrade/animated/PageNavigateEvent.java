@@ -12,6 +12,7 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 /**
@@ -20,13 +21,14 @@ package com.liferay.ide.project.ui.upgrade.animated;
  */
 public class PageNavigateEvent
 {
+
     private int targetPageIndex;
-    
+
     public int getTargetPage()
     {
         return this.targetPageIndex;
     }
-   
+
     public void setTargetPage( int targetPage )
     {
         this.targetPageIndex = targetPage;

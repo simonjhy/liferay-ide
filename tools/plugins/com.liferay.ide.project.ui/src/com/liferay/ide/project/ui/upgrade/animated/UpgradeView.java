@@ -12,6 +12,7 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 /**
@@ -37,13 +38,14 @@ import org.eclipse.ui.part.ViewPart;
 
 public class UpgradeView extends ViewPart implements SelectionChangedListener
 {
+
     public static final String ID = "com.liferay.ide.project.ui.upgradeView";
     private LiferayUpgradeDataModel dataModel;
-    
+
     private static List<Page> currentPageList = new ArrayList<Page>();
-    
+
     private static List<Page> staticPageList = new ArrayList<Page>();
-    
+
     private static Composite pagesSwitchControler = null;
 
     private static Page[] pages = null;
@@ -58,26 +60,26 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         super();
         dataModel = createUpgradeModel();
     }
-    
+
     public static void resumePages()
     {
         currentPageList.clear();
         currentPageList.addAll( staticPageList );
     }
-    
-    public static void removePage(String pageid)
+
+    public static void removePage( String pageid )
     {
-        for(Page page : currentPageList)
+        for( Page page : currentPageList )
         {
-            if (page.getPageId().equals( pageid ))
+            if( page.getPageId().equals( pageid ) )
             {
                 currentPageList.remove( page );
 
-                return ;
+                return;
             }
         }
     }
-    
+
     public static void resetPages()
     {
         pages = currentPageList.toArray( new Page[0] );
@@ -99,7 +101,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
     public static Page getPage( int i )
     {
-        if(i < 0 || i > pages.length - 1 )
+        if( i < 0 || i > pages.length - 1 )
         {
             return null;
         }
@@ -117,9 +119,9 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         composite.setLayout( new GridLayout( 1, true ) );
 
         GridData grData = new GridData( GridData.FILL_BOTH );
-        //grData.heightHint = 600;
-        //grData.widthHint = 300;
-        grData.grabExcessVerticalSpace = true; 
+        // grData.heightHint = 600;
+        // grData.widthHint = 300;
+        grData.grabExcessVerticalSpace = true;
         grData.grabExcessHorizontalSpace = true;
         composite.setLayoutData( grData );
         composite.addListener( SWT.Resize, new Listener()
@@ -128,7 +130,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
             @Override
             public void handleEvent( Event event )
             {
-                Color fontColor =composite. getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND);
+                Color fontColor = composite.getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND );
                 Color backColor = composite.getDisplay().getSystemColor( SWT.COLOR_WHITE );
 
                 Image image = GradientHelper.createGradientImageFor( composite, fontColor, backColor, true );
@@ -146,15 +148,14 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         gridData.heightHint = 130;
 
         gear.setLayoutData( gridData );
-        gear.setBackground( gear.getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ));
+        gear.setBackground( gear.getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ) );
 
         StackLayout stackLayout = new StackLayout();
-        
+
         pagesSwitchControler = new Composite( composite, SWT.BORDER );
 
         pagesSwitchControler.setLayout( stackLayout );
-        pagesSwitchControler.setBackground(  pagesSwitchControler.getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ));
-        
+        pagesSwitchControler.setBackground( pagesSwitchControler.getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ) );
 
         GridData containerData = new GridData( GridData.FILL_BOTH );
         containerData.grabExcessHorizontalSpace = true;
@@ -162,8 +163,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         containerData.grabExcessHorizontalSpace = true;
         pagesSwitchControler.setLayoutData( containerData );
 
- 
-        Page  welcomePage = new WelcomePage( pagesSwitchControler, SWT.NONE, dataModel );
+        Page welcomePage = new WelcomePage( pagesSwitchControler, SWT.NONE, dataModel );
         welcomePage.setIndex( 0 );
         welcomePage.setTitle( "Welcome" );
         welcomePage.setBackPage( false );
@@ -173,43 +173,42 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         initCofigurePrjectPage.setTitle( "Cofigure Projects" );
         initCofigurePrjectPage.addPageNavigateListener( gear );
         initCofigurePrjectPage.setNextPage( false );
-        
-        Page descriptorsPage = new  DescriptorsPage( pagesSwitchControler, SWT.NONE, dataModel );
+
+        Page descriptorsPage = new DescriptorsPage( pagesSwitchControler, SWT.NONE, dataModel );
         descriptorsPage.setIndex( 2 );
         descriptorsPage.setTitle( "Update Descriptor Files" );
 
-        Page findBreakingChangesPage = new  FindBreakingChangesPage( pagesSwitchControler, SWT.NONE, dataModel );
+        Page findBreakingChangesPage = new FindBreakingChangesPage( pagesSwitchControler, SWT.NONE, dataModel );
         findBreakingChangesPage.setIndex( 3 );
         findBreakingChangesPage.setTitle( "Find Breaking Changes" );
-        
-        Page buildServicePage = new  BuildServicePage( pagesSwitchControler, SWT.NONE, dataModel );
+
+        Page buildServicePage = new BuildServicePage( pagesSwitchControler, SWT.NONE, dataModel );
         buildServicePage.setIndex( 4 );
         buildServicePage.setTitle( "Build Service" );
-        
-        Page layoutTemplatePage = new  LayoutTemplatePage( pagesSwitchControler, SWT.NONE, dataModel );
+
+        Page layoutTemplatePage = new LayoutTemplatePage( pagesSwitchControler, SWT.NONE, dataModel );
         layoutTemplatePage.setIndex( 5 );
         layoutTemplatePage.setTitle( "Layout Template" );
-        
-        Page customJspPage = new  CustomJspPage( pagesSwitchControler, SWT.NONE, dataModel );
+
+        Page customJspPage = new CustomJspPage( pagesSwitchControler, SWT.NONE, dataModel );
         customJspPage.setIndex( 6 );
         customJspPage.setTitle( "Custom Jsp" );
-        
-        Page extAndThemePage = new  ExtAndThemePage( pagesSwitchControler, SWT.NONE, dataModel );
+
+        Page extAndThemePage = new ExtAndThemePage( pagesSwitchControler, SWT.NONE, dataModel );
         extAndThemePage.setIndex( 7 );
         extAndThemePage.setTitle( "Ext and Theme" );
-        
-        Page compilePage = new  CompilePage( pagesSwitchControler, SWT.NONE, dataModel );
+
+        Page compilePage = new CompilePage( pagesSwitchControler, SWT.NONE, dataModel );
         compilePage.setIndex( 8 );
         compilePage.setTitle( "Compile" );
-        
-        Page deployPage = new  DeployPage( pagesSwitchControler, SWT.NONE, dataModel );
+
+        Page deployPage = new DeployPage( pagesSwitchControler, SWT.NONE, dataModel );
         deployPage.setIndex( 9 );
         deployPage.setTitle( "Deploy" );
         deployPage.setNextPage( false );
-        
-        
+
         staticPageList.clear();
-        
+
         staticPageList.add( welcomePage );
         staticPageList.add( initCofigurePrjectPage );
         staticPageList.add( descriptorsPage );
@@ -222,11 +221,11 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         staticPageList.add( deployPage );
 
         currentPageList.clear();
-        
+
         currentPageList.add( welcomePage );
         currentPageList.add( initCofigurePrjectPage );
-        //currentPageList.addAll( staticPageList );
-        
+        // currentPageList.addAll( staticPageList );
+
         resetPages();
 
         final NavigatorControl navigator = new NavigatorControl( composite, SWT.NONE );
@@ -236,7 +235,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
         gear.addSelectionChangedListener( navigator );
         gear.addSelectionChangedListener( this );
-        
+
         GridData navData = new GridData( GridData.FILL_HORIZONTAL );
 
         navData.grabExcessHorizontalSpace = true;
@@ -244,10 +243,9 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         navData.heightHint = 55;
 
         navigator.setLayoutData( navData );
-        navigator.setBackground( navigator.getDisplay().getSystemColor( SWT.COLOR_WHITE));
+        navigator.setBackground( navigator.getDisplay().getSystemColor( SWT.COLOR_WHITE ) );
 
         setSelectPage( 0 );
-
     }
 
     @Override
@@ -264,11 +262,13 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
     public interface PageNavigatorListener
     {
+
         public void onPageNavigate( PageNavigateEvent event );
     }
-    
+
     public interface PageValidationListener
     {
+
         public void onValidation( PageValidateEvent event );
     }
 

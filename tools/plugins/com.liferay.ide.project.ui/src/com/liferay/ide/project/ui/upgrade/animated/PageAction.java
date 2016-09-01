@@ -12,6 +12,7 @@
  * details.
  *
  *******************************************************************************/
+
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.ui.ProjectUI;
@@ -29,37 +30,37 @@ import org.eclipse.swt.graphics.Rectangle;
  */
 public abstract class PageAction
 {
+
     protected Image[] images;
 
     public PageAction()
     {
         images = new Image[5];
     }
-    
+
     public Point getSize()
     {
-      Rectangle bounds = images[2].getBounds();
-      return new Point(bounds.width, bounds.height);
+        Rectangle bounds = images[2].getBounds();
+        return new Point( bounds.width, bounds.height );
     }
-    
+
     public Image[] getImages()
     {
         return this.images;
     }
-    
+
     public Image getBageImage()
     {
         return this.images[4];
     }
-    
-    
+
     public final Image loadImage( String name )
     {
         URL url = null;
-        
+
         try
         {
-            url  = ProjectUI.getDefault().getBundle().getEntry( "images/" + name );
+            url = ProjectUI.getDefault().getBundle().getEntry( "images/" + name );
         }
         catch( Exception e )
         {
@@ -71,13 +72,13 @@ public abstract class PageAction
 
         return image;
     }
-    
-    public Rectangle drawImage(GC gc, Image image, int cX, int cY)
+
+    public Rectangle drawImage( GC gc, Image image, int cX, int cY )
     {
-      Rectangle bounds = image.getBounds();
-      cX -= bounds.width / 2;
-      cY -= bounds.height / 2;
-      gc.drawImage(image, cX, cY);
-      return new Rectangle(cX, cY, bounds.width, bounds.height);
+        Rectangle bounds = image.getBounds();
+        cX -= bounds.width / 2;
+        cY -= bounds.height / 2;
+        gc.drawImage( image, cX, cY );
+        return new Rectangle( cX, cY, bounds.width, bounds.height );
     }
 }
