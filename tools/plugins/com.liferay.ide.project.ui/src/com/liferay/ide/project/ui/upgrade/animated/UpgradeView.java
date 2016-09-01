@@ -117,8 +117,10 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         composite.setLayout( new GridLayout( 1, true ) );
 
         GridData grData = new GridData( GridData.FILL_BOTH );
-        grData.heightHint = 600;
-        grData.widthHint = 300;
+        //grData.heightHint = 600;
+        //grData.widthHint = 300;
+        grData.grabExcessVerticalSpace = true; 
+        grData.grabExcessHorizontalSpace = true;
         composite.setLayoutData( grData );
         composite.addListener( SWT.Resize, new Listener()
         {
@@ -154,10 +156,10 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         pagesSwitchControler.setBackground(  pagesSwitchControler.getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ));
         
 
-        GridData containerData = new GridData( GridData.FILL_HORIZONTAL );
+        GridData containerData = new GridData( GridData.FILL_BOTH );
         containerData.grabExcessHorizontalSpace = true;
-        containerData.widthHint = 400;
-        containerData.heightHint = 435;
+        containerData.grabExcessVerticalSpace = true;
+        containerData.grabExcessHorizontalSpace = true;
         pagesSwitchControler.setLayoutData( containerData );
 
  
