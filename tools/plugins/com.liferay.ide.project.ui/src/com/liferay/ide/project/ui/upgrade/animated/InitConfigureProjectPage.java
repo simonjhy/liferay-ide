@@ -988,13 +988,13 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                     errorMessageLabel.setText( "This sdk location should not be  empty." );
                     inputValidation = false;
                 }
-                else if( newProjectField.getText().length() == 0 )
+                else if( inputValidation == true && newProjectField.getText().length() == 0 )
                 {
                     errorMessageLabel.setVisible( true );
                     errorMessageLabel.setText( "This new upgrade sdk name should not be emptry." );
                     inputValidation = false;
                 }
-                else if( layoutComb.getSelectionIndex() == 0 )
+                else if( inputValidation == true && layoutComb.getSelectionIndex() == 0 )
                 {
                     final int itemCount = serverComb.getItemCount();
                     if( itemCount < 1 )
@@ -1013,7 +1013,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                         }
                     }
                 }
-                else if( layoutComb.getSelectionIndex() == 1 )
+                else if( inputValidation == true && layoutComb.getSelectionIndex() == 1 )
                 {
                     if( bundleNameField.getText().length() == 0 )
                     {
@@ -1037,6 +1037,5 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                 importButton.setEnabled( layoutValidation && inputValidation );
             }
         } );
-
     }
 }

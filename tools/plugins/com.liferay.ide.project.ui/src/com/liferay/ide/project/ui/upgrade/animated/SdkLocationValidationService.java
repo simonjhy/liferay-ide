@@ -25,6 +25,7 @@ import org.eclipse.sapphire.modeling.Status;
 import org.eclipse.sapphire.platform.PathBridge;
 import org.eclipse.sapphire.platform.StatusBridge;
 import org.eclipse.sapphire.services.ValidationService;
+import org.osgi.framework.Version;
 
 /**
  * @author Andy Wu
@@ -61,6 +62,19 @@ public class SdkLocationValidationService extends ValidationService
             if( !status.isOK() )
             {
                 return StatusBridge.create( status );
+            }
+            
+            String version = sdk.getVersion();
+            
+            if ( version != null )
+            {
+                Version sdkVersion = new Version( version );
+                int result = sdkVersion.compareTo( new Version("7.0.0") );
+                
+                if ( result >= 0 )
+                {
+                    return StatusBridge.create( ProjectCore.createErrorStatus( "This SDK version is greater than 6.2.0 " ) );
+                }
             }
         }
         else
