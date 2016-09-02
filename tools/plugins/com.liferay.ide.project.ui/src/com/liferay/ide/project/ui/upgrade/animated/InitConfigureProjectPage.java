@@ -101,7 +101,7 @@ import org.eclipse.wst.server.ui.ServerUIUtil;
  * @author Simon Jiang
  */
 @SuppressWarnings( "unused" )
-public class InitCofigurePrjectPage extends Page implements IServerLifecycleListener
+public class InitConfigureProjectPage extends Page implements IServerLifecycleListener
 {
 
     public static final String defaultBundleUrl =
@@ -188,7 +188,7 @@ public class InitCofigurePrjectPage extends Page implements IServerLifecycleList
         }
     }
 
-    public InitCofigurePrjectPage( final Composite parent, int style, LiferayUpgradeDataModel dataModel )
+    public InitConfigureProjectPage( final Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
         this.setPageId( IMPORT_PAGE_ID );
