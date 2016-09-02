@@ -135,6 +135,15 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
     private Control createSeparator;
 
+    private SdkLocationValidationService sdkValidation =
+        dataModel.getSdkLocation().service( SdkLocationValidationService.class );
+    private ProjectNameValidationService projectNameValidation =
+        dataModel.getProjectName().service( ProjectNameValidationService.class );
+    private BundleNameValidationService bundleNameValidation =
+        dataModel.getBundleName().service( BundleNameValidationService.class );
+    private BundleUrlValidationService bundleUrlValidation =
+        dataModel.getBundleUrl().service( BundleUrlValidationService.class );
+
     private class LiferayUpgradeValidationListener extends Listener
     {
 
@@ -149,25 +158,19 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
                 if( property.name().equals( "SdkLocation" ) )
                 {
-                    SdkLocationValidationService sdkValidate = property.service( SdkLocationValidationService.class );
-                    validationStatus = sdkValidate.compute();
+                    validationStatus = sdkValidation.compute();
                 }
                 else if( property.name().equals( "ProjectName" ) )
                 {
-                    ProjectNameValidationService projectNameValidate =
-                        property.service( ProjectNameValidationService.class );
-                    validationStatus = projectNameValidate.compute();
+                    validationStatus = projectNameValidation.compute();
                 }
                 else if( property.name().equals( "BundleName" ) )
                 {
-                    BundleNameValidationService bundleNameValidate =
-                        property.service( BundleNameValidationService.class );
-                    validationStatus = bundleNameValidate.compute();
+                    validationStatus = bundleNameValidation.compute();
                 }
                 else if( property.name().equals( "BundleUrl" ) )
                 {
-                    BundleUrlValidationService bundleUrlValidate = property.service( BundleUrlValidationService.class );
-                    validationStatus = bundleUrlValidate.compute();
+                    validationStatus = bundleUrlValidation.compute();
                 }
 
                 if( !validationStatus.ok() )
@@ -247,7 +250,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                 }
             }
         } );
-        dirField.setText( "" );
+        dataModel.setSdkLocation( dirField.getText() );
 
         SWTUtil.createButton( this, "Browse..." ).addSelectionListener( new SelectionAdapter()
         {
@@ -276,6 +279,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                 dataModel.setProjectName( newProjectField.getText() );
             }
         } );
+        dataModel.setProjectName( newProjectField.getText() );
 
         layoutLabel = createLabel( composite, "Select Migrate Layout:" );
         layoutComb = new Combo( this, SWT.DROP_DOWN | SWT.READ_ONLY );
@@ -330,7 +334,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
         } );
         dataModel.setLayout( layoutComb.getText() );
-        
+
         createServerElement();
 
         dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener() );
@@ -462,6 +466,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                 dataModel.setBundleName( bundleNameField.getText() );
             }
         } );
+        dataModel.setBundleName( bundleNameField.getText() );
 
         bundleUrlLabel = createLabel( composite, "Bundle URL:" );
         bundleUrlField = createTextField( composite, SWT.NONE );
@@ -488,6 +493,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                     bundleUrlField.setText( "" );
                 }
                 bundleUrlField.setForeground( composite.getDisplay().getSystemColor( SWT.COLOR_BLACK ) );
+                dataModel.setBundleUrl( "" );
             }
 
             @Override
@@ -499,9 +505,11 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                 {
                     bundleUrlField.setForeground( composite.getDisplay().getSystemColor( SWT.COLOR_DARK_GRAY ) );
                     bundleUrlField.setText( defaultBundleUrl );
+                    dataModel.setBundleUrl( bundleUrlField.getText() );
                 }
             }
         } );
+        dataModel.setBundleUrl( bundleUrlField.getText() );
     }
 
     private void createImportElement()
@@ -719,7 +727,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
     protected void importProject()
     {
-        String layout = this.layoutComb.getText();
+        String layout = dataModel.getLayout().content();
 
         IPath location = PathBridge.create( dataModel.getSdkLocation().content() );
         String projectName = dataModel.getProjectName().content();
@@ -983,19 +991,27 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             @Override
             public void run()
             {
-                if( dirField.getText().length() == 0 )
+
+                String bundUrl = dataModel.getBundleUrl().content();
+
+                if( !sdkValidation.compute().ok() )
                 {
                     errorMessageLabel.setVisible( true );
-                    errorMessageLabel.setText( "This sdk location should not be  empty." );
+                    errorMessageLabel.setText( sdkValidation.compute().message() );
                     inputValidation = false;
+                    importButton.setEnabled( layoutValidation && inputValidation );
+                    return;
                 }
-                else if( inputValidation == true && newProjectField.getText().length() == 0 )
+
+                else if( !projectNameValidation.compute().ok() )
                 {
                     errorMessageLabel.setVisible( true );
-                    errorMessageLabel.setText( "This new upgrade sdk name should not be emptry." );
+                    errorMessageLabel.setText( projectNameValidation.compute().message() );
                     inputValidation = false;
+                    importButton.setEnabled( layoutValidation && inputValidation );
+                    return;
                 }
-                else if( inputValidation == true && layoutComb.getSelectionIndex() == 0 )
+                else if( layoutComb.getSelectionIndex() == 0 )
                 {
                     final int itemCount = serverComb.getItemCount();
                     if( itemCount < 1 )
@@ -1003,6 +1019,9 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                         errorMessageLabel.setVisible( true );
                         errorMessageLabel.setText( "You shoulde add at least one Liferay 7 portal bundle." );
                         layoutValidation = false;
+
+                        importButton.setEnabled( layoutValidation && inputValidation );
+                        return;
                     }
                     else
                     {
@@ -1011,31 +1030,40 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                             layoutValidation = true;
                             errorMessageLabel.setVisible( false );
                             errorMessageLabel.setText( "" );
+
+                            importButton.setEnabled( layoutValidation && inputValidation );
+                            return;
                         }
                     }
                 }
-                else if( inputValidation == true && layoutComb.getSelectionIndex() == 1 )
+                else if( layoutComb.getSelectionIndex() == 1 )
                 {
-                    if( bundleNameField.getText().length() == 0 )
+                    if( !bundleNameValidation.compute().ok() )
                     {
                         errorMessageLabel.setVisible( true );
-                        errorMessageLabel.setText( "This bundleName should not be  empty." );
+                        errorMessageLabel.setText( bundleNameValidation.compute().message() );
                         layoutValidation = false;
+
+                        importButton.setEnabled( layoutValidation && inputValidation );
+                        return;
                     }
-                    else if( bundleUrlField.getText().length() == 0 )
+                    else if( bundUrl != null && bundUrl.length() > 0 && !bundleUrlValidation.compute().ok() )
                     {
                         errorMessageLabel.setVisible( true );
-                        errorMessageLabel.setText( "This bundle's download URL should not be  empty." );
+                        errorMessageLabel.setText( bundleUrlValidation.compute().message() );
                         layoutValidation = false;
+                        importButton.setEnabled( layoutValidation && inputValidation );
+                        return;
                     }
                     else
                     {
                         errorMessageLabel.setVisible( false );
                         errorMessageLabel.setText( "" );
                         layoutValidation = true;
+                        importButton.setEnabled( layoutValidation && inputValidation );
+                        return;
                     }
                 }
-                importButton.setEnabled( layoutValidation && inputValidation );
             }
         } );
     }
