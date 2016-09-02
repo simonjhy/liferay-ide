@@ -99,6 +99,7 @@ import org.eclipse.wst.server.ui.ServerUIUtil;
 
 /**
  * @author Simon Jiang
+ * @author Terry Jia
  */
 @SuppressWarnings( "unused" )
 public class InitConfigureProjectPage extends Page implements IServerLifecycleListener
@@ -155,6 +156,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                 ValuePropertyContentEvent propertyEvetn = (ValuePropertyContentEvent) event;
                 Property property = propertyEvetn.property();
                 Status validationStatus = Status.createOkStatus();
+
+                storeProperty( property.name(), property.toString() );
 
                 if( property.name().equals( "SdkLocation" ) )
                 {
@@ -250,6 +253,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                 }
             }
         } );
+        
+        dirField.setText( codeUpgradeProperties.getProperty( "SdkLocation", "" ) );
         dataModel.setSdkLocation( dirField.getText() );
 
         SWTUtil.createButton( this, "Browse..." ).addSelectionListener( new SelectionAdapter()
@@ -269,6 +274,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                 }
             }
         } );
+
         newProjectLabel = createLabel( composite, "New Project Name:" );
         newProjectField = createTextField( composite, SWT.NONE );
         newProjectField.addModifyListener( new ModifyListener()
@@ -280,6 +286,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             }
         } );
         dataModel.setProjectName( newProjectField.getText() );
+
+        newProjectField.setText( codeUpgradeProperties.getProperty( "ProjectName", "" ) );
 
         layoutLabel = createLabel( composite, "Select Migrate Layout:" );
         layoutComb = new Combo( this, SWT.DROP_DOWN | SWT.READ_ONLY );
@@ -392,32 +400,46 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         {
             dataModel.setHasPortlet( true );
 
+            storeProperty( "hasPortlet", true );
+
             List<IFile> searchFiles = new SearchFilesVisitor().searchFiles( project, "service.xml" );
 
             if( searchFiles.size() > 0 )
             {
                 dataModel.setHasServiceBuilder( true );
+
+                storeProperty( "hasServiceBuilder", true );
             }
         }
         else if( ProjectUtil.isHookProject( project ) )
         {
             dataModel.setHasHook( true );
+
+            storeProperty( "hasHook", true );
         }
         else if( ProjectUtil.isLayoutTplProject( project ) )
         {
             dataModel.setHasLayout( true );
+
+            storeProperty( "hasLayout", true );
         }
         else if( ProjectUtil.isThemeProject( project ) )
         {
             dataModel.setHasTheme( true );
+
+            storeProperty( "hasTheme", true );
         }
         else if( ProjectUtil.isExtProject( project ) )
         {
             dataModel.setHasExt( true );
+
+            storeProperty( "hasExt", true );
         }
         else if( ProjectUtil.isWebProject( project ) )
         {
             dataModel.setHasWeb( true );
+
+            storeProperty( "hasWeb", true );
         }
     }
 

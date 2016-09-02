@@ -15,11 +15,18 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.project.core.ProjectCore;
 import com.liferay.ide.ui.util.SWTUtil;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.graphics.Color;
@@ -135,14 +142,13 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
         GridData grData = new GridData( GridData.FILL_BOTH );
         Color backGroundColor = composite.getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND );
-        //grData.heightHint = 600;
-        //grData.widthHint = 300;
+        // grData.heightHint = 600;
+        // grData.widthHint = 300;
 
-        grData.grabExcessVerticalSpace = true; 
+        grData.grabExcessVerticalSpace = true;
         grData.grabExcessHorizontalSpace = true;
         composite.setLayoutData( grData );
         composite.setBackground( backGroundColor );
-
 
         final GearControl gear = new GearControl( composite, SWT.NONE );
 
@@ -167,12 +173,12 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
             {
                 Color endColor = composite.getDisplay().getSystemColor( SWT.COLOR_WHITE );
 
-                Image image = GradientHelper.createGradientImageFor( pagesSwitchControler, backGroundColor, endColor, true);
+                Image image =
+                    GradientHelper.createGradientImageFor( pagesSwitchControler, backGroundColor, endColor, true );
 
                 pagesSwitchControler.setBackgroundImage( image );
             }
         } );
-        
 
         GridData containerData = new GridData( GridData.FILL_BOTH );
         containerData.grabExcessHorizontalSpace = true;
@@ -239,9 +245,79 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
         currentPageList.clear();
 
-        //currentPageList.add( welcomePage );
-        //currentPageList.add( initCofigurePrjectPage );
-        currentPageList.addAll( staticPageList );
+        currentPageList.add( welcomePage );
+        currentPageList.add( initConfigureProjectPage );
+        // currentPageList.addAll( staticPageList );
+
+        Properties properties = new Properties();
+
+        final IPath stateLocation = ProjectCore.getDefault().getStateLocation();
+
+        File stateDir = stateLocation.toFile();
+
+        File codeUpgradeFile = new File( stateDir, "liferay-code-upgrade.properties" );
+
+        if( !codeUpgradeFile.exists() )
+        {
+            try
+            {
+                codeUpgradeFile.createNewFile();
+            }
+            catch( IOException e )
+            {
+            }
+        }
+
+        try(InputStream in = new FileInputStream( codeUpgradeFile ))
+        {
+            properties.load( in );
+        }
+        catch( Exception e )
+        {
+        }
+
+        boolean hasPortlet = Boolean.parseBoolean( properties.getProperty( "hasPortlet", "false" ) );
+        boolean hasServiceBuilder = Boolean.parseBoolean( properties.getProperty( "hasServiceBuilder", "false" ) );
+        boolean hasHook = Boolean.parseBoolean( properties.getProperty( "hasHook", "false" ) );
+        boolean hasLayout = Boolean.parseBoolean( properties.getProperty( "hasLayout", "false" ) );
+        boolean hasTheme = Boolean.parseBoolean( properties.getProperty( "hasTheme", "false" ) );
+        boolean hasExt = Boolean.parseBoolean( properties.getProperty( "hasExt", "false" ) );
+
+        if( hasPortlet || hasHook || hasServiceBuilder || hasLayout )
+        {
+            currentPageList.add( descriptorsPage );
+        }
+
+        if( hasPortlet || hasHook || hasServiceBuilder )
+        {
+            currentPageList.add( findBreakingChangesPage );
+        }
+
+        if( hasServiceBuilder )
+        {
+            currentPageList.add( buildServicePage );
+        }
+
+        if( hasLayout )
+        {
+            currentPageList.add( layoutTemplatePage );
+        }
+
+        if( hasHook )
+        {
+            currentPageList.add( customJspPage );
+        }
+
+        if( hasExt || hasTheme )
+        {
+            currentPageList.add( extAndThemePage );
+        }
+
+        if( hasPortlet || hasHook || hasServiceBuilder || hasLayout )
+        {
+            currentPageList.add( compilePage );
+            currentPageList.add( deployPage );
+        }
 
         resetPages();
 
@@ -261,7 +337,6 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
         navigator.setLayoutData( navData );
         navigator.setBackground( backGroundColor );
-
 
         setSelectPage( 0 );
     }
