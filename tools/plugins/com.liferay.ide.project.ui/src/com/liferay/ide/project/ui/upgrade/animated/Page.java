@@ -15,13 +15,22 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.project.core.ProjectCore;
 import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageNavigatorListener;
 import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageValidationListener;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Properties;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -32,9 +41,11 @@ import org.eclipse.swt.widgets.Text;
 
 /**
  * @author Simon Jiang
+ * @author Terry Jia
  */
 public abstract class Page extends Composite
 {
+
     public static String WELCOME_PAGE_ID = "welcome";
     public static String IMPORT_PAGE_ID = "import";
     public static String DESCRIPTORS_PAGE_ID = "descriptors";
@@ -49,12 +60,57 @@ public abstract class Page extends Composite
     protected boolean canNext = true;
 
     protected LiferayUpgradeDataModel dataModel;
+    private File codeUpgradeFile;
+    protected static Properties codeUpgradeProperties;
 
     public Page( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style );
 
         this.dataModel = dataModel;
+
+        final IPath stateLocation = ProjectCore.getDefault().getStateLocation();
+
+        File stateDir = stateLocation.toFile();
+
+        codeUpgradeFile = new File( stateDir, "liferay-code-upgrade.properties" );
+
+        if( !codeUpgradeFile.exists() )
+        {
+            try
+            {
+                codeUpgradeFile.createNewFile();
+            }
+            catch( IOException e1 )
+            {
+            }
+        }
+
+        if( codeUpgradeProperties == null )
+        {
+            codeUpgradeProperties = new Properties();
+
+            try(InputStream in = new FileInputStream( codeUpgradeFile ))
+            {
+                codeUpgradeProperties.load( in );
+            }
+            catch( Exception e )
+            {
+            }
+        }
+    }
+
+    public void storeProperty( Object key, Object value )
+    {
+        codeUpgradeProperties.setProperty( String.valueOf( key ), String.valueOf( value ) );
+
+        try(OutputStream out = new FileOutputStream( codeUpgradeFile ))
+        {
+            codeUpgradeProperties.store( out, "" );
+        }
+        catch( Exception e )
+        {
+        }
     }
 
     protected final List<PageNavigatorListener> naviListeners =
@@ -133,7 +189,7 @@ public abstract class Page extends Composite
     @Override
     public boolean equals( Object obj )
     {
-        Page comp = (Page)obj;
+        Page comp = (Page) obj;
 
         return this.pageId == comp.pageId;
     }
