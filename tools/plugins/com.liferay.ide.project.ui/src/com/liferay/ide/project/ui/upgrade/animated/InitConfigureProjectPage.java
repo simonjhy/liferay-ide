@@ -329,7 +329,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             }
 
         } );
-
+        dataModel.setLayout( layoutComb.getText() );
+        
         createServerElement();
 
         dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener() );
@@ -756,7 +757,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                         }
                         else
                         {
-                            String serverName = serverComb.getText();
+                            String serverName = dataModel.getLiferayServerName().content();
 
                             IServer server = ServerUtil.getServer( serverName );
 
