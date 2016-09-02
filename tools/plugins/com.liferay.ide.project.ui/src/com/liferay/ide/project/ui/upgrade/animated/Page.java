@@ -256,7 +256,7 @@ public abstract class Page extends Composite
     {
         PageValidateEvent pe = new PageValidateEvent();
         pe.setPageId( getPageId() );
-        pe.setValidationMessage( validationMessage );
+        pe.setMessage( validationMessage );
 
         for( PageValidationListener listener : pageValidationListeners )
         {

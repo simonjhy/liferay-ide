@@ -325,6 +325,37 @@ public abstract class AbstractCanvas extends Canvas
 
         return rectangle;
     }
+    
+    public static Rectangle drawTextNotCenter( GC gc, int cX, int cY, String text, int box )
+    {
+        Point extent = gc.stringExtent( text );
+
+        int x = (int) ( cX - extent.x / 2 );
+        int y = (int) ( cY - extent.y / 2 );
+
+        if( x < box )
+        {
+            x = box;
+        }
+
+        Rectangle rectangle = new Rectangle( cX, cY, extent.x, extent.y );
+
+        if( box > 0 )
+        {
+            rectangle.x -= box;
+            rectangle.y -= box;
+            rectangle.width += 2 * box;
+            rectangle.height += 2 * box;
+
+            gc.fillRectangle( rectangle );
+        }
+
+        //System.out.println( x+" "+y+" "+extent.x+" "+extent.y +" "+rectangle.x+" "+rectangle.y+" "+rectangle.width+" "+rectangle.height);
+        
+        gc.drawText( text, cX, cY, true );
+
+        return rectangle;
+    }
 
     protected void scheduleRun()
     {

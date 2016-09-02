@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
@@ -48,6 +50,9 @@ public class GearControl extends AbstractCanvas
     private final int BORDER = 20;
 
     private Display display;
+
+    private Image errorImage ;
+    private String errorMessage;
 
     private final Color[] gearBackground = new Color[2];
     private final Color[] gearForeground = new Color[2];
@@ -90,6 +95,8 @@ public class GearControl extends AbstractCanvas
     private final int TEETH = 8;
 
     private final float ANGLE = 360 / TEETH;
+
+    private boolean showErrorMessage = false;
 
     private Font tooltipFont;
 
@@ -165,6 +172,8 @@ public class GearControl extends AbstractCanvas
         super.init();
 
         display = getDisplay();
+
+        errorImage = JFaceResources.getImage(Dialog.DLG_IMG_MESSAGE_ERROR);
 
         WHITE = display.getSystemColor( SWT.COLOR_WHITE );
         GRAY = display.getSystemColor( SWT.COLOR_GRAY );
@@ -315,6 +324,20 @@ public class GearControl extends AbstractCanvas
     @Override
     public void onValidation( PageValidateEvent event )
     {
+        String message = event.getMessage();
+
+        if(message.equals( "ok" ))
+        {
+            showErrorMessage = false;
+        }
+        else
+        {
+            showErrorMessage = true;
+
+            errorMessage = message;
+        }
+
+        needRedraw = true;
     }
 
     @Override
@@ -350,7 +373,26 @@ public class GearControl extends AbstractCanvas
             gc.drawRectangle( rectangle );
         }
 
+        paintErrorMessage(gc);
+
         oldHover = hover;
+
+    }
+
+    private void paintErrorMessage(GC gc)
+    {
+        if( showErrorMessage )
+        {
+            drawImage( gc, errorImage, 30, 130 );
+
+            gc.setBackground( tooltipColor );
+            gc.setForeground( DARK_GRAY );
+            gc.setLineWidth( 1 );
+
+            Rectangle rectangle = drawTextNotCenter( gc, 40, 120, errorMessage, 2 );
+
+            gc.drawRectangle( rectangle );
+        }
     }
 
     private Point paintBadge( GC gc, double x, double y, double outerR, int i, int alpha )

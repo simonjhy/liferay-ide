@@ -157,7 +157,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         GridData gridData = new GridData( GridData.FILL_HORIZONTAL );
         gridData.grabExcessHorizontalSpace = true;
         gridData.widthHint = 400;
-        gridData.heightHint = 130;
+        gridData.heightHint = 150;
 
         gear.setLayoutData( gridData );
         gear.setBackground( backgroundColor );
@@ -186,6 +186,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         initConfigureProjectPage.addPageNavigateListener( gear );
         initConfigureProjectPage.addPageValidationListener( gear );
         initConfigureProjectPage.setNextPage( false );
+        initConfigureProjectPage.addPageValidationListener( gear );
 
         Page descriptorsPage = new DescriptorsPage( pagesSwitchControler, SWT.NONE, dataModel );
         descriptorsPage.setIndex( 2 );
@@ -206,6 +207,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         Page customJspPage = new CustomJspPage( pagesSwitchControler, SWT.NONE, dataModel );
         customJspPage.setIndex( 6 );
         customJspPage.setTitle( "Custom Jsp" );
+        customJspPage.addPageValidationListener( gear );
 
         Page extAndThemePage = new ExtAndThemePage( pagesSwitchControler, SWT.NONE, dataModel );
         extAndThemePage.setIndex( 7 );
@@ -237,7 +239,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
         currentPageList.add( welcomePage );
         currentPageList.add( initConfigureProjectPage );
-        // currentPageList.addAll( staticPageList );
+        //currentPageList.addAll( staticPageList );
 
 //        Properties properties = new Properties();
 //
@@ -329,7 +331,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         navigator.setBackground( backgroundColor );
 
         scrolledComposite.setContent(composite);
-        scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, 750));
+        scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, 700));
 
         setSelectPage( 0 );
     }

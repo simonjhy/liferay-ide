@@ -17,37 +17,31 @@ package com.liferay.ide.project.ui.upgrade.animated;
 
 /**
  * @author Simon Jiang
+ * @author Andy Wu
  */
 public class PageValidateEvent
 {
 
     private String pageId;
-    private String ValidationMessage;
+    private String message;
 
-    
-    public String getValidationMessage()
-    {
-        return ValidationMessage;
-    }
-
-    
-    public void setValidationMessage( String validationMessage )
-    {
-        ValidationMessage = validationMessage;
-    }
-
-
-    
     public String getPageId()
     {
         return pageId;
     }
 
-
-    
     public void setPageId( String pageId )
     {
         this.pageId = pageId;
     }
 
+    public String getMessage()
+    {
+        return message;
+    }
+
+    public void setMessage( String message )
+    {
+        this.message = message;
+    }
 }

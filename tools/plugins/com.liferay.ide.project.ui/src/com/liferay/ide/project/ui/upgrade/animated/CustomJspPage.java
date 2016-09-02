@@ -16,9 +16,11 @@
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
 import com.liferay.ide.project.core.util.ProjectUtil;
 import com.liferay.ide.project.ui.dialog.CustomProjectSelectionDialog;
 import com.liferay.ide.project.ui.upgrade.CustomJspConverter;
+import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageValidationListener;
 import com.liferay.ide.server.util.ServerUtil;
 import com.liferay.ide.ui.util.SWTUtil;
 import com.liferay.ide.ui.util.UIUtil;
@@ -64,9 +66,18 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.jface.viewers.ViewerSorter;
 import org.eclipse.jface.window.Window;
+import org.eclipse.sapphire.Event;
+import org.eclipse.sapphire.Listener;
+import org.eclipse.sapphire.Property;
+import org.eclipse.sapphire.ValuePropertyContentEvent;
+import org.eclipse.sapphire.modeling.Status;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -76,8 +87,10 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE.SharedImages;
@@ -430,8 +443,6 @@ public class CustomJspPage extends Page
 
     private PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
 
-    private String compareType70 = "7.x";
-    private String compareType62 = "6.2";
     private Image imageFile;
     private Image imageFolder;
 
@@ -441,49 +452,182 @@ public class CustomJspPage extends Page
     private TreeViewer rightTreeViewer;
 
     private String staticPath = "/src/main/resources/META-INF/resources/";
+    
+    private boolean hasLiferayWorkspace = false;
+    
+    private final String defaultLocation;
+    
+    private ConvertedProjectLocationValidationService convertedProjectLocationValidation =
+                    dataModel.getConvertedProjectLocation().service( ConvertedProjectLocationValidationService.class );
+    
+    private class ConvertedProjectLocationListener extends Listener
+    {
+        @Override
+        public void handle( Event event )
+        {
+            if( event instanceof ValuePropertyContentEvent )
+            {
+                ValuePropertyContentEvent propertyEvetn = (ValuePropertyContentEvent) event;
+                Property property = propertyEvetn.property();
+                Status validationStatus = Status.createOkStatus();
+
+                if( property.name().equals( "ConvertedProjectLocation" ) )
+                {
+                    validationStatus = convertedProjectLocationValidation.compute();
+                }
+
+                String message = "ok";
+                
+                if( !validationStatus.ok() )
+                {
+                    message = validationStatus.message();
+                }
+
+                triggerPaintEvent(message);
+                
+            }
+        }
+    }
+
+    private void triggerPaintEvent(String message)
+    {
+        PageValidateEvent event = new PageValidateEvent();
+
+        event.setMessage( message );
+        
+        for(PageValidationListener listener : pageValidationListeners)
+        {
+            listener.onValidation( event );
+        }
+    }
 
     public CustomJspPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
-        this.setLayout( new GridLayout( 1, true ) );
-
-        Label title = new Label( this, SWT.LEFT );
-        title.setText( "Convert Custom JSP Hooks" );
-        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
 
         setActions( actions );
 
         this.setPageId( CUSTOMJSP_PAGE_ID );
 
+        this.setLayout( new GridLayout( 1, true ) );
+        this.setLayoutData( new GridData( GridData.FILL_BOTH ) );
+
+        Label title = new Label( this, SWT.LEFT );
+        title.setText( "Convert Custom JSP Hooks" );
+        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
+
         Composite container = new Composite( this, SWT.NONE );
 
-        GridLayout gridLayout = new GridLayout( 1, true );
+        container.setLayout( new GridLayout( 3, false ) );
+        container.setLayoutData( new GridData( GridData.FILL_HORIZONTAL ) );
 
-        container.setLayout( gridLayout );
+        Label label = new Label( container, SWT.NONE );
+        label.setText( "Converted Project Location:" );
 
-        GridData layoutData = new GridData( SWT.FILL, SWT.FILL, true, true );
-        layoutData.widthHint = 800;
-        layoutData.heightHint = 600;
+        Text projectLocation = new Text( container, SWT.BORDER );
+        projectLocation.setLayoutData( new GridData( GridData.FILL_HORIZONTAL ) );
 
-        container.setLayoutData( layoutData );
+        projectLocation.setForeground( getDisplay().getSystemColor( SWT.COLOR_DARK_GRAY ) );
+
+        String defaultLocationPre = null ;
+
+        try
+        {
+            hasLiferayWorkspace = LiferayWorkspaceUtil.hasLiferayWorkspace();
+
+            if( hasLiferayWorkspace )
+            {
+                IProject ws = LiferayWorkspaceUtil.getLiferayWorkspaceProject();
+
+                String modulesDir = LiferayWorkspaceUtil.getLiferayWorkspaceProjectModulesDir( ws );
+
+                defaultLocationPre = ws.getLocation().append( modulesDir ).toPortableString();
+            }
+            else
+            {
+                defaultLocationPre = CoreUtil.getWorkspaceRoot().getLocation().toPortableString();
+            }
+        }
+        catch( CoreException e )
+        {
+        }
+
+        defaultLocation = defaultLocationPre;
+
+        projectLocation.setText(defaultLocation);
+
+        projectLocation.addFocusListener( new FocusListener()
+        {
+            @Override
+            public void focusGained( FocusEvent e )
+            {
+                String input = ( (Text) e.getSource() ).getText();
+
+                if( input.equals( defaultLocation ) )
+                {
+                    projectLocation.setText( "" );
+                }
+                projectLocation.setForeground( getDisplay().getSystemColor( SWT.COLOR_BLACK ) );
+            }
+
+            @Override
+            public void focusLost( FocusEvent e )
+            {
+                String input = ( (Text) e.getSource() ).getText();
+
+                if( CoreUtil.isNullOrEmpty( input ) )
+                {
+                    projectLocation.setForeground( getDisplay().getSystemColor( SWT.COLOR_DARK_GRAY ) );
+                    projectLocation.setText( defaultLocation );
+                }
+            }
+        } );
+        
+        projectLocation.addModifyListener( new ModifyListener()
+        {
+
+            public void modifyText( ModifyEvent e )
+            {
+                dataModel.setConvertedProjectLocation( projectLocation.getText() );
+            }
+        } );
+        
+        dataModel.setConvertedProjectLocation( projectLocation.getText() );
 
         Composite buttonContainer = new Composite( container, SWT.NONE );
+        buttonContainer.setLayout( new GridLayout( 3, false ) );
 
-        buttonContainer.setLayout( new GridLayout( 2, true ) );
-
-        Button selectButton = SWTUtil.createButton( buttonContainer, "select projects" );
-
-        GridData buttonGridData = new GridData( SWT.LEFT, SWT.LEFT, false, false );
-
+        GridData buttonGridData = new GridData( SWT.CENTER, SWT.CENTER, true, true );
         buttonGridData.widthHint = 130;
-        buttonGridData.heightHint = 40;
+        buttonGridData.heightHint = 35;
+        
+        Button browseButton = new Button(buttonContainer, SWT.PUSH );
+        
+        browseButton.setText( "Browse" );
+        
+        browseButton.addSelectionListener( new SelectionAdapter()
+        {
 
-        selectButton.setLayoutData( buttonGridData );
+            @Override
+            public void widgetSelected( SelectionEvent e )
+            {
+                final DirectoryDialog dd = new DirectoryDialog( getShell() );
+                dd.setMessage( "Select Converted Project Location" );
 
-        Button clearButton = SWTUtil.createButton( buttonContainer, "clear results" );
+                final String selectedDir = dd.open();
 
-        clearButton.setLayoutData( buttonGridData );
+                if( selectedDir != null )
+                {
+                    projectLocation.setText( selectedDir );
+                }
+            }
+        } );
+        
+        dataModel.getConvertedProjectLocation().attach( new ConvertedProjectLocationListener() );
 
+        Button selectButton = new Button( buttonContainer, SWT.PUSH );
+        selectButton.setText( "select projects" );
+        
         selectButton.addSelectionListener( new SelectionAdapter()
         {
 
@@ -493,6 +637,9 @@ public class CustomJspPage extends Page
                 runConvertAction();
             }
         } );
+
+        Button clearButton = new Button( buttonContainer, SWT.PUSH );
+        clearButton.setText( "clear results" );
 
         clearButton.addSelectionListener( new SelectionAdapter()
         {
@@ -506,7 +653,7 @@ public class CustomJspPage extends Page
             }
         } );
 
-        SashForm sashForm = new SashForm( container, SWT.HORIZONTAL | SWT.H_SCROLL );
+        SashForm sashForm = new SashForm( this, SWT.HORIZONTAL | SWT.H_SCROLL );
 
         sashForm.setLayout( new GridLayout( 1, false ) );
 
@@ -521,15 +668,16 @@ public class CustomJspPage extends Page
         refreshTreeViews();
     }
 
-    public void compare( final String originalFile, final String changedFile, final String compareType )
+    public void compare(
+        final String originalFile, final String changedFile, final String leftLabel, final String rightLabel )
     {
         CompareConfiguration config = new CompareConfiguration();
 
         config.setLeftEditable( false );
-        config.setLeftLabel( compareType + " original jsp" );
+        config.setLeftLabel( leftLabel );
 
-        config.setRightEditable( true );
-        config.setRightLabel( "custom jsp" );
+        config.setRightEditable( false );
+        config.setRightLabel( rightLabel );
 
         CompareEditorInput editorInput = new CompareEditorInput( config )
         {
@@ -597,7 +745,7 @@ public class CustomJspPage extends Page
         leftContainer.setContent( leftPart );
 
         Label leftLabel = new Label( leftPart, SWT.NONE );
-        leftLabel.setText( "6.2 Custom JSPs (double-click to compare with original)" );
+        leftLabel.setText( "6.2 Custom JSPs (double-click to compare with 6.2)" );
 
         leftTreeViewer = new TreeViewer( leftPart, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER );
 
@@ -626,12 +774,11 @@ public class CustomJspPage extends Page
                 {
                     String[] paths = get62FilePaths( file );
 
-                    compare( paths[0], paths[1], compareType62 );
+                    compare( paths[0], paths[1], "6.2 original jsp", "custom jsp" );
                 }
                 else
                 {
-                    MessageDialog.openInformation(
-                        Display.getDefault().getActiveShell(), "file not found",
+                    MessageDialog.openInformation( Display.getDefault().getActiveShell(), "file not found",
                         "there is no such file in liferay 62" );
                 }
             }
@@ -670,7 +817,7 @@ public class CustomJspPage extends Page
         rightContainer.setContent( rightPart );
 
         Label rightLabel = new Label( rightPart, SWT.NONE );
-        rightLabel.setText( "New JSP (double-click to compare with original)" );
+        rightLabel.setText( "New JSP (double-click to compare 6.2 with 7.x)" );
 
         rightTreeViewer = new TreeViewer( rightPart, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER );
 
@@ -699,12 +846,12 @@ public class CustomJspPage extends Page
                 {
                     String[] paths = get70FilePaths( file );
 
-                    compare( paths[0], paths[1], compareType70 );
+                    compare( paths[0], paths[1], "6.2 original jsp", "7.x original jsp" );
                 }
                 else
                 {
-                    MessageDialog.openInformation(
-                        Display.getDefault().getActiveShell(), "file not found", "there is no such file in liferay 7" );
+                    MessageDialog.openInformation( Display.getDefault().getActiveShell(), "file not found",
+                        "there is no such file in liferay 7" );
                 }
             }
         } );
@@ -774,14 +921,13 @@ public class CustomJspPage extends Page
 
         String[] paths = new String[2];
 
-        paths[0] = null;
-        paths[1] = filePath;
-
+        IFile original62File = resourceFolder.getFile( "/.ignore/" + relativePath.toString()+".62" );
         IFile original70File = resourceFolder.getFile( "/.ignore/" + relativePath.toString() );
 
-        if( original70File.exists() )
+        if( original62File.exists() && original70File.exists() )
         {
-            paths[0] = original70File.getLocation().toOSString();
+            paths[0] = original62File.getLocation().toPortableString();
+            paths[1] = original70File.getLocation().toPortableString();
         }
 
         return paths;
@@ -951,17 +1097,26 @@ public class CustomJspPage extends Page
 
         if( liferay70Runtime == null || CoreUtil.isNullOrEmpty( liferay62ServerLocation ) )
         {
-            MessageDialog.openError(
-                Display.getDefault().getActiveShell(), "could not convert",
+            MessageDialog.openError( Display.getDefault().getActiveShell(), "could not convert",
                 "countn't find liferay 70 or 62 server location" );
 
             return;
         }
 
         converter.setLiferay70Runtime( liferay70Runtime );
+        converter.setLiferay62ServerLocation( liferay62ServerLocation );
         converter.setUi( this );
 
-        converter.doExecute( sourcePaths );
+        String targetPath = dataModel.getConvertedProjectLocation().content().toPortableString();
+        
+        boolean isLiferayWorkapce = false;
+        
+        if( targetPath.equals( defaultLocation ) && hasLiferayWorkspace )
+        {
+            isLiferayWorkapce = true;
+        }
+        
+        converter.doExecute( sourcePaths ,targetPath ,isLiferayWorkapce );
     }
 
 }

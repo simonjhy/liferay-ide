@@ -343,7 +343,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
                 composite.layout();
                 dataModel.setLayout( layoutComb.getText() );
-                validate();
+
+                startCheckThread();
             }
 
         } );
@@ -1201,6 +1202,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                         return;
                     }
                 }
+                
+                triggerValidationEvent("ok");
             }
         } );
     }

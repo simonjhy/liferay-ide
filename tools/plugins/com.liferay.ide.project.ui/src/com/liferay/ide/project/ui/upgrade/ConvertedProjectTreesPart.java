@@ -963,7 +963,7 @@ public class ConvertedProjectTreesPart extends FormComponentPart
             //TODO 
             //converter.setUi( this );
 
-            converter.doExecute( sourcePaths );
+            //converter.doExecute( sourcePaths );
         }
     }
 
