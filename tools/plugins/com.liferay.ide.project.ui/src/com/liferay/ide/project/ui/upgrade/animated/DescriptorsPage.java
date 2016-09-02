@@ -46,7 +46,7 @@ public class DescriptorsPage extends Page
         final String descriptor = "This step will upgrade descriptor xml dtd version from 6.2 to 7.0 and " +
             "delete wap-template-path \ntag in liferay-layout-template.xml.\n" +
             "Double click the file in the list. It will popup a comparison page" +
-            " which shows the differences \nbetween your original source file and the upgrade preview file.\n";
+            "which shows the differences \nbetween your original source file and the upgrade preview file.\n";
         content.setText( descriptor );
         content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ) );
 

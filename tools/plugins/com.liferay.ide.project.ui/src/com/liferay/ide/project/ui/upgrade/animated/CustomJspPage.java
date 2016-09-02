@@ -69,6 +69,7 @@ import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -86,7 +87,6 @@ import org.eclipse.wst.server.core.IRuntime;
  * @author Andy Wu
  * @author Simon Jiang
  */
-@SuppressWarnings( "deprecation" )
 public class CustomJspPage extends Page
 {
 
@@ -446,6 +446,10 @@ public class CustomJspPage extends Page
     {
         super( parent, style, dataModel );
         this.setLayout( new GridLayout( 1, true ) );
+
+        Label title = new Label( this, SWT.LEFT );
+        title.setText( "Convert Custom JSP Hooks" );
+        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
 
         setActions( actions );
 
