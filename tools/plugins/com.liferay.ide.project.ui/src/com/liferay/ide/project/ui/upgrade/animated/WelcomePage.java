@@ -128,7 +128,6 @@ public class WelcomePage extends Page
 
                         if( container != null )
                         {
-                            container.setProblemsArray( null );
                             UpgradeAssistantSettingsUtil.setObjectToStore( MigrationProblemsContainer.class, null );
                         }
                     }

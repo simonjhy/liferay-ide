@@ -20,8 +20,8 @@ import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.MarkerUtil;
 import com.liferay.ide.project.core.upgrade.MigrationProblems;
 import com.liferay.ide.project.ui.upgrade.animated.FindBreakingChangesPage;
+import com.liferay.ide.project.ui.upgrade.animated.Page;
 import com.liferay.ide.project.ui.upgrade.animated.UpgradeView;
-import com.liferay.ide.ui.util.UIUtil;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.action.IAction;
@@ -46,8 +46,8 @@ public class RemoveAction extends SelectionProviderAction implements IAction
     {
 //        final MigrationView mv = (MigrationView) UIUtil.showView( MigrationView.ID );
 //        final CommonViewer commonViewer = mv.getCommonViewer();
-        final UpgradeView mv = (UpgradeView) UIUtil.findView( UpgradeView.ID );
-        final FindBreakingChangesPage page = (FindBreakingChangesPage) mv.getPage( 3 );
+        final FindBreakingChangesPage page =
+            UpgradeView.getPage( Page.FINDBREACKINGCHANGES_PAGE_ID, FindBreakingChangesPage.class );
         final TreeViewer treeViewer = page.getTreeViewer();
 
         Object selection = treeViewer.getStructuredSelection().getFirstElement();

@@ -20,6 +20,7 @@ import com.liferay.blade.api.Reporter;
 
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.project.ui.upgrade.animated.FindBreakingChangesPage;
+import com.liferay.ide.project.ui.upgrade.animated.Page;
 import com.liferay.ide.project.ui.upgrade.animated.UpgradeView;
 import com.liferay.ide.ui.util.UIUtil;
 
@@ -48,8 +49,8 @@ public class IDEReporter implements Reporter
 //                MigrationView view = (MigrationView) UIUtil.showView( MigrationView.ID );
 //
 //                view.getCommonViewer().setInput( CoreUtil.getWorkspaceRoot() );
-                final UpgradeView mv = (UpgradeView) UIUtil.findView( UpgradeView.ID );
-                FindBreakingChangesPage page = (FindBreakingChangesPage) mv.getPage( 3 );
+                FindBreakingChangesPage page =
+                    UpgradeView.getPage( Page.FINDBREACKINGCHANGES_PAGE_ID, FindBreakingChangesPage.class );
 
                 page.getTreeViewer().setInput( CoreUtil.getWorkspaceRoot() );
             }

@@ -145,7 +145,7 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
 
         ILabelDecorator decorator = PlatformUI.getWorkbench().getDecoratorManager().getLabelDecorator();
         _treeViewer.setLabelProvider( new DecoratingLabelProvider( new MigrationLabelProvider(), decorator ) );
-        _treeViewer.setInput( getInitalInput() );
+        _treeViewer.setInput( getInitialInput() );
 
         MenuManager menuMgr = new MenuManager();
         IAction removeAction = new RemoveAction( _treeViewer );
@@ -254,7 +254,7 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         this.setPageId( FINDBREACKINGCHANGES_PAGE_ID );
     }
 
-    public List<ProblemsContainer> getInitalInput()
+    public List<ProblemsContainer> getInitialInput()
     {
 
         List<ProblemsContainer> _problems = null;

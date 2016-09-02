@@ -112,6 +112,20 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         }
     }
 
+    @SuppressWarnings( "unchecked" )
+    public static <T> T getPage( String pageId, Class<T> clazz )
+    {
+        for( Page page : pages )
+        {
+            if( page.getPageId().equals( pageId ) )
+            {
+                return (T) page;
+            }
+        }
+
+        return null;
+    }
+
     @Override
     public void createPartControl( Composite parent )
     {

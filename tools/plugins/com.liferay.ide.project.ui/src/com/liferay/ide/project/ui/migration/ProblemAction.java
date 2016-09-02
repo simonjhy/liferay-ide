@@ -96,8 +96,7 @@ public abstract class ProblemAction extends SelectionProviderAction implements I
 
     protected void refreshTableViewer()
     {
-        final UpgradeView mv = (UpgradeView) UIUtil.findView( UpgradeView.ID );
-        FindBreakingChangesPage page = (FindBreakingChangesPage) mv.getPage( 3 );
+        FindBreakingChangesPage page = UpgradeView.getPage(Page.FINDBREACKINGCHANGES_PAGE_ID,FindBreakingChangesPage.class);
         TableViewer problemsViewer = page.get_problemsViewer();
 
         UIUtil.async( new Runnable()
@@ -167,8 +166,8 @@ public abstract class ProblemAction extends SelectionProviderAction implements I
                         if( provider instanceof Viewer )
                         {
                             final Viewer viewer = (Viewer) provider;
-                            final UpgradeView mv = (UpgradeView) UIUtil.findView( UpgradeView.ID );
-                            FindBreakingChangesPage page = (FindBreakingChangesPage) mv.getPage( 3 );
+                            FindBreakingChangesPage page =
+                                UpgradeView.getPage( Page.FINDBREACKINGCHANGES_PAGE_ID, FindBreakingChangesPage.class );
                             TreeViewer treeViewer = page.getTreeViewer();
 
                             UIUtil.async( new Runnable()
