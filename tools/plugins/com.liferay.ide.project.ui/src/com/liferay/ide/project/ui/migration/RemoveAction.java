@@ -66,6 +66,7 @@ public class RemoveAction extends SelectionProviderAction implements IAction
         }
 
         treeViewer.setInput( CoreUtil.getWorkspaceRoot() );
+        treeViewer.expandToLevel( 2 );
 
     }
 
