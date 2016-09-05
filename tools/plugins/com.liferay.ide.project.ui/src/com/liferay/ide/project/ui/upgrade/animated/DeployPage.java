@@ -56,7 +56,8 @@ public class DeployPage extends Page
         final String descriptor = "This step will deploy your projects into the local server.\n" +
             "Note: Please ensure that a local server is started.\n";
         content.setText( descriptor );
-        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ) );
+        content.setEditable( false );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
 
         Button deployButton = new Button( this, SWT.PUSH );
         deployButton.setText( "Deploy" );

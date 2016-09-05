@@ -120,7 +120,8 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
                 "just need to modify the changes on xxxServiceImp.class, xxxFinder.class, xxxModel.class.\n" +
                 "Others will be solved at step \"Build Service\".";
         content.setText( descriptor );
-        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ) );
+        content.setEditable( false );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
 
         final Composite findBreakingchangesContainer = new Composite( this, SWT.NONE );
         findBreakingchangesContainer.setLayout( new GridLayout( 3, false ) );

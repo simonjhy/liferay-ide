@@ -74,7 +74,8 @@ public class BuildServicePage extends Page
             " and re-run build-service on servicebuilder projects.\n" +
             "Note: Please make sure the default installed jre is JDK 8  (Preferences-Java-Installed JREs)\n";
         content.setText( descriptor );
-        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ) );
+        content.setEditable( false );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
 
         Button buildServiceButton = new Button( this, SWT.PUSH );
         buildServiceButton.setText( "Build Service" );

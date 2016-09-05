@@ -50,7 +50,8 @@ public class ExtAndThemePage extends Page
         Link link = new Link( this, SWT.MULTI );
 
         final String layouttpl =
-            "This step will help you convert Theme Projects from 6.2 to 7.0.\n" +
+            "Theme and Ext projects are not supported to upgrade in this tool currenttly.\n" +
+            "For Theme Projects, you can upgrade them manually.\n"+
             "For Ext Projects, we didn't provide support for them at Liferay 7.0.\n" +
             "If you have ext projects, you can change them into modules.\n"+
             "For more details, please see <a>Liferay Blade Samples</a>.\n";

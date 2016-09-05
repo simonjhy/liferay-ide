@@ -48,7 +48,8 @@ public class DescriptorsPage extends Page
             "Double click the file in the list. It will popup a comparison page" +
             "which shows the differences \nbetween your original source file and the upgrade preview file.\n";
         content.setText( descriptor );
-        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_TRANSPARENT ) );
+        content.setEditable( false );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
 
         new LiferayDescriptorUpgradeTableViewCustomPart( this, SWT.NONE );
 
