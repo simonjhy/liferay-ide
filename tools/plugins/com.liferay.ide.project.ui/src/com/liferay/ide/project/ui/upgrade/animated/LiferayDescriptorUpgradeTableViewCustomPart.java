@@ -113,6 +113,9 @@ public class LiferayDescriptorUpgradeTableViewCustomPart extends AbstractLiferay
         {
             SAXBuilder builder = new SAXBuilder( false );
             builder.setValidation( false );
+            builder.setFeature("http://xml.org/sax/features/validation", false);
+            builder.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            builder.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
             Document doc = builder.build( new FileInputStream( srcFile ) );
 
             DocType docType = doc.getDocType();
@@ -229,6 +232,9 @@ public class LiferayDescriptorUpgradeTableViewCustomPart extends AbstractLiferay
         {
             SAXBuilder builder = new SAXBuilder( false );
             builder.setValidation( false );
+            builder.setFeature("http://xml.org/sax/features/validation", false);
+            builder.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
+            builder.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
             Document doc = builder.build( new FileInputStream( srcFile ) );
             DocType docType = doc.getDocType();
 
