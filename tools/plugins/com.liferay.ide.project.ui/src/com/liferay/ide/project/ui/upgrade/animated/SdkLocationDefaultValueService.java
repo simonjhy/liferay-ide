@@ -15,39 +15,37 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.sapphire.DefaultValueService;
+
+import com.liferay.ide.sdk.core.SDKUtil;
+
 /**
- * @author Simon Jiang
+ * @author Terry Jia
  */
-public class PageValidateEvent
+public class SdkLocationDefaultValueService extends DefaultValueService
 {
 
-    private String pageId;
-    private String ValidationMessage;
-
-    
-    public String getValidationMessage()
+    @Override
+    protected String compute()
     {
-        return ValidationMessage;
-    }
+        String retVal = "";
 
-    
-    public void setValidationMessage( String validationMessage )
-    {
-        ValidationMessage = validationMessage;
-    }
+        try
+        {
+            IProject sdk = SDKUtil.getWorkspaceSDKProject();
 
+            if( sdk != null )
+            {
+                retVal = sdk.getLocation().toString();
+            }
+        }
+        catch( CoreException e )
+        {
+        }
 
-    
-    public String getPageId()
-    {
-        return pageId;
-    }
-
-
-    
-    public void setPageId( String pageId )
-    {
-        this.pageId = pageId;
+        return retVal;
     }
 
 }

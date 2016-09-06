@@ -251,5 +251,16 @@ public abstract class Page extends Composite
     {
         this.naviListeners.add( listener );
     }
+    
+    protected void triggerValidationEvent( String validationMessage )
+    {
+        PageValidateEvent pe = new PageValidateEvent();
+        pe.setPageId( getPageId() );
+        pe.setValidationMessage( validationMessage );
 
+        for( PageValidationListener listener : pageValidationListeners )
+        {
+            listener.onValidation( pe );
+        }
+    }
 }

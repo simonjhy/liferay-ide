@@ -184,6 +184,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         initConfigureProjectPage.setIndex( 1 );
         initConfigureProjectPage.setTitle( "Cofigure Projects" );
         initConfigureProjectPage.addPageNavigateListener( gear );
+        initConfigureProjectPage.addPageValidationListener( gear );
         initConfigureProjectPage.setNextPage( false );
 
         Page descriptorsPage = new DescriptorsPage( pagesSwitchControler, SWT.NONE, dataModel );
@@ -238,75 +239,75 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         currentPageList.add( initConfigureProjectPage );
         // currentPageList.addAll( staticPageList );
 
-        Properties properties = new Properties();
+//        Properties properties = new Properties();
+//
+//        final IPath stateLocation = ProjectCore.getDefault().getStateLocation();
+//
+//        File stateDir = stateLocation.toFile();
 
-        final IPath stateLocation = ProjectCore.getDefault().getStateLocation();
+//        File codeUpgradeFile = new File( stateDir, "liferay-code-upgrade.properties" );
+//
+//        if( !codeUpgradeFile.exists() )
+//        {
+//            try
+//            {
+//                codeUpgradeFile.createNewFile();
+//            }
+//            catch( IOException e )
+//            {
+//            }
+//        }
+//
+//        try(InputStream in = new FileInputStream( codeUpgradeFile ))
+//        {
+//            properties.load( in );
+//        }
+//        catch( Exception e )
+//        {
+//        }
 
-        File stateDir = stateLocation.toFile();
-
-        File codeUpgradeFile = new File( stateDir, "liferay-code-upgrade.properties" );
-
-        if( !codeUpgradeFile.exists() )
-        {
-            try
-            {
-                codeUpgradeFile.createNewFile();
-            }
-            catch( IOException e )
-            {
-            }
-        }
-
-        try(InputStream in = new FileInputStream( codeUpgradeFile ))
-        {
-            properties.load( in );
-        }
-        catch( Exception e )
-        {
-        }
-
-        boolean hasPortlet = Boolean.parseBoolean( properties.getProperty( "hasPortlet", "false" ) );
-        boolean hasServiceBuilder = Boolean.parseBoolean( properties.getProperty( "hasServiceBuilder", "false" ) );
-        boolean hasHook = Boolean.parseBoolean( properties.getProperty( "hasHook", "false" ) );
-        boolean hasLayout = Boolean.parseBoolean( properties.getProperty( "hasLayout", "false" ) );
-        boolean hasTheme = Boolean.parseBoolean( properties.getProperty( "hasTheme", "false" ) );
-        boolean hasExt = Boolean.parseBoolean( properties.getProperty( "hasExt", "false" ) );
-
-        if( hasPortlet || hasHook || hasServiceBuilder || hasLayout )
-        {
-            currentPageList.add( descriptorsPage );
-        }
-
-        if( hasPortlet || hasHook || hasServiceBuilder )
-        {
-            currentPageList.add( findBreakingChangesPage );
-        }
-
-        if( hasServiceBuilder )
-        {
-            currentPageList.add( buildServicePage );
-        }
-
-        if( hasLayout )
-        {
-            currentPageList.add( layoutTemplatePage );
-        }
-
-        if( hasHook )
-        {
-            currentPageList.add( customJspPage );
-        }
-
-        if( hasExt || hasTheme )
-        {
-            currentPageList.add( extAndThemePage );
-        }
-
-        if( hasPortlet || hasHook || hasServiceBuilder || hasLayout )
-        {
-            currentPageList.add( compilePage );
-            currentPageList.add( deployPage );
-        }
+//        boolean hasPortlet = Boolean.parseBoolean( properties.getProperty( "hasPortlet", "false" ) );
+//        boolean hasServiceBuilder = Boolean.parseBoolean( properties.getProperty( "hasServiceBuilder", "false" ) );
+//        boolean hasHook = Boolean.parseBoolean( properties.getProperty( "hasHook", "false" ) );
+//        boolean hasLayout = Boolean.parseBoolean( properties.getProperty( "hasLayout", "false" ) );
+//        boolean hasTheme = Boolean.parseBoolean( properties.getProperty( "hasTheme", "false" ) );
+//        boolean hasExt = Boolean.parseBoolean( properties.getProperty( "hasExt", "false" ) );
+//
+//        if( hasPortlet || hasHook || hasServiceBuilder || hasLayout )
+//        {
+//            currentPageList.add( descriptorsPage );
+//        }
+//
+//        if( hasPortlet || hasHook || hasServiceBuilder )
+//        {
+//            currentPageList.add( findBreakingChangesPage );
+//        }
+//
+//        if( hasServiceBuilder )
+//        {
+//            currentPageList.add( buildServicePage );
+//        }
+//
+//        if( hasLayout )
+//        {
+//            currentPageList.add( layoutTemplatePage );
+//        }
+//
+//        if( hasHook )
+//        {
+//            currentPageList.add( customJspPage );
+//        }
+//
+//        if( hasExt || hasTheme )
+//        {
+//            currentPageList.add( extAndThemePage );
+//        }
+//
+//        if( hasPortlet || hasHook || hasServiceBuilder || hasLayout )
+//        {
+//            currentPageList.add( compilePage );
+//            currentPageList.add( deployPage );
+//        }
 
         resetPages();
 

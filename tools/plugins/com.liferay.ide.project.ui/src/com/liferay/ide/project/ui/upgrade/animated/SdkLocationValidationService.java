@@ -16,9 +16,11 @@
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.core.ProjectCore;
+import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
 import com.liferay.ide.sdk.core.SDK;
 import com.liferay.ide.sdk.core.SDKUtil;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.sapphire.modeling.Path;
 import org.eclipse.sapphire.modeling.Status;
@@ -38,6 +40,24 @@ public class SdkLocationValidationService extends ValidationService
     protected Status compute()
     {
         Status retval = Status.createOkStatus();
+
+        try
+        {
+            boolean hasLiferayWorkspace = LiferayWorkspaceUtil.hasLiferayWorkspace();
+
+            if( hasLiferayWorkspace )
+            {
+                return StatusBridge.create(
+                    ProjectCore.createErrorStatus(
+                        "A Liferay Workspace project already exists in this Eclipse instance.. " ) );
+            }
+        }
+        catch( CoreException e )
+        {
+            return StatusBridge.create(
+                ProjectCore.createErrorStatus(
+                    "More than one Liferay workspace build in current Eclipse workspace.. " ) );
+        }
 
         int countPossibleWorkspaceSDKProjects = SDKUtil.countPossibleWorkspaceSDKProjects();
 
@@ -63,17 +83,18 @@ public class SdkLocationValidationService extends ValidationService
             {
                 return StatusBridge.create( status );
             }
-            
+
             String version = sdk.getVersion();
-            
-            if ( version != null )
+
+            if( version != null )
             {
                 Version sdkVersion = new Version( version );
-                int result = sdkVersion.compareTo( new Version("7.0.0") );
-                
-                if ( result >= 0 )
+                int result = sdkVersion.compareTo( new Version( "6.2.0" ) );
+
+                if( result < 0 )
                 {
-                    return StatusBridge.create( ProjectCore.createErrorStatus( "This SDK version is greater than 6.2.0 " ) );
+                    return StatusBridge.create(
+                        ProjectCore.createErrorStatus( "This SDK version should be greater than 6.1.0." ) );
                 }
             }
         }
