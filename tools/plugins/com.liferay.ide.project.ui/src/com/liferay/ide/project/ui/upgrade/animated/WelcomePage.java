@@ -23,8 +23,6 @@ import com.liferay.ide.ui.util.SWTUtil;
 import com.liferay.ide.ui.util.UIUtil;
 
 import java.io.IOException;
-import java.net.URL;
-
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -35,11 +33,8 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.ui.PlatformUI;
 
 /**
  * @author Andy Wu
@@ -64,9 +59,7 @@ public class WelcomePage extends Page
         title.setText( "Welcome to Liferay Code Upgrade Tool" );
         title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
 
-        Link link = new Link( this, SWT.MULTI );
-        link.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 1, 1 ) );
-        final String WELCOME =
+        final String desriptor =
             "This tool will help you to convert Liferay 6.2 projects into Liferay 7.0 projects.\n\n" +
                 "The key functions are described below:\n" +
                 "       1.Convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to Liferay Workspace\n" +
@@ -82,25 +75,9 @@ public class WelcomePage extends Page
                 "       In addition to the mouse you can use left, right, y,n and the gear to work through\n" + 
                 "       the following pages. What's more, you can mark with y when one step is well done and\n" +
                 "       mark with n when it failed.";
-        link.setText( WELCOME );
-        link.addListener( SWT.Selection, new Listener()
-        {
-
-            @Override
-            public void handleEvent( Event event )
-            {
-                try
-                {
-                    URL welcomeUrl = new URL(
-                        "https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/from-liferay-6-to-liferay-7" );
-                    PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL( welcomeUrl );
-                }
-                catch( Exception e )
-                {
-
-                }
-            }
-        } );
+        String url = new String( "https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/from-liferay-6-to-liferay-7" );
+        Link link = SWTUtil.createHyperLink( this, style, desriptor, 1, url );
+        link.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 1, 1 ) );
 
         Control createHorizontalSpacer = createHorizontalSpacer( this, 3 );
         Control createHorizontalSperator = createSeparator( this, 3 );

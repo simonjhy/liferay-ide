@@ -15,20 +15,16 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
-import java.net.URL;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.ui.PlatformUI;
+import com.liferay.ide.ui.util.SWTUtil;
 
 /**
- * @author Adny
+ * @author Andy Wu
  * @author Simon Jiang
  * @author Joye Luo
  */
@@ -47,33 +43,14 @@ public class ExtAndThemePage extends Page
         title.setText( "Ext and Theme Project " );
         title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
 
-        Link link = new Link( this, SWT.MULTI );
-
-        final String layouttpl =
+        final String descriptor =
             "Theme and Ext projects are not supported to upgrade in this tool currenttly.\n" +
             "For Theme Projects, you can upgrade them manually.\n"+
             "For Ext Projects, we didn't provide support for them at Liferay 7.0.\n" +
             "If you have ext projects, you can change them into modules.\n"+
             "For more details, please see <a>Liferay Blade Samples</a>.\n";
-
-        link.setText( layouttpl );
-        link.addListener( SWT.Selection, new Listener()
-        {
-
-            @Override
-            public void handleEvent( Event event )
-            {
-                try
-                {
-                    URL extAndThemeUrl = new URL("https://github.com/liferay/liferay-blade-samples");
-                    PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(extAndThemeUrl);
-                }
-                catch( Exception e )
-                {
-                }
-
-            }
-        } );
+        String url = new String("https://github.com/liferay/liferay-blade-samples");
+        Link link = SWTUtil.createHyperLink( this, style, descriptor, 1, url );
 
         setActions( actions );
 

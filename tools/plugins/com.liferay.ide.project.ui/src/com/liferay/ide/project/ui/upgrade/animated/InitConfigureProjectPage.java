@@ -87,6 +87,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
@@ -210,19 +211,18 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         title.setText( "Configure Project" );
         title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
 
-        Text content = new Text( this, SWT.MULTI );
         final String descriptor =
             "The first step will help you convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to  Liferay Workspace. \n" +
                 "We will backup your project to a zip file in your eclipse workspace directory.\n" +
                 "Click the \"import\" button to import your project into Eclipse workspace.\n" +
                 "Note:\n" +
                 "       In order to save time, downloading  7.0 ivy cache  locally could be a good choice to upgrade to liferay plugin sdk 7. \n" +
-                "       Theme and ext projects will be ignored for that we do not provide support for them  at this tool currently. \n" +
-                "       For more details, please see dev.liferay.com.\n";
+                "       Theme and ext projects will be ignored for that we do not support to upgrade them  at this tool currently. \n" +
+                "       For more details, please see <a>dev.liferay.com</a>.\n";
 
-        content.setText( descriptor );
-        content.setEditable( false );
-        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
+        String url = new String( "https://dev.liferay.com/develop/tutorials" );
+        Link link = SWTUtil.createHyperLink( this, style, descriptor, 1, url );
+
         createSeparator = createSeparator( this, 3 );
 
         errorMessageLabel = new CLabel( composite, SWT.LEFT_TO_RIGHT );
