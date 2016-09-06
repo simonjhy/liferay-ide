@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Link;
  * @author Andy Wu
  * @author Simon Jiang
  * @author Joye Luo
+ * @author Terry Jia
  */
 public class WelcomePage extends Page
 {

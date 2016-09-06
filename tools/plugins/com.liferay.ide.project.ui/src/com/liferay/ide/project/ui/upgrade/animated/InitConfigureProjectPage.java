@@ -19,6 +19,7 @@ import com.liferay.ide.core.ILiferayProject;
 import com.liferay.ide.core.ILiferayProjectImporter;
 import com.liferay.ide.core.LiferayCore;
 import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.core.util.IOUtil;
 import com.liferay.ide.core.util.ZipUtil;
 import com.liferay.ide.project.core.IProjectBuilder;
@@ -679,6 +680,22 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         dataModel.setLiferayServerName( serverComb.getText() );
     }
 
+    private void deleteEclipseConfigFiles( File project )
+    {
+         for( File file : project.listFiles() )
+         {
+             if( file.getName().contentEquals( ".classpath" ) || file.getName().contentEquals( ".settings" ) ||
+                 file.getName().contentEquals( ".project" ) )
+             {
+                 if( file.isDirectory() )
+                 {
+                     FileUtil.deleteDir( file, true );
+                 }
+                 file.delete();
+             }
+         }
+     }
+
     private void disposeBundleElement()
     {
         if( bundleNameField != null && bundleUrlField != null )
@@ -756,6 +773,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
         IPath location = PathBridge.create( dataModel.getSdkLocation().content() );
         String projectName = dataModel.getProjectName().content();
+
+        deleteEclipseConfigFiles( location.toFile() );
 
         try
         {
@@ -839,6 +858,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             {
                 try
                 {
+                    deleteEclipseConfigFiles( project );
+
                     IProject importProject =
                         ProjectImportUtil.importProject( new Path( project.getPath() ), monitor, null );
 
@@ -862,6 +883,9 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             {
                 try
                 {
+
+                    deleteEclipseConfigFiles( project.getParentFile() );
+
                     IProject importProject =
                         ProjectImportUtil.importProject( new Path( project.getParent() ), monitor, null );
 

@@ -52,6 +52,7 @@ import com.liferay.ide.ui.util.UIUtil;
  * @author Adny
  * @author Simon Jiang
  * @author Joye Luo
+ * @author Terry Jia
  */
 @SuppressWarnings( "restriction" )
 public class BuildServicePage extends Page

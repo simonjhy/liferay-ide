@@ -35,6 +35,7 @@ import com.liferay.ide.ui.util.UIUtil;
  * @author Andy Wu
  * @author Simon Jiang
  * @author Joye Luo
+ * @author Terry Jia
  */
 @SuppressWarnings( "restriction" )
 public class DeployPage extends Page
