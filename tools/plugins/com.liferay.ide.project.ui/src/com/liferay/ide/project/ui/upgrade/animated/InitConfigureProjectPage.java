@@ -129,7 +129,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
     private Label serverLabel;
     private Combo serverComb;
     private Button serverButton;
-    protected CLabel errorMessageLabel;
     protected Label blankLabel;
     private Button importButton;
     private Label bundleNameLabel;
@@ -189,14 +188,11 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                     {
                         if( !vsStatus.ok() )
                         {
-                            errorMessageLabel.setVisible( true );
-                            errorMessageLabel.setText( vsStatus.message() );
+                            triggerValidationEvent( vsStatus.message() );
                             inputValidation = false;
                         }
                         else
                         {
-                            errorMessageLabel.setVisible( false );
-                            errorMessageLabel.setText( "" );
                             inputValidation = true;
                         }
                     }
@@ -235,12 +231,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         Link link = SWTUtil.createHyperLink( this, style, descriptor, 1, url );
 
         createSeparator = createSeparator( this, 3 );
-
-        errorMessageLabel = new CLabel( composite, SWT.LEFT_TO_RIGHT );
-        errorMessageLabel.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );
-        errorMessageLabel.setImage(
-            PlatformUI.getWorkbench().getSharedImages().getImage( ISharedImages.IMG_OBJS_ERROR_TSK ) );
-        errorMessageLabel.setVisible( false );
 
         dirLabel = createLabel( composite, "Liferay SDK Location:" );
         dirField = createTextField( composite, SWT.NONE );
