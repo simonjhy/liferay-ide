@@ -104,6 +104,7 @@ import org.eclipse.wst.server.core.IServerLifecycleListener;
 import org.eclipse.wst.server.core.IServerWorkingCopy;
 import org.eclipse.wst.server.core.ServerCore;
 import org.eclipse.wst.server.ui.ServerUIUtil;
+import org.osgi.framework.Version;
 
 /**
  * @author Simon Jiang
@@ -161,47 +162,108 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             if( event instanceof ValuePropertyContentEvent )
             {
                 ValuePropertyContentEvent propertyEvetn = (ValuePropertyContentEvent) event;
-                Property property = propertyEvetn.property();
-                Status validationStatus = Status.createOkStatus();
-
+                final Property property = propertyEvetn.property();
                 storeProperty( property.name(), property.toString() );
-
                 if( property.name().equals( "SdkLocation" ) )
                 {
-                    validationStatus = sdkValidation.compute();
-                }
-                else if( property.name().equals( "BundleName" ) )
-                {
-                    validationStatus = bundleNameValidation.compute();
-                }
-                else if( property.name().equals( "BundleUrl" ) )
-                {
-                    validationStatus = bundleUrlValidation.compute();
-                }
+                    org.eclipse.sapphire.modeling.Path sdkPath = dataModel.getSdkLocation().content();
 
-                final Status vsStatus = validationStatus;
-
-                UIUtil.async( new Runnable()
-                {
-
-                    @Override
-                    public void run()
+                    if( sdkPath != null )
                     {
-                        if( !vsStatus.ok() )
+                        Status sdkStatus = sdkValidation.compute();
+
+                        if( sdkStatus.ok() )
                         {
-                            triggerValidationEvent( vsStatus.message() );
-                            inputValidation = false;
+                            SDK sdk = SDKUtil.createSDKFromLocation( PathBridge.create( sdkPath ) );
+                            String version = sdk.getVersion();
+
+                            if( version != null )
+                            {
+                                Version sdkVersion = new Version( version );
+                                int result = sdkVersion.compareTo( new Version( "7.0.0" ) );
+
+                                if( result >= 0 )
+                                {
+                                    UIUtil.async( new Runnable()
+                                    {
+
+                                        @Override
+                                        public void run()
+                                        {
+                                            layoutComb.select( 1 );
+                                            layoutComb.setEnabled( false );
+
+                                            createBundleControl();
+                                        }
+                                    } );
+                                }
+                                else
+                                {
+                                    createDefaultControl();
+                                }
+                            }
+                            else
+                            {
+                                createDefaultControl();
+                            }
                         }
                         else
                         {
-                            inputValidation = true;
+                            createDefaultControl();
                         }
                     }
-                } );
+                    else
+                    {
+                        createDefaultControl();
+                    }
+                }
             }
 
-            validate();
+            startCheckThread();
         }
+    }
+
+    private void createBundleControl()
+    {
+        disposeServerEelment();
+
+        disposeImportElement();
+
+        disposeBundleElement();
+
+        disposeLayoutElement();
+
+        createBundleElement();
+
+        createImportElement();
+
+        composite.layout();
+    }
+
+    private void createDefaultControl()
+    {
+        UIUtil.async( new Runnable()
+        {
+
+            @Override
+            public void run()
+            {
+                layoutComb.select( 0 );
+                layoutComb.setEnabled( true );
+
+                disposeBundleElement();
+
+                disposeLayoutElement();
+
+                disposeImportElement();
+
+                createServerElement();
+
+                createImportElement();
+
+                composite.layout();
+            }
+        } );
     }
 
     public InitConfigureProjectPage( final Composite parent, int style, LiferayUpgradeDataModel dataModel )
@@ -281,20 +343,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                 }
             }
         } );
-
-        // newProjectLabel = createLabel( composite, "New Project Name:" );
-        // newProjectField = createTextField( composite, SWT.NONE );
-        // newProjectField.addModifyListener( new ModifyListener()
-        // {
-        //
-        // public void modifyText( ModifyEvent e )
-        // {
-        // dataModel.setProjectName( newProjectField.getText() );
-        // }
-        // } );
-        // dataModel.setProjectName( newProjectField.getText() );
-        //
-        // newProjectField.setText( codeUpgradeProperties.getProperty( "ProjectName", "" ) );
 
         layoutLabel = createLabel( composite, "Select Migrate Layout:" );
         layoutComb = new Combo( this, SWT.DROP_DOWN | SWT.READ_ONLY );
@@ -617,8 +665,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         importButton.setEnabled( false );
     }
 
-
-
     private void createInitBundle( IProgressMonitor monitor ) throws CoreException
     {
         SubMonitor progress = SubMonitor.convert( monitor, 100 );
@@ -767,19 +813,19 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
     private void deleteEclipseConfigFiles( File project )
     {
-         for( File file : project.listFiles() )
-         {
-             if( file.getName().contentEquals( ".classpath" ) || file.getName().contentEquals( ".settings" ) ||
-                 file.getName().contentEquals( ".project" ) )
-             {
-                 if( file.isDirectory() )
-                 {
-                     FileUtil.deleteDir( file, true );
-                 }
-                 file.delete();
-             }
-         }
-     }
+        for( File file : project.listFiles() )
+        {
+            if( file.getName().contentEquals( ".classpath" ) || file.getName().contentEquals( ".settings" ) ||
+                file.getName().contentEquals( ".project" ) )
+            {
+                if( file.isDirectory() )
+                {
+                    FileUtil.deleteDir( file, true );
+                }
+                file.delete();
+            }
+        }
+    }
 
     private void disposeBundleElement()
     {
@@ -1083,7 +1129,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                         serverComb.setItems( serverList.toArray( new String[serverList.size()] ) );
                         serverComb.select( serverList.size() - 1 );
                     }
-                    validate();
+                    startCheckThread();
                 }
             }
         } );
@@ -1119,7 +1165,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                     }
                     serverComb.setItems( serverList.toArray( new String[serverList.size()] ) );
                     serverComb.select( 0 );
-                    validate();
+                    startCheckThread();
                 }
             }
         } );
@@ -1159,7 +1205,12 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
                     inputValidation = false;
                 }
-                else if( layoutComb.getSelectionIndex() == 0 )
+                else
+                {
+                    inputValidation = true;
+                }
+
+                if( layoutComb.getSelectionIndex() == 0 )
                 {
                     final int itemCount = serverComb.getItemCount();
 
@@ -1168,13 +1219,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                         message = "You shoulde add at least one Liferay 7 portal bundle.";
 
                         layoutValidation = false;
-                    }
-                    else
-                    {
-                        if( inputValidation == true )
-                        {
-                            layoutValidation = true;
-                        }
                     }
                 }
                 else if( layoutComb.getSelectionIndex() == 1 )
@@ -1187,7 +1231,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                     }
                     else if( bundUrl != null && bundUrl.length() > 0 && !bundleUrlValidation.compute().ok() )
                     {
-                        message =  bundleUrlValidation.compute().message();
+                        message = bundleUrlValidation.compute().message();
 
                         layoutValidation = false;
                     }
