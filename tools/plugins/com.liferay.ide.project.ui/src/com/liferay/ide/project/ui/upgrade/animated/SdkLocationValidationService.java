@@ -41,24 +41,6 @@ public class SdkLocationValidationService extends ValidationService
     {
         Status retval = Status.createOkStatus();
 
-        try
-        {
-            boolean hasLiferayWorkspace = LiferayWorkspaceUtil.hasLiferayWorkspace();
-
-            if( hasLiferayWorkspace )
-            {
-                return StatusBridge.create(
-                    ProjectCore.createErrorStatus(
-                        "A Liferay Workspace project already exists in this Eclipse instance.. " ) );
-            }
-        }
-        catch( CoreException e )
-        {
-            return StatusBridge.create(
-                ProjectCore.createErrorStatus(
-                    "More than one Liferay workspace build in current Eclipse workspace.. " ) );
-        }
-
         int countPossibleWorkspaceSDKProjects = SDKUtil.countPossibleWorkspaceSDKProjects();
 
         if( countPossibleWorkspaceSDKProjects > 1 )

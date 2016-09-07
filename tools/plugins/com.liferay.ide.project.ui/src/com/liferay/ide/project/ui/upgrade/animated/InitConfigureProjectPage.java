@@ -118,8 +118,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         "https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.0.1%20GA2/liferay-ce-portal-tomcat-7.0-ga2-20160610113014153.zip";
 
     private static Color GRAY;
-    private boolean inputValidation = true;
-    private boolean layoutValidation = true;
     private Label dirLabel;
     private Text dirField;
     // private Label newProjectLabel;
@@ -1179,7 +1177,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             @Override
             public void run()
             {
-
+                boolean inputValidation = true;
+                boolean layoutValidation = true;
                 String bundUrl = dataModel.getBundleUrl().content();
 
                 String message = "ok";
@@ -1208,7 +1207,29 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                 }
                 else if( layoutComb.getSelectionIndex() == 1 )
                 {
-                    if( !bundleNameValidation.compute().ok() )
+                    boolean liferayWorksapceValidation = true;
+                    String workspaceValidationMessage = "ok";
+
+                    try
+                    {
+                        if( LiferayWorkspaceUtil.hasLiferayWorkspace() )
+                        {
+                            liferayWorksapceValidation = false;
+                            workspaceValidationMessage = "A Liferay Workspace project already exists in this Eclipse instance.. ";
+                        }
+                    }
+                    catch( CoreException e )
+                    {
+                        liferayWorksapceValidation =  false;
+                        workspaceValidationMessage = "More than one Liferay workspace build in current Eclipse workspace.. ";
+                    }
+
+                    if ( !liferayWorksapceValidation && inputValidation )
+                    {
+                        message = workspaceValidationMessage;
+                        layoutValidation = false;
+                    }
+                    else if( !bundleNameValidation.compute().ok() )
                     {
                         message = bundleNameValidation.compute().message();
 
