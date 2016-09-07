@@ -113,6 +113,7 @@ import org.osgi.framework.Version;
 @SuppressWarnings( "unused" )
 public class InitConfigureProjectPage extends Page implements IServerLifecycleListener
 {
+
     public static final String defaultBundleUrl =
         "https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.0.1%20GA2/liferay-ce-portal-tomcat-7.0-ga2-20160610113014153.zip";
 
@@ -153,7 +154,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
     private SdkLocationDefaultValueService sdkLocationDefaultService =
         dataModel.getSdkLocation().service( SdkLocationDefaultValueService.class );
 
-
     private class LiferayUpgradeValidationListener extends Listener
     {
 
@@ -193,7 +193,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                                         {
                                             layoutComb.select( 1 );
                                             layoutComb.setEnabled( false );
-
+                                            dataModel.setLayout( layoutComb.getText() );
                                             createBundleControl();
                                         }
                                     } );
@@ -223,11 +223,16 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             startCheckThread();
         }
     }
-    
+
     public InitConfigureProjectPage( final Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
         this.setPageId( IMPORT_PAGE_ID );
+
+        dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener() );
+        dataModel.getBundleName().attach( new LiferayUpgradeValidationListener() );
+        dataModel.getBundleUrl().attach( new LiferayUpgradeValidationListener() );
+
         composite = this;
 
         GridLayout layout = new GridLayout( 2, false );
@@ -281,8 +286,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
         String sdkLocationDefaultValue = sdkLocationDefaultService.compute();
         dirField.setText( sdkLocationDefaultValue );
-
         // dirField.setText( codeUpgradeProperties.getProperty( "SdkLocation", "" ) );
+        dataModel.setSdkLocation( dirField.getText() );
 
         SWTUtil.createButton( this, "Browse..." ).addSelectionListener( new SelectionAdapter()
         {
@@ -358,11 +363,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         dataModel.setLayout( layoutComb.getText() );
 
         createServerElement();
-
-        dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener() );
-        dataModel.getProjectName().attach( new LiferayUpgradeValidationListener() );
-        dataModel.getBundleName().attach( new LiferayUpgradeValidationListener() );
-        dataModel.getBundleUrl().attach( new LiferayUpgradeValidationListener() );
 
         createImportElement();
 
@@ -904,7 +904,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         String layout = dataModel.getLayout().content();
 
         IPath location = PathBridge.create( dataModel.getSdkLocation().content() );
-        String projectName = dataModel.getProjectName().content();
 
         deleteEclipseConfigFiles( location.toFile() );
 
@@ -930,7 +929,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                         {
                             createLiferayWorkspace( location, monitor );
 
-                            newPath = renameProjectFolder( location, projectName, monitor );
+                            newPath = renameProjectFolder( location, monitor );
 
                             ILiferayProjectImporter importer = LiferayCore.getImporter( "gradle" );
 
@@ -948,7 +947,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
                             IPath serverPath = server.getRuntime().getLocation();
 
-                            newPath = renameProjectFolder( location, projectName, monitor );
+                            newPath = renameProjectFolder( location, monitor );
 
                             SDK sdk = SDKUtil.createSDKFromLocation( new Path( newPath ) );
 
@@ -1038,8 +1037,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         }
     }
 
-    private String renameProjectFolder( IPath targetSDKLocation, String newName, IProgressMonitor monitor )
-        throws CoreException
+    private String renameProjectFolder( IPath targetSDKLocation, IProgressMonitor monitor ) throws CoreException
     {
         // if( newName == null || newName.equals( "" ) )
         // {
