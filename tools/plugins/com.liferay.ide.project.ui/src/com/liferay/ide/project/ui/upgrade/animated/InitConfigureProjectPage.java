@@ -113,11 +113,10 @@ import org.osgi.framework.Version;
 @SuppressWarnings( "unused" )
 public class InitConfigureProjectPage extends Page implements IServerLifecycleListener
 {
-
     public static final String defaultBundleUrl =
         "https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.0.1%20GA2/liferay-ce-portal-tomcat-7.0-ga2-20160610113014153.zip";
-    private static Color GRAY;
 
+    private static Color GRAY;
     private boolean inputValidation = true;
     private boolean layoutValidation = true;
     private Label dirLabel;
@@ -136,12 +135,12 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
     private Label bundleUrlLabel;
     private Text bundleNameField;
     private Text bundleUrlField;
+
     private Composite composite;
 
     private Control createHorizontalSpacer;
 
     private Control createSeparator;
-
     private SdkLocationValidationService sdkValidation =
         dataModel.getSdkLocation().service( SdkLocationValidationService.class );
     private ProjectNameValidationService projectNameValidation =
@@ -150,8 +149,10 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         dataModel.getBundleName().service( BundleNameValidationService.class );
     private BundleUrlValidationService bundleUrlValidation =
         dataModel.getBundleUrl().service( BundleUrlValidationService.class );
+
     private SdkLocationDefaultValueService sdkLocationDefaultService =
         dataModel.getSdkLocation().service( SdkLocationDefaultValueService.class );
+
 
     private class LiferayUpgradeValidationListener extends Listener
     {
@@ -222,50 +223,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             startCheckThread();
         }
     }
-
-    private void createBundleControl()
-    {
-        disposeServerEelment();
-
-        disposeImportElement();
-
-        disposeBundleElement();
-
-        disposeLayoutElement();
-
-        createBundleElement();
-
-        createImportElement();
-
-        composite.layout();
-    }
-
-    private void createDefaultControl()
-    {
-        UIUtil.async( new Runnable()
-        {
-
-            @Override
-            public void run()
-            {
-                layoutComb.select( 0 );
-                layoutComb.setEnabled( true );
-
-                disposeBundleElement();
-
-                disposeLayoutElement();
-
-                disposeImportElement();
-
-                createServerElement();
-
-                createImportElement();
-
-                composite.layout();
-            }
-        } );
-    }
-
+    
     public InitConfigureProjectPage( final Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
@@ -563,6 +521,23 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
     }
 
+    private void createBundleControl()
+    {
+        disposeServerEelment();
+
+        disposeImportElement();
+
+        disposeBundleElement();
+
+        disposeLayoutElement();
+
+        createBundleElement();
+
+        createImportElement();
+
+        composite.layout();
+    }
+
     private void createBundleElement()
     {
         bundleNameLabel = createLabel( composite, "Bundle Name:" );
@@ -617,6 +592,32 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             }
         } );
         dataModel.setBundleUrl( bundleUrlField.getText() );
+    }
+
+    private void createDefaultControl()
+    {
+        UIUtil.async( new Runnable()
+        {
+
+            @Override
+            public void run()
+            {
+                layoutComb.select( 0 );
+                layoutComb.setEnabled( true );
+
+                disposeBundleElement();
+
+                disposeLayoutElement();
+
+                disposeImportElement();
+
+                createServerElement();
+
+                createImportElement();
+
+                composite.layout();
+            }
+        } );
     }
 
     private void createImportElement()

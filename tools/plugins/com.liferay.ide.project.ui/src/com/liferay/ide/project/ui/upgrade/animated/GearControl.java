@@ -53,8 +53,8 @@ public class GearControl extends AbstractCanvas
 
     private Display display;
 
-    private Image errorImage ;
-    private Map<String,String> errorMessageMap = new HashMap<String,String>();
+    private Image errorImage;
+    private Map<String, String> errorMessageMap = new HashMap<String, String>();
 
     private final Color[] gearBackground = new Color[2];
     private final Color[] gearForeground = new Color[2];
@@ -173,7 +173,7 @@ public class GearControl extends AbstractCanvas
 
         display = getDisplay();
 
-        errorImage = JFaceResources.getImage(Dialog.DLG_IMG_MESSAGE_ERROR);
+        errorImage = JFaceResources.getImage( Dialog.DLG_IMG_MESSAGE_ERROR );
 
         WHITE = display.getSystemColor( SWT.COLOR_WHITE );
         GRAY = display.getSystemColor( SWT.COLOR_GRAY );
@@ -370,13 +370,13 @@ public class GearControl extends AbstractCanvas
             gc.drawRectangle( rectangle );
         }
 
-        paintErrorMessage(gc);
+        paintErrorMessage( gc );
 
         oldHover = hover;
 
     }
 
-    private void paintErrorMessage(GC gc)
+    private void paintErrorMessage( GC gc )
     {
         Page page = UpgradeView.getPage( selection );
 

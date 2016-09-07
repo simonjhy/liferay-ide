@@ -52,13 +52,87 @@ import org.eclipse.swt.widgets.Display;
 public abstract class AbstractCanvas extends Canvas
 {
 
-    protected Font baseFont;
-
     private static final int DEFAULT_TIMER_INTERVAL = 10;
 
     public static final int NONE = -1;
 
+    public static Rectangle drawText( GC gc, double cX, double cY, String text )
+    {
+        return drawText( gc, cX, cY, text, 0 );
+    }
+
+    public static Rectangle drawText( GC gc, double cX, double cY, String text, int box )
+    {
+        Point extent = gc.stringExtent( text );
+
+        int x = (int) ( cX - extent.x / 2 );
+        int y = (int) ( cY - extent.y / 2 );
+
+        if( x < box )
+        {
+            x = box;
+        }
+
+        Rectangle rectangle = new Rectangle( x, y, extent.x, extent.y );
+
+        if( box > 0 )
+        {
+            rectangle.x -= box;
+            rectangle.y -= box;
+            rectangle.width += 2 * box;
+            rectangle.height += 2 * box;
+
+            gc.fillRectangle( rectangle );
+        }
+
+        gc.drawText( text, x, y, true );
+
+        return rectangle;
+    }
+
+    public static Rectangle drawTextNotCenter( GC gc, int cX, int cY, String text, int box )
+    {
+        Point extent = gc.stringExtent( text );
+
+        int x = (int) ( cX - extent.x / 2 );
+
+        if( x < box )
+        {
+            x = box;
+        }
+
+        Rectangle rectangle = new Rectangle( cX, cY, extent.x, extent.y );
+
+        if( box > 0 )
+        {
+            rectangle.x -= box;
+            rectangle.y -= box;
+            rectangle.width += 2 * box;
+            rectangle.height += 2 * box;
+
+            gc.fillRectangle( rectangle );
+        }
+
+        // System.out.println( x+" "+y+" "+extent.x+" "+extent.y +" "+rectangle.x+" "+rectangle.y+" "+rectangle.width+"
+        // "+rectangle.height);
+
+        gc.drawText( text, cX, cY, true );
+
+        return rectangle;
+    }
+
+    protected Font baseFont;
+
     private final List<Resource> resources = new ArrayList<Resource>();
+
+    private final Runnable runnable = new Runnable()
+    {
+
+        public void run()
+        {
+            doRun();
+        }
+    };
 
     public AbstractCanvas( Composite parent, int style )
     {
@@ -150,30 +224,12 @@ public abstract class AbstractCanvas extends Canvas
 
     }
 
-    protected abstract void onMouseDown( int x, int y );
-
-    protected abstract void onMouseMove( int x, int y );
-
-    protected abstract void paint( GC bufferGC );
-
-    protected void init()
+    protected final Color createColor( int r, int g, int b )
     {
         Display display = getDisplay();
-
-        Font initialFont = getFont();
-        FontData[] fontData = initialFont.getFontData();
-        for( int i = 0; i < fontData.length; i++ )
-        {
-            fontData[i].setHeight( 16 );
-            fontData[i].setStyle( SWT.BOLD );
-        }
-
-        baseFont = new Font( display, fontData );
-    }
-
-    protected final Font getBaseFont()
-    {
-        return baseFont;
+        Color color = new Color( display, r, g, b );
+        resources.add( color );
+        return color;
     }
 
     protected final Font createFont( int pixelHeight )
@@ -227,6 +283,67 @@ public abstract class AbstractCanvas extends Canvas
         }
     }
 
+    @Override
+    public void dispose()
+    {
+        for( Resource resource : resources )
+        {
+            if( resource != null && !resource.isDisposed() )
+            {
+                resource.dispose();
+            }
+        }
+    }
+
+    protected synchronized void doRun()
+    {
+        if( isDisposed() )
+        {
+            return;
+        }
+
+        boolean needsRedraw = needRedraw();
+
+        if( needsRedraw )
+        {
+            redraw();
+        }
+        else
+        {
+            scheduleRun();
+        }
+    }
+
+    public Rectangle drawImage( GC gc, Image image, int cX, int cY )
+    {
+        Rectangle bounds = image.getBounds();
+        cX -= bounds.width / 2;
+        cY -= bounds.height / 2;
+        gc.drawImage( image, cX, cY );
+
+        return new Rectangle( cX, cY, bounds.width, bounds.height );
+    }
+
+    protected final Font getBaseFont()
+    {
+        return baseFont;
+    }
+
+    protected void init()
+    {
+        Display display = getDisplay();
+
+        Font initialFont = getFont();
+        FontData[] fontData = initialFont.getFontData();
+        for( int i = 0; i < fontData.length; i++ )
+        {
+            fontData[i].setHeight( 16 );
+            fontData[i].setStyle( SWT.BOLD );
+        }
+
+        baseFont = new Font( display, fontData );
+    }
+
     private boolean isFontSmallEnough( int pixelHeight, int pixelWidth, GC fontGC, String[] testStrings )
     {
         for( String testString : testStrings )
@@ -239,26 +356,6 @@ public abstract class AbstractCanvas extends Canvas
         }
 
         return true;
-    }
-
-    protected final Color createColor( int r, int g, int b )
-    {
-        Display display = getDisplay();
-        Color color = new Color( display, r, g, b );
-        resources.add( color );
-        return color;
-    }
-
-    @Override
-    public void dispose()
-    {
-        for( Resource resource : resources )
-        {
-            if( resource != null && !resource.isDisposed() )
-            {
-                resource.dispose();
-            }
-        }
     }
 
     protected final Image loadImage( String name )
@@ -282,113 +379,16 @@ public abstract class AbstractCanvas extends Canvas
         return image;
     }
 
-    public Rectangle drawImage( GC gc, Image image, int cX, int cY )
-    {
-        Rectangle bounds = image.getBounds();
-        cX -= bounds.width / 2;
-        cY -= bounds.height / 2;
-        gc.drawImage( image, cX, cY );
+    protected abstract boolean needRedraw();
 
-        return new Rectangle( cX, cY, bounds.width, bounds.height );
-    }
+    protected abstract void onMouseDown( int x, int y );
 
-    public static Rectangle drawText( GC gc, double cX, double cY, String text )
-    {
-        return drawText( gc, cX, cY, text, 0 );
-    }
+    protected abstract void onMouseMove( int x, int y );
 
-    public static Rectangle drawText( GC gc, double cX, double cY, String text, int box )
-    {
-        Point extent = gc.stringExtent( text );
-
-        int x = (int) ( cX - extent.x / 2 );
-        int y = (int) ( cY - extent.y / 2 );
-
-        if( x < box )
-        {
-            x = box;
-        }
-
-        Rectangle rectangle = new Rectangle( x, y, extent.x, extent.y );
-
-        if( box > 0 )
-        {
-            rectangle.x -= box;
-            rectangle.y -= box;
-            rectangle.width += 2 * box;
-            rectangle.height += 2 * box;
-
-            gc.fillRectangle( rectangle );
-        }
-
-        gc.drawText( text, x, y, true );
-
-        return rectangle;
-    }
-    
-    public static Rectangle drawTextNotCenter( GC gc, int cX, int cY, String text, int box )
-    {
-        Point extent = gc.stringExtent( text );
-
-        int x = (int) ( cX - extent.x / 2 );
-        int y = (int) ( cY - extent.y / 2 );
-
-        if( x < box )
-        {
-            x = box;
-        }
-
-        Rectangle rectangle = new Rectangle( cX, cY, extent.x, extent.y );
-
-        if( box > 0 )
-        {
-            rectangle.x -= box;
-            rectangle.y -= box;
-            rectangle.width += 2 * box;
-            rectangle.height += 2 * box;
-
-            gc.fillRectangle( rectangle );
-        }
-
-        //System.out.println( x+" "+y+" "+extent.x+" "+extent.y +" "+rectangle.x+" "+rectangle.y+" "+rectangle.width+" "+rectangle.height);
-        
-        gc.drawText( text, cX, cY, true );
-
-        return rectangle;
-    }
+    protected abstract void paint( GC bufferGC );
 
     protected void scheduleRun()
     {
         getDisplay().timerExec( DEFAULT_TIMER_INTERVAL, runnable );
     }
-
-    private final Runnable runnable = new Runnable()
-    {
-
-        public void run()
-        {
-            doRun();
-        }
-    };
-
-    protected synchronized void doRun()
-    {
-        if( isDisposed() )
-        {
-            return;
-        }
-
-        boolean needsRedraw = needRedraw();
-
-        if( needsRedraw )
-        {
-            redraw();
-        }
-        else
-        {
-            scheduleRun();
-        }
-    }
-
-    protected abstract boolean needRedraw();
 }

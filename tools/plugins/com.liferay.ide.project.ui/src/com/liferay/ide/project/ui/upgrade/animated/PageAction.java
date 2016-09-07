@@ -38,10 +38,18 @@ public abstract class PageAction
         images = new Image[5];
     }
 
-    public Point getSize()
+    public Rectangle drawImage( GC gc, Image image, int cX, int cY )
     {
-        Rectangle bounds = images[2].getBounds();
-        return new Point( bounds.width, bounds.height );
+        Rectangle bounds = image.getBounds();
+        cX -= bounds.width / 2;
+        cY -= bounds.height / 2;
+        gc.drawImage( image, cX, cY );
+        return new Rectangle( cX, cY, bounds.width, bounds.height );
+    }
+
+    public Image getBageImage()
+    {
+        return this.images[4];
     }
 
     public Image[] getImages()
@@ -49,9 +57,10 @@ public abstract class PageAction
         return this.images;
     }
 
-    public Image getBageImage()
+    public Point getSize()
     {
-        return this.images[4];
+        Rectangle bounds = images[2].getBounds();
+        return new Point( bounds.width, bounds.height );
     }
 
     public final Image loadImage( String name )
@@ -71,14 +80,5 @@ public abstract class PageAction
         Image image = imagedesc.createImage();
 
         return image;
-    }
-
-    public Rectangle drawImage( GC gc, Image image, int cX, int cY )
-    {
-        Rectangle bounds = image.getBounds();
-        cX -= bounds.width / 2;
-        cY -= bounds.height / 2;
-        gc.drawImage( image, cX, cY );
-        return new Rectangle( cX, cY, bounds.width, bounds.height );
     }
 }

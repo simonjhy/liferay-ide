@@ -168,7 +168,7 @@ public interface LiferayUpgradeDataModel extends Element
     Value<String> getBundleUrl();
 
     void setBundleUrl( String BundleUrl );
-    
+
     @Type( base = Path.class )
     @Service( impl = ConvertedProjectLocationValidationService.class )
     ValueProperty PROP_CONVERTED_PROJECT_LOCATION = new ValueProperty( TYPE, "ConvertedProjectLocation" );

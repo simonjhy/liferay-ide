@@ -122,25 +122,6 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
         this.naviListeners.add( listener );
     }
 
-    @Override
-    protected boolean needRedraw()
-    {
-        boolean retVal = false;
-
-        if( needRedraw )
-        {
-            needRedraw = false;
-            retVal = true;
-        }
-
-        if( hover != oldHover )
-        {
-            retVal = true;
-        }
-
-        return retVal;
-    }
-
     private void doAction( int i )
     {
         Page page = getSelectedPage();
@@ -216,6 +197,25 @@ public class NavigatorControl extends AbstractCanvas implements SelectionChanged
 
         actionBoxes = new Rectangle[2];
 
+    }
+
+    @Override
+    protected boolean needRedraw()
+    {
+        boolean retVal = false;
+
+        if( needRedraw )
+        {
+            needRedraw = false;
+            retVal = true;
+        }
+
+        if( hover != oldHover )
+        {
+            retVal = true;
+        }
+
+        return retVal;
     }
 
     @Override

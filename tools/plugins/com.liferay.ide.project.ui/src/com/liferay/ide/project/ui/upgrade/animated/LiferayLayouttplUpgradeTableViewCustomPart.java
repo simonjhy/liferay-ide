@@ -47,64 +47,6 @@ import org.eclipse.swt.widgets.Display;
 public class LiferayLayouttplUpgradeTableViewCustomPart extends AbstractLiferayTableViewCustomPart
 {
 
-    public LiferayLayouttplUpgradeTableViewCustomPart( Composite parent, int style )
-    {
-        super( parent, style );
-
-    }
-
-    private class LayoutSearchFilesVistor extends SearchFilesVisitor
-    {
-
-        @Override
-        public boolean visit( IResourceProxy resourceProxy )
-        {
-            if( resourceProxy.getType() == IResource.FILE && resourceProxy.getName().endsWith( searchFileName ) )
-            {
-                IResource resource = resourceProxy.requestResource();
-
-                if( resource.exists() )
-                {
-                    resources.add( (IFile) resource );
-                }
-            }
-
-            return true;
-        }
-    }
-
-    @Override
-    protected IFile[] getAvaiableUpgradeFiles( IProject project )
-    {
-        List<IFile> files = new ArrayList<IFile>();
-
-        List<IFile> searchFiles = new LayoutSearchFilesVistor().searchFiles( project, ".tpl" );
-        files.addAll( searchFiles );
-
-        return files.toArray( new IFile[files.size()] );
-    }
-
-    @Override
-    protected IStyledLabelProvider getLableProvider()
-    {
-        return new LiferayUpgradeTabeViewLabelProvider( "Upgrade Layouttpl" )
-        {
-
-            @Override
-            public Image getImage( Object element )
-            {
-                return this.getImageRegistry().get( "layout" );
-            }
-
-            @Override
-            protected void initalizeImageRegistry( ImageRegistry imageRegistry )
-            {
-                imageRegistry.put(
-                    "layout", ProjectUI.imageDescriptorFromPlugin( ProjectUI.PLUGIN_ID, "/icons/e16/layout.png" ) );
-            }
-        };
-    }
-
     private class LayoutProjectViewerFilter extends ViewerFilter
     {
 
@@ -133,6 +75,99 @@ public class LiferayLayouttplUpgradeTableViewCustomPart extends AbstractLiferayT
 
     }
 
+    private class LayoutSearchFilesVistor extends SearchFilesVisitor
+    {
+
+        @Override
+        public boolean visit( IResourceProxy resourceProxy )
+        {
+            if( resourceProxy.getType() == IResource.FILE && resourceProxy.getName().endsWith( searchFileName ) )
+            {
+                IResource resource = resourceProxy.requestResource();
+
+                if( resource.exists() )
+                {
+                    resources.add( (IFile) resource );
+                }
+            }
+
+            return true;
+        }
+    }
+
+    public LiferayLayouttplUpgradeTableViewCustomPart( Composite parent, int style )
+    {
+        super( parent, style );
+
+    }
+
+    @Override
+    protected void createTempFile( final File srcFile, final File templateFile, final String projectName )
+    {
+        try
+        {
+            String content = upgradeLayouttplContent( FileUtil.readContents( srcFile, true ) );
+
+            if( templateFile.exists() )
+            {
+                templateFile.delete();
+            }
+
+            templateFile.createNewFile();
+            FileUtil.writeFile( templateFile, content, projectName );
+        }
+        catch( Exception e )
+        {
+            ProjectUI.logError( e );
+        }
+    }
+
+    @Override
+    protected void doUpgrade( File srcFile, IProject project )
+    {
+        try
+        {
+            String content = upgradeLayouttplContent( FileUtil.readContents( srcFile, true ) );
+            FileUtils.writeStringToFile( srcFile, content, "UTF-8" );
+        }
+        catch( Exception e )
+        {
+            ProjectUI.logError( e );
+        }
+    }
+
+    @Override
+    protected IFile[] getAvaiableUpgradeFiles( IProject project )
+    {
+        List<IFile> files = new ArrayList<IFile>();
+
+        List<IFile> searchFiles = new LayoutSearchFilesVistor().searchFiles( project, ".tpl" );
+        files.addAll( searchFiles );
+
+        return files.toArray( new IFile[files.size()] );
+    }
+
+    @Override
+    protected IStyledLabelProvider getLableProvider()
+    {
+        return new LiferayUpgradeTabeViewLabelProvider( "Upgrade Layouttpl")
+        {
+
+            @Override
+            public Image getImage( Object element )
+            {
+                return this.getImageRegistry().get( "layout" );
+            }
+
+            @Override
+            protected void initalizeImageRegistry( ImageRegistry imageRegistry )
+            {
+                imageRegistry.put(
+                    "layout", ProjectUI.imageDescriptorFromPlugin( ProjectUI.PLUGIN_ID, "/icons/e16/layout.png" ) );
+            }
+        };
+    }
+
     @Override
     protected List<IProject> getSelectedProjects()
     {
@@ -159,27 +194,6 @@ public class LiferayLayouttplUpgradeTableViewCustomPart extends AbstractLiferayT
         }
 
         return projects;
-    }
-
-    @Override
-    protected void createTempFile( final File srcFile, final File templateFile, final String projectName )
-    {
-        try
-        {
-            String content = upgradeLayouttplContent( FileUtil.readContents( srcFile, true ) );
-
-            if( templateFile.exists() )
-            {
-                templateFile.delete();
-            }
-
-            templateFile.createNewFile();
-            FileUtil.writeFile( templateFile, content, projectName );
-        }
-        catch( Exception e )
-        {
-            ProjectUI.logError( e );
-        }
     }
 
     @Override
@@ -214,19 +228,5 @@ public class LiferayLayouttplUpgradeTableViewCustomPart extends AbstractLiferayT
         }
 
         return content;
-    }
-
-    @Override
-    protected void doUpgrade( File srcFile, IProject project )
-    {
-        try
-        {
-            String content = upgradeLayouttplContent( FileUtil.readContents( srcFile, true ) );
-            FileUtils.writeStringToFile( srcFile, content, "UTF-8" );
-        }
-        catch( Exception e )
-        {
-            ProjectUI.logError( e );
-        }
     }
 }

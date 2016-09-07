@@ -26,14 +26,14 @@ public class PageActionEvent
 
     private PageAction action;
 
+    public PageAction getAction()
+    {
+        return this.action;
+    }
+
     public int getTargetPageIndex()
     {
         return targetPageIndex;
-    }
-
-    public void setTargetPageIndex( int targetPageIndex )
-    {
-        this.targetPageIndex = targetPageIndex;
     }
 
     public void setAction( PageAction action )
@@ -41,8 +41,8 @@ public class PageActionEvent
         this.action = action;
     }
 
-    public PageAction getAction()
+    public void setTargetPageIndex( int targetPageIndex )
     {
-        return this.action;
+        this.targetPageIndex = targetPageIndex;
     }
 }

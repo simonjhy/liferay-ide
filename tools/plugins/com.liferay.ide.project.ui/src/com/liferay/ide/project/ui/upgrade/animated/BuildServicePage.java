@@ -83,6 +83,42 @@ public class BuildServicePage extends Page
         buildServiceButton.addSelectionListener( new SelectionAdapter()
         {
 
+            private void deleteLegacyFiles( IProject project, IProgressMonitor monitor ) throws CoreException
+            {
+                String relativePath = "/docroot/WEB-INF/src/META-INF";
+                IFile portletSpringXML = project.getFile( relativePath + "/portlet-spring.xml" );
+                IFile shardDataSourceSpringXML = project.getFile( relativePath + "/shard-data-source-spring.xml" );
+
+                if( portletSpringXML.exists() )
+                {
+                    portletSpringXML.delete( true, monitor );
+                }
+
+                if( shardDataSourceSpringXML.exists() )
+                {
+                    shardDataSourceSpringXML.delete( true, monitor );
+                }
+            }
+
+            private List<IProject> getServiceBuilderProjects()
+            {
+                List<IProject> results = new ArrayList<IProject>();
+
+                IProject[] projects = CoreUtil.getAllProjects();
+
+                for( IProject project : projects )
+                {
+                    IFile serviceFile = project.getFile( "/docroot/WEB-INF/service.xml" );
+
+                    if( serviceFile.exists() )
+                    {
+                        results.add( project );
+                    }
+                }
+
+                return results;
+            }
+
             @Override
             public void widgetSelected( SelectionEvent e )
             {
@@ -156,42 +192,6 @@ public class BuildServicePage extends Page
                 catch( Exception e1 )
                 {
                 }
-            }
-
-            private void deleteLegacyFiles( IProject project, IProgressMonitor monitor ) throws CoreException
-            {
-                String relativePath = "/docroot/WEB-INF/src/META-INF";
-                IFile portletSpringXML = project.getFile( relativePath + "/portlet-spring.xml" );
-                IFile shardDataSourceSpringXML = project.getFile( relativePath + "/shard-data-source-spring.xml" );
-
-                if( portletSpringXML.exists() )
-                {
-                    portletSpringXML.delete( true, monitor );
-                }
-
-                if( shardDataSourceSpringXML.exists() )
-                {
-                    shardDataSourceSpringXML.delete( true, monitor );
-                }
-            }
-
-            private List<IProject> getServiceBuilderProjects()
-            {
-                List<IProject> results = new ArrayList<IProject>();
-
-                IProject[] projects = CoreUtil.getAllProjects();
-
-                for( IProject project : projects )
-                {
-                    IFile serviceFile = project.getFile( "/docroot/WEB-INF/service.xml" );
-
-                    if( serviceFile.exists() )
-                    {
-                        results.add( project );
-                    }
-                }
-
-                return results;
             }
         } );
 

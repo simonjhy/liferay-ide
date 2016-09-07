@@ -374,7 +374,7 @@ public abstract class AbstractLiferayTableViewCustomPart extends Composite
         List<IProject> projects = getSelectedProjects();
         try
         {
-            final WorkspaceJob workspaceJob = new WorkspaceJob( "Find needed upgrade files......" )
+            final WorkspaceJob workspaceJob = new WorkspaceJob( "Find needed upgrade files......")
             {
 
                 @Override
@@ -413,7 +413,7 @@ public abstract class AbstractLiferayTableViewCustomPart extends Composite
     {
         try
         {
-            final WorkspaceJob workspaceJob = new WorkspaceJob( "Find needed upgrade files......" )
+            final WorkspaceJob workspaceJob = new WorkspaceJob( "Find needed upgrade files......")
             {
 
                 @Override

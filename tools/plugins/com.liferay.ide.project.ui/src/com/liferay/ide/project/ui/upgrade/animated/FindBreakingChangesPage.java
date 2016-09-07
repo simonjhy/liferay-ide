@@ -89,18 +89,18 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
 
     public static final String ID = "com.liferay.ide.project.ui.findBreakingChangesPage";
 
-    PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-    MigrationContentProvider migrationContentProvider;
-    private Browser _browser;
-    private TableViewer _problemsViewer;
-    private MigratorComparator _comparator;
-    private TreeViewer _treeViewer;
-
     private static final Image IMAGE_CHECKED =
         ProjectUI.getDefault().getImageRegistry().get( ProjectUI.CHECKED_IMAGE_ID );
     private static final Image IMAGE_UNCHECKED =
         ProjectUI.getDefault().getImageRegistry().get( ProjectUI.UNCHECKED_IMAGE_ID );
     public static boolean showAll = false;
+    PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
+    MigrationContentProvider migrationContentProvider;
+    private Browser _browser;
+
+    private TableViewer _problemsViewer;
+    private MigratorComparator _comparator;
+    private TreeViewer _treeViewer;
 
     public FindBreakingChangesPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
@@ -133,7 +133,7 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         findBreakingchangesContainer.setLayoutData( grData );
 
         GridData treeData = new GridData( GridData.FILL_BOTH );
-        treeData.minimumWidth=300;
+        treeData.minimumWidth = 300;
 
         _treeViewer = new TreeViewer( findBreakingchangesContainer );
         _treeViewer.getTree().setLayoutData( treeData );
@@ -253,124 +253,32 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         this.setPageId( FINDBREACKINGCHANGES_PAGE_ID );
     }
 
-    public List<ProblemsContainer> getInitialInput()
-    {
-
-        List<ProblemsContainer> _problems = null;
-
-        try
-        {
-            MigrationProblemsContainer container;
-            container = UpgradeAssistantSettingsUtil.getObjectFromStore( MigrationProblemsContainer.class );
-
-            if( container != null )
-            {
-                _problems = new ArrayList<>();
-                _problems.add( container );
-            }
-        }
-        catch( IOException e )
-        {
-            e.printStackTrace();
-        }
-
-        migrationContentProvider.set_problems( _problems );
-
-        return _problems;
-    }
-
-    public void createTableView( Composite container )
-    {
-        final Composite parent = new Composite( container, SWT.NONE );
-        GridData parentData = new GridData( GridData.FILL_BOTH );
-        parentData.grabExcessVerticalSpace = true;
-        parentData.grabExcessHorizontalSpace = true;
-
-        parent.setLayout( new GridLayout( 1, false ) );
-        parent.setLayoutData( parentData );
-
-        SashForm viewParent = new SashForm( parent, SWT.HORIZONTAL );
-
-        viewParent.setLayout( new GridLayout( 1, false ) );
-
-        GridData gridData = new GridData( GridData.FILL_BOTH );
-        gridData.minimumWidth=300;
-
-        viewParent.setLayoutData( gridData );
-
-        SashForm detailParent = new SashForm( viewParent, SWT.VERTICAL );
-
-        _problemsViewer =
-            new TableViewer( detailParent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER );
-
-        createColumns( _problemsViewer );
-
-        final Table table = _problemsViewer.getTable();
-        table.setHeaderVisible( true );
-
-        _problemsViewer.setContentProvider( ArrayContentProvider.getInstance() );
-        _problemsViewer.setComparer( null );
-        _comparator = new MigratorComparator();
-        _problemsViewer.setComparator( _comparator );
-
-        _browser = new Browser( detailParent, SWT.BORDER );
-
-        MenuManager menuMgr = new MenuManager();
-        IAction markDoneAction = new MarkDoneAction( _problemsViewer );
-        IAction markUndoneAction = new MarkUndoneAction( _problemsViewer );
-        IAction ignoreAction = new IgnoreAction( _problemsViewer );
-        IAction autoCorrectAction = new AutoCorrectAction( _problemsViewer );
-        menuMgr.add( markDoneAction );
-        menuMgr.add( markUndoneAction );
-        menuMgr.add( ignoreAction );
-        menuMgr.add( autoCorrectAction );
-        Menu menu = menuMgr.createContextMenu( table );
-        table.setMenu( menu );
-
-        _problemsViewer.addDoubleClickListener( this );
-    }
-
-    @Override
-    public void doubleClick( DoubleClickEvent event )
-    {
-        if( event.getSelection() instanceof IStructuredSelection )
-        {
-            final IStructuredSelection ss = (IStructuredSelection) event.getSelection();
-
-            Object element = ss.getFirstElement();
-
-            if( element instanceof Problem )
-            {
-                MigrationUtil.openEditor( (Problem) element );
-            }
-            else if( element instanceof FileProblems )
-            {
-                MigrationUtil.openEditor( (FileProblems) element );
-            }
-        }
-    }
-
-    private TableViewerColumn createTableViewerColumn( String title, int bound, TableViewer viewer )
-    {
-        final TableViewerColumn viewerColumn = new TableViewerColumn( viewer, SWT.NONE );
-        final TableColumn column = viewerColumn.getColumn();
-        column.setText( title );
-        column.setWidth( bound );
-        column.setResizable( true );
-        column.setMoveable( true );
-        column.addSelectionListener( getSelectionAdapter( column, viewer.getTable().indexOf( column ) ) );
-
-        return viewerColumn;
-    }
-
     private void createColumns( final TableViewer _problemsViewer )
     {
         final String[] titles = { "Resolved", "Line", "Problem" };
         final int[] bounds = { 65, 55, 200 };
 
         TableViewerColumn col = createTableViewerColumn( titles[0], bounds[0], _problemsViewer );
-        col.setEditingSupport( new EditingSupport( _problemsViewer )
+        col.setEditingSupport( new EditingSupport( _problemsViewer)
         {
+
+            @Override
+            protected boolean canEdit( Object element )
+            {
+                return true;
+            }
+
+            @Override
+            protected CellEditor getCellEditor( Object element )
+            {
+                return new CheckboxCellEditor( _problemsViewer.getTable() );
+            }
+
+            @Override
+            protected Object getValue( Object element )
+            {
+                return ( (Problem) element ).getStatus() == Problem.STATUS_RESOLVED;
+            }
 
             @Override
             protected void setValue( Object element, Object value )
@@ -383,24 +291,6 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
                 {
                     new MarkUndoneAction().run( (Problem) element, _problemsViewer );
                 }
-            }
-
-            @Override
-            protected Object getValue( Object element )
-            {
-                return ( (Problem) element ).getStatus() == Problem.STATUS_RESOLVED;
-            }
-
-            @Override
-            protected CellEditor getCellEditor( Object element )
-            {
-                return new CheckboxCellEditor( _problemsViewer.getTable() );
-            }
-
-            @Override
-            protected boolean canEdit( Object element )
-            {
-                return true;
             }
         } );
 
@@ -465,51 +355,87 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         } );
     }
 
-    private SelectionAdapter getSelectionAdapter( final TableColumn column, final int index )
+    public void createTableView( Composite container )
     {
-        return new SelectionAdapter()
-        {
+        final Composite parent = new Composite( container, SWT.NONE );
+        GridData parentData = new GridData( GridData.FILL_BOTH );
+        parentData.grabExcessVerticalSpace = true;
+        parentData.grabExcessHorizontalSpace = true;
 
-            public void widgetSelected( SelectionEvent e )
-            {
-                _comparator.setColumn( index );
-                int dir = _comparator.getDirection();
-                _problemsViewer.getTable().setSortDirection( dir );
-                _problemsViewer.getTable().setSortColumn( column );
-                _problemsViewer.refresh();
-            }
-        };
+        parent.setLayout( new GridLayout( 1, false ) );
+        parent.setLayoutData( parentData );
+
+        SashForm viewParent = new SashForm( parent, SWT.HORIZONTAL );
+
+        viewParent.setLayout( new GridLayout( 1, false ) );
+
+        GridData gridData = new GridData( GridData.FILL_BOTH );
+        gridData.minimumWidth = 300;
+
+        viewParent.setLayoutData( gridData );
+
+        SashForm detailParent = new SashForm( viewParent, SWT.VERTICAL );
+
+        _problemsViewer =
+            new TableViewer( detailParent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION | SWT.BORDER );
+
+        createColumns( _problemsViewer );
+
+        final Table table = _problemsViewer.getTable();
+        table.setHeaderVisible( true );
+
+        _problemsViewer.setContentProvider( ArrayContentProvider.getInstance() );
+        _problemsViewer.setComparer( null );
+        _comparator = new MigratorComparator();
+        _problemsViewer.setComparator( _comparator );
+
+        _browser = new Browser( detailParent, SWT.BORDER );
+
+        MenuManager menuMgr = new MenuManager();
+        IAction markDoneAction = new MarkDoneAction( _problemsViewer );
+        IAction markUndoneAction = new MarkUndoneAction( _problemsViewer );
+        IAction ignoreAction = new IgnoreAction( _problemsViewer );
+        IAction autoCorrectAction = new AutoCorrectAction( _problemsViewer );
+        menuMgr.add( markDoneAction );
+        menuMgr.add( markUndoneAction );
+        menuMgr.add( ignoreAction );
+        menuMgr.add( autoCorrectAction );
+        Menu menu = menuMgr.createContextMenu( table );
+        table.setMenu( menu );
+
+        _problemsViewer.addDoubleClickListener( this );
     }
 
-    private void updateForm( SelectionChangedEvent event )
+    private TableViewerColumn createTableViewerColumn( String title, int bound, TableViewer viewer )
     {
-        final ISelection selection = event.getSelection();
+        final TableViewerColumn viewerColumn = new TableViewerColumn( viewer, SWT.NONE );
+        final TableColumn column = viewerColumn.getColumn();
+        column.setText( title );
+        column.setWidth( bound );
+        column.setResizable( true );
+        column.setMoveable( true );
+        column.addSelectionListener( getSelectionAdapter( column, viewer.getTable().indexOf( column ) ) );
 
-        final Problem problem = MigrationUtil.getProblemFromSelection( selection );
+        return viewerColumn;
+    }
 
-        if( problem != null )
+    @Override
+    public void doubleClick( DoubleClickEvent event )
+    {
+        if( event.getSelection() instanceof IStructuredSelection )
         {
-            /*
-             * if( Platform.getOS().equals( Platform.OS_LINUX ) ) { _form.setText( generateFormText( problem ), true,
-             * false ); } else {
-             */
-            if( CoreUtil.isNullOrEmpty( problem.html ) )
+            final IStructuredSelection ss = (IStructuredSelection) event.getSelection();
+
+            Object element = ss.getFirstElement();
+
+            if( element instanceof Problem )
             {
-                _browser.setText( generateFormText( problem ) );
+                MigrationUtil.openEditor( (Problem) element );
             }
-            else
+            else if( element instanceof FileProblems )
             {
-                _browser.setText( problem.html );
+                MigrationUtil.openEditor( (FileProblems) element );
             }
-            // }
-        }
-        else
-        {
-            /*
-             * if( Platform.getOS().equals( Platform.OS_LINUX ) ) { _form.setText( "", false, false ); } else {
-             */
-            _browser.setUrl( "about:blank" );
-            // }
         }
     }
 
@@ -544,6 +470,37 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         return sb.toString();
     }
 
+    public TableViewer get_problemsViewer()
+    {
+        return _problemsViewer;
+    }
+
+    public List<ProblemsContainer> getInitialInput()
+    {
+
+        List<ProblemsContainer> _problems = null;
+
+        try
+        {
+            MigrationProblemsContainer container;
+            container = UpgradeAssistantSettingsUtil.getObjectFromStore( MigrationProblemsContainer.class );
+
+            if( container != null )
+            {
+                _problems = new ArrayList<>();
+                _problems.add( container );
+            }
+        }
+        catch( IOException e )
+        {
+            e.printStackTrace();
+        }
+
+        migrationContentProvider.set_problems( _problems );
+
+        return _problems;
+    }
+
     private String getLinkTags( String ticketNumbers )
     {
         String[] ticketNumberArray = ticketNumbers.split( "," );
@@ -568,14 +525,57 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         return sb.toString();
     }
 
-    public TableViewer get_problemsViewer()
+    private SelectionAdapter getSelectionAdapter( final TableColumn column, final int index )
     {
-        return _problemsViewer;
+        return new SelectionAdapter()
+        {
+
+            public void widgetSelected( SelectionEvent e )
+            {
+                _comparator.setColumn( index );
+                int dir = _comparator.getDirection();
+                _problemsViewer.getTable().setSortDirection( dir );
+                _problemsViewer.getTable().setSortColumn( column );
+                _problemsViewer.refresh();
+            }
+        };
     }
 
     public TreeViewer getTreeViewer()
     {
         return _treeViewer;
+    }
+
+    private void updateForm( SelectionChangedEvent event )
+    {
+        final ISelection selection = event.getSelection();
+
+        final Problem problem = MigrationUtil.getProblemFromSelection( selection );
+
+        if( problem != null )
+        {
+            /*
+             * if( Platform.getOS().equals( Platform.OS_LINUX ) ) { _form.setText( generateFormText( problem ), true,
+             * false ); } else {
+             */
+            if( CoreUtil.isNullOrEmpty( problem.html ) )
+            {
+                _browser.setText( generateFormText( problem ) );
+            }
+            else
+            {
+                _browser.setText( problem.html );
+            }
+            // }
+        }
+        else
+        {
+            /*
+             * if( Platform.getOS().equals( Platform.OS_LINUX ) ) { _form.setText( "", false, false ); } else {
+             */
+            _browser.setUrl( "about:blank" );
+            // }
+        }
     }
 
 }
