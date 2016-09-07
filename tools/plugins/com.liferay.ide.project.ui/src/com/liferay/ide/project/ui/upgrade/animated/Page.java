@@ -15,22 +15,13 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
-import com.liferay.ide.project.core.ProjectCore;
 import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageNavigatorListener;
 import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageValidationListener;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Properties;
 
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -56,7 +47,6 @@ public abstract class Page extends Composite
     public static String EXTANDTHEME_PAGE_ID = "extandtheme";
     public static String COMPILE_PAGE_ID = "compile";
     public static String DEPLOY_PAGE_ID = "deploy";
-    protected static Properties codeUpgradeProperties;
 
     public static Control createHorizontalSpacer( Composite comp, int hSpan )
     {
@@ -79,8 +69,6 @@ public abstract class Page extends Composite
 
     protected LiferayUpgradeDataModel dataModel;
 
-    private File codeUpgradeFile;
-
     protected final List<PageNavigatorListener> naviListeners =
         Collections.synchronizedList( new ArrayList<PageNavigatorListener>() );
 
@@ -102,36 +90,6 @@ public abstract class Page extends Composite
         super( parent, style );
 
         this.dataModel = dataModel;
-
-        final IPath stateLocation = ProjectCore.getDefault().getStateLocation();
-
-        File stateDir = stateLocation.toFile();
-
-        codeUpgradeFile = new File( stateDir, "liferay-code-upgrade.properties" );
-
-        if( !codeUpgradeFile.exists() )
-        {
-            try
-            {
-                codeUpgradeFile.createNewFile();
-            }
-            catch( IOException e1 )
-            {
-            }
-        }
-
-        if( codeUpgradeProperties == null )
-        {
-            codeUpgradeProperties = new Properties();
-
-            try(InputStream in = new FileInputStream( codeUpgradeFile ))
-            {
-                codeUpgradeProperties.load( in );
-            }
-            catch( Exception e )
-            {
-            }
-        }
     }
 
     public void addPageNavigateListener( PageNavigatorListener listener )
@@ -238,19 +196,6 @@ public abstract class Page extends Composite
     protected boolean showNextPage()
     {
         return canNext;
-    }
-
-    public void storeProperty( Object key, Object value )
-    {
-        codeUpgradeProperties.setProperty( String.valueOf( key ), String.valueOf( value ) );
-
-        try(OutputStream out = new FileOutputStream( codeUpgradeFile ))
-        {
-            codeUpgradeProperties.store( out, "" );
-        }
-        catch( Exception e )
-        {
-        }
     }
 
     protected void triggerValidationEvent( String validationMessage )

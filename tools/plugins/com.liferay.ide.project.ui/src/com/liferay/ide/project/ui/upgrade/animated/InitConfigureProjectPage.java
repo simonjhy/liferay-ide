@@ -164,7 +164,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             {
                 ValuePropertyContentEvent propertyEvetn = (ValuePropertyContentEvent) event;
                 final Property property = propertyEvetn.property();
-                storeProperty( property.name(), property.toString() );
+
                 if( property.name().equals( "SdkLocation" ) )
                 {
                     org.eclipse.sapphire.modeling.Path sdkPath = dataModel.getSdkLocation().content();
@@ -422,46 +422,32 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         {
             dataModel.setHasPortlet( true );
 
-            storeProperty( "hasPortlet", true );
-
             List<IFile> searchFiles = new SearchFilesVisitor().searchFiles( project, "service.xml" );
 
             if( searchFiles.size() > 0 )
             {
                 dataModel.setHasServiceBuilder( true );
-
-                storeProperty( "hasServiceBuilder", true );
             }
         }
         else if( ProjectUtil.isHookProject( project ) )
         {
             dataModel.setHasHook( true );
-
-            storeProperty( "hasHook", true );
         }
         else if( ProjectUtil.isLayoutTplProject( project ) )
         {
             dataModel.setHasLayout( true );
-
-            storeProperty( "hasLayout", true );
         }
         else if( ProjectUtil.isThemeProject( project ) )
         {
             dataModel.setHasTheme( true );
-
-            storeProperty( "hasTheme", true );
         }
         else if( ProjectUtil.isExtProject( project ) )
         {
             dataModel.setHasExt( true );
-
-            storeProperty( "hasExt", true );
         }
         else if( ProjectUtil.isWebProject( project ) )
         {
             dataModel.setHasWeb( true );
-
-            storeProperty( "hasWeb", true );
         }
     }
 

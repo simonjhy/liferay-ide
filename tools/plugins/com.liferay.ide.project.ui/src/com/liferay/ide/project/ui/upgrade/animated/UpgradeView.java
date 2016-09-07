@@ -15,11 +15,24 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.project.core.ProjectCore;
 import com.liferay.ide.ui.util.SWTUtil;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.sapphire.Event;
+import org.eclipse.sapphire.Listener;
+import org.eclipse.sapphire.Property;
+import org.eclipse.sapphire.ValuePropertyContentEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StackLayout;
@@ -49,15 +62,75 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
     private static Page[] pages = null;
 
+    private Properties codeUpgradeProperties;
+    private File codeUpgradeFile;
+
     private LiferayUpgradeDataModel createUpgradeModel()
     {
         return LiferayUpgradeDataModel.TYPE.instantiate();
+    }
+
+    private class LiferayUpgradeStoreListener extends Listener
+    {
+
+        @Override
+        public void handle( Event event )
+        {
+            if( event instanceof ValuePropertyContentEvent )
+            {
+                ValuePropertyContentEvent propertyEvetn = (ValuePropertyContentEvent) event;
+                final Property property = propertyEvetn.property();
+
+                storeProperty( property.name(), property.toString() );
+            }
+        }
     }
 
     public UpgradeView()
     {
         super();
         dataModel = createUpgradeModel();
+
+        dataModel.getSdkLocation().attach( new LiferayUpgradeStoreListener() );
+        dataModel.getHasExt().attach( new LiferayUpgradeStoreListener() );
+        dataModel.getHasHook().attach( new LiferayUpgradeStoreListener() );
+        dataModel.getHasLayout().attach( new LiferayUpgradeStoreListener() );
+        dataModel.getHasPortlet().attach( new LiferayUpgradeStoreListener() );
+        dataModel.getHasServiceBuilder().attach( new LiferayUpgradeStoreListener() );
+        dataModel.getHasTheme().attach( new LiferayUpgradeStoreListener() );
+        dataModel.getHasWeb().attach( new LiferayUpgradeStoreListener() );
+        dataModel.getBundleName().attach( new LiferayUpgradeStoreListener() );
+        dataModel.getBundleUrl().attach( new LiferayUpgradeStoreListener() );
+
+        final IPath stateLocation = ProjectCore.getDefault().getStateLocation();
+
+        File stateDir = stateLocation.toFile();
+
+        codeUpgradeFile = new File( stateDir, "liferay-code-upgrade.properties" );
+
+        if( !codeUpgradeFile.exists() )
+        {
+            try
+            {
+                codeUpgradeFile.createNewFile();
+            }
+            catch( IOException e1 )
+            {
+            }
+        }
+
+        if( codeUpgradeProperties == null )
+        {
+            codeUpgradeProperties = new Properties();
+
+            try(InputStream in = new FileInputStream( codeUpgradeFile ))
+            {
+                codeUpgradeProperties.load( in );
+            }
+            catch( Exception e )
+            {
+            }
+        }
     }
 
     public static void resumePages()
@@ -96,6 +169,20 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         stackLayout.topControl = pages[i];
 
         pagesSwitchControler.layout();
+    }
+
+
+    public void storeProperty( Object key, Object value )
+    {
+        codeUpgradeProperties.setProperty( String.valueOf( key ), String.valueOf( value ) );
+
+        try(OutputStream out = new FileOutputStream( codeUpgradeFile ))
+        {
+            codeUpgradeProperties.store( out, "" );
+        }
+        catch( Exception e )
+        {
+        }
     }
 
     public static Page getPage( int i )
@@ -234,75 +321,48 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         currentPageList.add( initConfigureProjectPage );
         //currentPageList.addAll( staticPageList );
 
-//        Properties properties = new Properties();
-//
-//        final IPath stateLocation = ProjectCore.getDefault().getStateLocation();
-//
-//        File stateDir = stateLocation.toFile();
+        boolean hasPortlet = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "hasPortlet", "false" ) );
+        boolean hasServiceBuilder = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "hasServiceBuilder", "false" ) );
+        boolean hasHook = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "hasHook", "false" ) );
+        boolean hasLayout = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "hasLayout", "false" ) );
+        boolean hasTheme = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "hasTheme", "false" ) );
+        boolean hasExt = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "hasExt", "false" ) );
 
-//        File codeUpgradeFile = new File( stateDir, "liferay-code-upgrade.properties" );
-//
-//        if( !codeUpgradeFile.exists() )
-//        {
-//            try
-//            {
-//                codeUpgradeFile.createNewFile();
-//            }
-//            catch( IOException e )
-//            {
-//            }
-//        }
-//
-//        try(InputStream in = new FileInputStream( codeUpgradeFile ))
-//        {
-//            properties.load( in );
-//        }
-//        catch( Exception e )
-//        {
-//        }
+        if( hasPortlet || hasHook || hasServiceBuilder || hasLayout )
+        {
+            currentPageList.add( descriptorsPage );
+        }
 
-//        boolean hasPortlet = Boolean.parseBoolean( properties.getProperty( "hasPortlet", "false" ) );
-//        boolean hasServiceBuilder = Boolean.parseBoolean( properties.getProperty( "hasServiceBuilder", "false" ) );
-//        boolean hasHook = Boolean.parseBoolean( properties.getProperty( "hasHook", "false" ) );
-//        boolean hasLayout = Boolean.parseBoolean( properties.getProperty( "hasLayout", "false" ) );
-//        boolean hasTheme = Boolean.parseBoolean( properties.getProperty( "hasTheme", "false" ) );
-//        boolean hasExt = Boolean.parseBoolean( properties.getProperty( "hasExt", "false" ) );
-//
-//        if( hasPortlet || hasHook || hasServiceBuilder || hasLayout )
-//        {
-//            currentPageList.add( descriptorsPage );
-//        }
-//
-//        if( hasPortlet || hasHook || hasServiceBuilder )
-//        {
-//            currentPageList.add( findBreakingChangesPage );
-//        }
-//
-//        if( hasServiceBuilder )
-//        {
-//            currentPageList.add( buildServicePage );
-//        }
-//
-//        if( hasLayout )
-//        {
-//            currentPageList.add( layoutTemplatePage );
-//        }
-//
-//        if( hasHook )
-//        {
-//            currentPageList.add( customJspPage );
-//        }
-//
-//        if( hasExt || hasTheme )
-//        {
-//            currentPageList.add( extAndThemePage );
-//        }
-//
-//        if( hasPortlet || hasHook || hasServiceBuilder || hasLayout )
-//        {
-//            currentPageList.add( compilePage );
-//            currentPageList.add( deployPage );
-//        }
+        if( hasPortlet || hasHook || hasServiceBuilder )
+        {
+            currentPageList.add( findBreakingChangesPage );
+        }
+
+        if( hasServiceBuilder )
+        {
+            currentPageList.add( buildServicePage );
+        }
+
+        if( hasLayout )
+        {
+            currentPageList.add( layoutTemplatePage );
+        }
+
+        if( hasHook )
+        {
+            currentPageList.add( customJspPage );
+        }
+
+        if( hasExt || hasTheme )
+        {
+            currentPageList.add( extAndThemePage );
+        }
+
+        if( hasPortlet || hasHook || hasServiceBuilder || hasLayout )
+        {
+            currentPageList.add( compilePage );
+            currentPageList.add( deployPage );
+        }
 
         resetPages();
 
