@@ -133,9 +133,7 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         findBreakingchangesContainer.setLayoutData( grData );
 
         GridData treeData = new GridData( GridData.FILL_BOTH );
-        treeData.grabExcessVerticalSpace = true;
-        treeData.grabExcessHorizontalSpace = true;
-        treeData.horizontalAlignment = SWT.FILL;
+        treeData.minimumWidth=300;
 
         _treeViewer = new TreeViewer( findBreakingchangesContainer );
         _treeViewer.getTree().setLayoutData( treeData );
@@ -287,7 +285,6 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         GridData parentData = new GridData( GridData.FILL_BOTH );
         parentData.grabExcessVerticalSpace = true;
         parentData.grabExcessHorizontalSpace = true;
-        parentData.horizontalAlignment = SWT.FILL;
 
         parent.setLayout( new GridLayout( 1, false ) );
         parent.setLayoutData( parentData );
@@ -297,9 +294,7 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         viewParent.setLayout( new GridLayout( 1, false ) );
 
         GridData gridData = new GridData( GridData.FILL_BOTH );
-        gridData.grabExcessVerticalSpace = true;
-        gridData.grabExcessHorizontalSpace = true;
-        gridData.horizontalAlignment = SWT.FILL;
+        gridData.minimumWidth=300;
 
         viewParent.setLayoutData( gridData );
 
