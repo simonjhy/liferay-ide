@@ -20,7 +20,6 @@ import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
 import com.liferay.ide.project.core.util.ProjectUtil;
 import com.liferay.ide.project.ui.dialog.CustomProjectSelectionDialog;
 import com.liferay.ide.project.ui.upgrade.CustomJspConverter;
-import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageValidationListener;
 import com.liferay.ide.server.util.ServerUtil;
 import com.liferay.ide.ui.util.SWTUtil;
 import com.liferay.ide.ui.util.UIUtil;
@@ -452,16 +451,17 @@ public class CustomJspPage extends Page
     private TreeViewer rightTreeViewer;
 
     private String staticPath = "/src/main/resources/META-INF/resources/";
-    
+
     private boolean hasLiferayWorkspace = false;
-    
+
     private final String defaultLocation;
-    
+
     private ConvertedProjectLocationValidationService convertedProjectLocationValidation =
-                    dataModel.getConvertedProjectLocation().service( ConvertedProjectLocationValidationService.class );
-    
+        dataModel.getConvertedProjectLocation().service( ConvertedProjectLocationValidationService.class );
+
     private class ConvertedProjectLocationListener extends Listener
     {
+
         @Override
         public void handle( Event event )
         {
@@ -477,27 +477,14 @@ public class CustomJspPage extends Page
                 }
 
                 String message = "ok";
-                
+
                 if( !validationStatus.ok() )
                 {
                     message = validationStatus.message();
                 }
 
-                triggerPaintEvent(message);
-                
+                triggerValidationEvent( message );
             }
-        }
-    }
-
-    private void triggerPaintEvent(String message)
-    {
-        PageValidateEvent event = new PageValidateEvent();
-
-        event.setMessage( message );
-        
-        for(PageValidationListener listener : pageValidationListeners)
-        {
-            listener.onValidation( event );
         }
     }
 
@@ -529,7 +516,7 @@ public class CustomJspPage extends Page
 
         projectLocation.setForeground( getDisplay().getSystemColor( SWT.COLOR_DARK_GRAY ) );
 
-        String defaultLocationPre = null ;
+        String defaultLocationPre = null;
 
         try
         {
@@ -554,10 +541,11 @@ public class CustomJspPage extends Page
 
         defaultLocation = defaultLocationPre;
 
-        projectLocation.setText(defaultLocation);
+        projectLocation.setText( defaultLocation );
 
         projectLocation.addFocusListener( new FocusListener()
         {
+
             @Override
             public void focusGained( FocusEvent e )
             {
@@ -582,7 +570,7 @@ public class CustomJspPage extends Page
                 }
             }
         } );
-        
+
         projectLocation.addModifyListener( new ModifyListener()
         {
 
@@ -591,7 +579,7 @@ public class CustomJspPage extends Page
                 dataModel.setConvertedProjectLocation( projectLocation.getText() );
             }
         } );
-        
+
         dataModel.setConvertedProjectLocation( projectLocation.getText() );
 
         Composite buttonContainer = new Composite( container, SWT.NONE );
@@ -600,11 +588,11 @@ public class CustomJspPage extends Page
         GridData buttonGridData = new GridData( SWT.CENTER, SWT.CENTER, true, true );
         buttonGridData.widthHint = 130;
         buttonGridData.heightHint = 35;
-        
-        Button browseButton = new Button(buttonContainer, SWT.PUSH );
-        
+
+        Button browseButton = new Button( buttonContainer, SWT.PUSH );
+
         browseButton.setText( "Browse" );
-        
+
         browseButton.addSelectionListener( new SelectionAdapter()
         {
 
@@ -622,12 +610,12 @@ public class CustomJspPage extends Page
                 }
             }
         } );
-        
+
         dataModel.getConvertedProjectLocation().attach( new ConvertedProjectLocationListener() );
 
         Button selectButton = new Button( buttonContainer, SWT.PUSH );
         selectButton.setText( "select projects" );
-        
+
         selectButton.addSelectionListener( new SelectionAdapter()
         {
 
@@ -921,7 +909,7 @@ public class CustomJspPage extends Page
 
         String[] paths = new String[2];
 
-        IFile original62File = resourceFolder.getFile( "/.ignore/" + relativePath.toString()+".62" );
+        IFile original62File = resourceFolder.getFile( "/.ignore/" + relativePath.toString() + ".62" );
         IFile original70File = resourceFolder.getFile( "/.ignore/" + relativePath.toString() );
 
         if( original62File.exists() && original70File.exists() )
@@ -1108,15 +1096,15 @@ public class CustomJspPage extends Page
         converter.setUi( this );
 
         String targetPath = dataModel.getConvertedProjectLocation().content().toPortableString();
-        
+
         boolean isLiferayWorkapce = false;
-        
+
         if( targetPath.equals( defaultLocation ) && hasLiferayWorkspace )
         {
             isLiferayWorkapce = true;
         }
-        
-        converter.doExecute( sourcePaths ,targetPath ,isLiferayWorkapce );
+
+        converter.doExecute( sourcePaths, targetPath, isLiferayWorkapce );
     }
 
 }

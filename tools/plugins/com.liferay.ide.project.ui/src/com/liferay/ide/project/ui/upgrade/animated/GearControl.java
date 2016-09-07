@@ -21,7 +21,9 @@ import com.liferay.ide.project.ui.upgrade.animated.UpgradeView.PageValidationLis
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.resource.JFaceResources;
@@ -52,7 +54,7 @@ public class GearControl extends AbstractCanvas
     private Display display;
 
     private Image errorImage ;
-    private String errorMessage;
+    private Map<String,String> errorMessageMap = new HashMap<String,String>();
 
     private final Color[] gearBackground = new Color[2];
     private final Color[] gearForeground = new Color[2];
@@ -95,8 +97,6 @@ public class GearControl extends AbstractCanvas
     private final int TEETH = 8;
 
     private final float ANGLE = 360 / TEETH;
-
-    private boolean showErrorMessage = false;
 
     private Font tooltipFont;
 
@@ -324,20 +324,17 @@ public class GearControl extends AbstractCanvas
     @Override
     public void onValidation( PageValidateEvent event )
     {
+        String pageId = event.getPageId();
         String message = event.getMessage();
 
-        if(message.equals( "ok" ))
-        {
-            showErrorMessage = false;
-        }
-        else
-        {
-            showErrorMessage = true;
+        errorMessageMap.put( pageId, message );
 
-            errorMessage = message;
-        }
+        Page page = UpgradeView.getPage( selection );
 
-        needRedraw = true;
+        if( page.getPageId().equals( pageId ) )
+        {
+            needRedraw = true;
+        }
     }
 
     @Override
@@ -381,7 +378,13 @@ public class GearControl extends AbstractCanvas
 
     private void paintErrorMessage(GC gc)
     {
-        if( showErrorMessage )
+        Page page = UpgradeView.getPage( selection );
+
+        String pageId = page.getPageId();
+
+        String errorMessage = errorMessageMap.get( pageId );
+
+        if( errorMessage != null && !errorMessage.equals( "ok" ) )
         {
             drawImage( gc, errorImage, 30, 130 );
 

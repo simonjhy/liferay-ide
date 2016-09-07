@@ -180,6 +180,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                 }
 
                 final Status vsStatus = validationStatus;
+
                 UIUtil.async( new Runnable()
                 {
 
@@ -1150,31 +1151,29 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
                 String bundUrl = dataModel.getBundleUrl().content();
 
+                String message = "ok";
+
                 if( !sdkValidation.compute().ok() )
                 {
-                    triggerValidationEvent( sdkValidation.compute().message() );
+                    message = sdkValidation.compute().message();
+
                     inputValidation = false;
-                    importButton.setEnabled( layoutValidation && inputValidation );
-                    return;
                 }
                 else if( layoutComb.getSelectionIndex() == 0 )
                 {
                     final int itemCount = serverComb.getItemCount();
+
                     if( itemCount < 1 )
                     {
-                        triggerValidationEvent( "You shoulde add at least one Liferay 7 portal bundle."  );
-                        layoutValidation = false;
+                        message = "You shoulde add at least one Liferay 7 portal bundle.";
 
-                        importButton.setEnabled( layoutValidation && inputValidation );
-                        return;
+                        layoutValidation = false;
                     }
                     else
                     {
                         if( inputValidation == true )
                         {
                             layoutValidation = true;
-                            importButton.setEnabled( layoutValidation && inputValidation );
-                            return;
                         }
                     }
                 }
@@ -1182,28 +1181,25 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                 {
                     if( !bundleNameValidation.compute().ok() )
                     {
-                        triggerValidationEvent( bundleNameValidation.compute().message()  );
-                        layoutValidation = false;
+                        message = bundleNameValidation.compute().message();
 
-                        importButton.setEnabled( layoutValidation && inputValidation );
-                        return;
+                        layoutValidation = false;
                     }
                     else if( bundUrl != null && bundUrl.length() > 0 && !bundleUrlValidation.compute().ok() )
                     {
-                        triggerValidationEvent( bundleUrlValidation.compute().message() ); 
+                        message =  bundleUrlValidation.compute().message();
+
                         layoutValidation = false;
-                        importButton.setEnabled( layoutValidation && inputValidation );
-                        return;
                     }
                     else
                     {
                         layoutValidation = true;
-                        importButton.setEnabled( layoutValidation && inputValidation );
-                        return;
                     }
                 }
-                
-                triggerValidationEvent("ok");
+
+                triggerValidationEvent( message );
+
+                importButton.setEnabled( layoutValidation && inputValidation );
             }
         } );
     }
