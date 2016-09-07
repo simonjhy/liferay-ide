@@ -23,6 +23,7 @@ import com.liferay.ide.ui.util.SWTUtil;
 import com.liferay.ide.ui.util.UIUtil;
 
 import java.io.IOException;
+
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -35,6 +36,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 /**
  * @author Andy Wu
@@ -113,8 +117,21 @@ public class WelcomePage extends Page
                     {
                         ProjectUI.logError( excepiton );
                     }
-                    /*
-                     * IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+
+                    IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+                    UpgradeView view = (UpgradeView) UIUtil.findView( UpgradeView.ID );
+                    view.resetStoreProperties();
+                    page.hideView( view );
+
+                    try
+                    {
+                        page.showView( UpgradeView.ID );
+                    }
+                    catch( PartInitException e1 )
+                    {
+                        e1.printStackTrace();
+                    }
+                     /*
                      * IEditorPart editor = page.getActiveEditor(); page.closeEditor( editor, false ); final IPath
                      * stateLocation = ProjectCore.getDefault().getStateLocation(); File stateDir =
                      * stateLocation.toFile(); final File codeUpgradeFile = new File( stateDir,

@@ -62,8 +62,8 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
     private static Page[] pages = null;
 
-    private Properties codeUpgradeProperties;
-    private File codeUpgradeFile;
+    private static Properties codeUpgradeProperties;
+    private static File codeUpgradeFile;
 
     private LiferayUpgradeDataModel createUpgradeModel()
     {
@@ -155,6 +155,12 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
     public static void resetPages()
     {
         pages = currentPageList.toArray( new Page[0] );
+    }
+
+    public static void resetStoreProperties()
+    {
+        codeUpgradeProperties = new Properties();
+        codeUpgradeFile = null;
     }
 
     public static int getPageNumber()
