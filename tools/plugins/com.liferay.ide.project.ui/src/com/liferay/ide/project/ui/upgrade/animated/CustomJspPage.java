@@ -301,10 +301,7 @@ public class CustomJspPage extends Page
 
             if( name.equals( "resources" ) )
             {
-                IPath location = Path.fromOSString( file.getAbsolutePath() );
-                IFile ifile = CoreUtil.getWorkspaceRoot().getFileForLocation( location );
-
-                return ifile.getProject().getName();
+                return file.getParentFile().getParentFile().getParentFile().getParentFile().getParentFile().getName();
             }
             else
             {
@@ -516,7 +513,7 @@ public class CustomJspPage extends Page
 
         projectLocation.setForeground( getDisplay().getSystemColor( SWT.COLOR_DARK_GRAY ) );
 
-        String defaultLocationPre = null;
+        String defaultLocationPre = CoreUtil.getWorkspaceRoot().getLocation().toPortableString();
 
         try
         {
@@ -529,10 +526,6 @@ public class CustomJspPage extends Page
                 String modulesDir = LiferayWorkspaceUtil.getLiferayWorkspaceProjectModulesDir( ws );
 
                 defaultLocationPre = ws.getLocation().append( modulesDir ).toPortableString();
-            }
-            else
-            {
-                defaultLocationPre = CoreUtil.getWorkspaceRoot().getLocation().toPortableString();
             }
         }
         catch( CoreException e )
@@ -582,16 +575,9 @@ public class CustomJspPage extends Page
 
         dataModel.setConvertedProjectLocation( projectLocation.getText() );
 
-        Composite buttonContainer = new Composite( container, SWT.NONE );
-        buttonContainer.setLayout( new GridLayout( 3, false ) );
+        Button browseButton = new Button( container, SWT.PUSH );
 
-        GridData buttonGridData = new GridData( SWT.CENTER, SWT.CENTER, true, true );
-        buttonGridData.widthHint = 130;
-        buttonGridData.heightHint = 35;
-
-        Button browseButton = new Button( buttonContainer, SWT.PUSH );
-
-        browseButton.setText( "Browse" );
+        browseButton.setText( "Browse..." );
 
         browseButton.addSelectionListener( new SelectionAdapter()
         {
@@ -611,10 +597,17 @@ public class CustomJspPage extends Page
             }
         } );
 
+        Composite buttonContainer = new Composite( this, SWT.NONE );
+        buttonContainer.setLayout( new GridLayout( 3, false ) );
+
+        GridData buttonGridData = new GridData( SWT.CENTER, SWT.CENTER, true, true );
+        buttonGridData.widthHint = 130;
+        buttonGridData.heightHint = 35;
+
         dataModel.getConvertedProjectLocation().attach( new ConvertedProjectLocationListener() );
 
         Button selectButton = new Button( buttonContainer, SWT.PUSH );
-        selectButton.setText( "select projects" );
+        selectButton.setText( "Select Projects" );
 
         selectButton.addSelectionListener( new SelectionAdapter()
         {
@@ -626,8 +619,21 @@ public class CustomJspPage extends Page
             }
         } );
 
+        Button refreshButton = new Button( buttonContainer, SWT.PUSH );
+        refreshButton.setText( "Refresh Results" );
+
+        refreshButton.addSelectionListener( new SelectionAdapter()
+        {
+
+            @Override
+            public void widgetSelected( SelectionEvent e )
+            {
+                refreshTreeViews();
+            }
+        } );
+
         Button clearButton = new Button( buttonContainer, SWT.PUSH );
-        clearButton.setText( "clear results" );
+        clearButton.setText( "Clear Results" );
 
         clearButton.addSelectionListener( new SelectionAdapter()
         {
@@ -885,7 +891,7 @@ public class CustomJspPage extends Page
         paths[1] = filePath;
 
         File original62JspFile =
-            new File( getLiferay62ServerLocation() + "/tomcat-7.0.42/webapps/ROOT/" + relativePath.toString() );
+            new File( getLiferay62ServerRootDirPath( getLiferay62ServerLocation() ) + relativePath.toString() );
 
         if( original62JspFile.exists() )
         {
@@ -910,7 +916,7 @@ public class CustomJspPage extends Page
         String[] paths = new String[2];
 
         IFile original62File = resourceFolder.getFile( "/.ignore/" + relativePath.toString() + ".62" );
-        IFile original70File = resourceFolder.getFile( "/.ignore/" + relativePath.toString() );
+        IFile original70File = resourceFolder.getFile( relativePath.toString() );
 
         if( original62File.exists() && original70File.exists() )
         {
@@ -968,6 +974,40 @@ public class CustomJspPage extends Page
     private String getLiferay62ServerLocation()
     {
         return dataModel.getLiferay62ServerLocation().content( true );
+    }
+
+    private String getLiferay62ServerRootDirPath( String serverLocation )
+    {
+        if( CoreUtil.empty( serverLocation ) )
+        {
+            return null;
+        }
+
+        File bundleDir = new File( serverLocation );
+
+        String[] names = bundleDir.list( new FilenameFilter()
+        {
+
+            @Override
+            public boolean accept( File dir, String name )
+            {
+                if( name.startsWith( "tomcat-" ) )
+                {
+                    return true;
+                }
+
+                return false;
+            }
+        } );
+
+        if( names != null && names.length == 1 )
+        {
+            return serverLocation + "/" + names[0] + "/webapps/ROOT/";
+        }
+        else
+        {
+            return null;
+        }
     }
 
     private IRuntime getLiferay70Runtime()
@@ -1083,10 +1123,10 @@ public class CustomJspPage extends Page
 
         String liferay62ServerLocation = getLiferay62ServerLocation();
 
-        if( liferay70Runtime == null || CoreUtil.isNullOrEmpty( liferay62ServerLocation ) )
+        if( liferay70Runtime == null )
         {
             MessageDialog.openError( Display.getDefault().getActiveShell(), "could not convert",
-                "countn't find liferay 70 or 62 server location" );
+                "countn't find liferay 7.x server" );
 
             return;
         }

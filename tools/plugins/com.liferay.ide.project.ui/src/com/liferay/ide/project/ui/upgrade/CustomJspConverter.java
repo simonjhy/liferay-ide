@@ -17,7 +17,6 @@ package com.liferay.ide.project.ui.upgrade;
 
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.FileUtil;
-import com.liferay.ide.core.util.IOUtil;
 import com.liferay.ide.core.util.PropertiesUtil;
 import com.liferay.ide.core.util.ZipUtil;
 import com.liferay.ide.project.core.ProjectCore;
@@ -140,7 +139,7 @@ public class CustomJspConverter
 
     private IRuntime liferay70Runtime;
 
-    private String liferay62ServerLocation;
+    private String liferay62ServerLocation = null;
 
     private static String resultFileName = "convertJspHookResult.properties";
     private Properties resultProp;
@@ -416,9 +415,10 @@ public class CustomJspConverter
 
             ZipUtil.unzip( projectZipFile, location );
 
-            File jspDir = new File( location, coreJspHookResourcesPath + "html" );
+            // File jspDir = new File( location, coreJspHookResourcesPath + "html" );
 
             File ignoreFolder = new File( location, coreJspHookResourcesPath + ".ignore/" );
+            File destFolder = new File( location, coreJspHookResourcesPath );
 
             PortalBundle portalBundle = LiferayServerCore.newPortalBundle( getLiferay70Runtime().getLocation() );
 
@@ -426,11 +426,11 @@ public class CustomJspConverter
             {
                 if( dir != null )
                 {
-                    File dest = new File( jspDir, dir.getName() );
+                    // File dest = new File( jspDir, dir.getName() );
 
-                    dest.mkdirs();
+                    // dest.mkdirs();
 
-                    IOUtil.copyDirToDir( dir, dest );
+                    // IOUtil.copyDirToDir( dir, dest );
 
                     // copy 70 original jsp file to converted project ignore folder
                     List<String> fileRelativizePaths = getAllRelativizeFilePaths( dir );
@@ -447,9 +447,10 @@ public class CustomJspConverter
                             File target62File =
                                 new File( ignoreFolder, "html/" + dir.getName() + "/" + fileRelativizePath + ".62" );
                             File target70File =
-                                new File( ignoreFolder, "html/" + dir.getName() + "/" + fileRelativizePath );
+                                new File( destFolder, "html/" + dir.getName() + "/" + fileRelativizePath );
 
                             makeParentDir( target62File );
+                            makeParentDir( target70File );
 
                             FileUtil.copyFile( original62File, target62File );
                             FileUtil.copyFile( original70File, target70File );
@@ -534,7 +535,7 @@ public class CustomJspConverter
 
         InputStream ins = jarFile.getInputStream( entry );
 
-        File targetFile = new File( targetJspDir + "/.ignore/", mappedJsp );
+        File targetFile = new File( targetJspDir, mappedJsp );
 
         makeParentDir( targetFile );
 
@@ -543,12 +544,12 @@ public class CustomJspConverter
         jarFile.close();
     }
 
-    private void copyCustomJspFile(
+/*    private void copyCustomJspFile(
         String sourceJsp, String jsp, File targetJspDir, boolean isIgnore, String mappedJsp ) throws Exception
     {
         File srcJsp = new File( sourceJsp, jsp );
 
-        File targetJsp = new File( targetJspDir + "/.ignore/", mappedJsp );
+        File targetJsp = null;
 
         if( isIgnore )
         {
@@ -562,7 +563,7 @@ public class CustomJspConverter
         makeParentDir( targetJsp );
 
         FileUtil.copyFile( srcJsp, targetJsp );
-    }
+    }*/
 
     private String createEmptyJspHookProject( String portlet, String originProjectName, String targetPath )
         throws Exception
@@ -604,7 +605,7 @@ public class CustomJspConverter
             return null;
         }
 
-        String sourceJsp = sourcePortletDir + "/" + portlet;
+        // String sourceJsp = sourcePortletDir + "/" + portlet;
 
         File targetJspDir = new File( targetPath + "/" + projectName + "/src/main/resources/META-INF/resources/" );
 
@@ -616,7 +617,7 @@ public class CustomJspConverter
         {
             String mappedJsp = jspPathConvert( portlet, jsp );
 
-            copyCustomJspFile( sourceJsp, jsp, targetJspDir, false, mappedJsp );
+            // copyCustomJspFile( sourceJsp, jsp, targetJspDir, false, mappedJsp );
 
             if( moduleJsps != null && moduleJsps.contains( mappedJsp ) )
             {
@@ -647,7 +648,7 @@ public class CustomJspConverter
 
                     String[] projectPaths = getConvertResult( resultPrefix );
 
-                    if( projectPaths != null && projectPaths.length > 0 && !isLiferayWorkspace )
+                    if( projectPaths != null && projectPaths.length > 0 )
                     {
                         for( String path : projectPaths )
                         {
@@ -655,12 +656,15 @@ public class CustomJspConverter
 
                             importOp.setLocation( path );
 
-                            ImportLiferayModuleProjectOpMethods.execute( importOp,
-                                ProgressMonitorBridge.create( monitor ) );
+                            if( importOp.validation().severity() != org.eclipse.sapphire.modeling.Status.Severity.ERROR )
+                            {
+                                ImportLiferayModuleProjectOpMethods.execute( importOp,
+                                    ProgressMonitorBridge.create( monitor ) );
+                            }
                         }
-                    }
 
-                    refreshUI();
+                        refreshUI();
+                    }
                 }
                 catch( Exception e )
                 {
@@ -674,12 +678,12 @@ public class CustomJspConverter
         try
         {
             PlatformUI.getWorkbench().getProgressService().showInDialog( Display.getDefault().getActiveShell(), job );
+
+            job.schedule();
         }
         catch( Exception e )
         {
         }
-
-        job.schedule();
     }
 
     private List<String> getAllFilesFromModuleJar( String portlet ) throws Exception
@@ -744,6 +748,11 @@ public class CustomJspConverter
 
     private String get62HtmlDir()
     {
+        if( CoreUtil.empty( liferay62ServerLocation ) )
+        {
+            return null;
+        }
+
         File bundleDir = new File( liferay62ServerLocation );
 
         String[] names = bundleDir.list( new FilenameFilter()
