@@ -108,8 +108,13 @@ public class WelcomePage extends Page
                     }
 
                     IWorkbenchPage page = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+
                     UpgradeView view = (UpgradeView) UIUtil.findView( UpgradeView.ID );
+
+                    CustomJspConverter.clearConvertResults();
+
                     view.resetStoreProperties();
+
                     page.hideView( view );
 
                     try

@@ -17,7 +17,6 @@ package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
-import com.liferay.ide.project.core.util.ProjectUtil;
 import com.liferay.ide.project.ui.dialog.CustomProjectSelectionDialog;
 import com.liferay.ide.project.ui.upgrade.CustomJspConverter;
 import com.liferay.ide.server.util.ServerUtil;
@@ -79,7 +78,6 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -927,7 +925,10 @@ public class CustomJspPage extends Page
 
         for( IProject project : projects )
         {
-            if( ProjectUtil.isHookProject( project ) )
+            String projectLocation = project.getLocation().toPortableString();
+            String customJsp = CustomJspConverter.getCustomJspPath( projectLocation );
+
+            if( !CoreUtil.empty( customJsp ) )
             {
                 results.add( project );
             }
@@ -957,8 +958,14 @@ public class CustomJspPage extends Page
 
             String customJspPath = contents[1];
 
-            files[i] = project.getFolder( "docroot/" + customJspPath ).getLocation().toFile();
+            IPath location = project.getFolder( "docroot/" + customJspPath ).getLocation();
 
+            if( location == null )
+            {
+                return null;
+            }
+
+            files[i] = location.toFile();
         }
 
         return files;
@@ -1026,6 +1033,12 @@ public class CustomJspPage extends Page
         for( int i = 0; i < size; i++ )
         {
             File file = new File( results[i], staticPath );
+
+            if( !file.exists() )
+            {
+                return null;
+            }
+
             files[i] = file;
         }
 
@@ -1143,7 +1156,7 @@ public class CustomJspPage extends Page
     @Override
     public String getDescriptor()
     {
-        return "";
+        return "This step will help you to convert projects with custom jsp hooks to modules or fragments.";
     }
 
     @Override

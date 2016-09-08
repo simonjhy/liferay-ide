@@ -389,7 +389,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         navigator.setBackground( backgroundColor );
 
         scrolledComposite.setContent(composite);
-        scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, 700));
+        scrolledComposite.setMinSize(composite.computeSize(SWT.DEFAULT, 720));
 
         setSelectPage( 0 );
     }
