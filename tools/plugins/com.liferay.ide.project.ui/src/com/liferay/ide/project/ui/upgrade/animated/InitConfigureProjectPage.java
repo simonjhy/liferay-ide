@@ -884,8 +884,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
                         backupSDK( monitor );
 
-                        copyNewSDK( location, monitor );
-
                         clearWorkspaceSDKAndProjects( location, monitor );
 
                         if( layout.equals( "Use Plugin SDK In Liferay Workspace" ) )
@@ -906,6 +904,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                         }
                         else
                         {
+                            copyNewSDK( location, monitor );
+
                             String serverName = dataModel.getLiferayServerName().content();
 
                             IServer server = ServerUtil.getServer( serverName );

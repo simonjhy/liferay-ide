@@ -17,7 +17,6 @@ package com.liferay.ide.core.util;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.CopyOption;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -49,21 +48,18 @@ public class IOUtil
         @Override
         public FileVisitResult preVisitDirectory( Path dir, BasicFileAttributes attrs )
         {
-            CopyOption[] options = new CopyOption[0];
-
-            Path newdir = target.resolve( source.relativize( dir ) );
-
-            try
-            {
-                Files.copy( dir, newdir, options );
-            }
-            catch( FileAlreadyExistsException x )
-            {
-            }
-            catch( IOException x )
-            {
-                return FileVisitResult.SKIP_SUBTREE;
-            }
+//            CopyOption[] options = new CopyOption[0];
+//
+//            Path newdir = target.resolve( source.relativize( dir ) );
+//
+//            try
+//            {
+//                Files.copy( dir, newdir, options );
+//            }
+//            catch( Exception x )
+//            {
+//                x.printStackTrace();
+//            }
 
             return FileVisitResult.CONTINUE;
         }
@@ -94,10 +90,18 @@ public class IOUtil
 
             try
             {
+                File folder = target.toFile().getParentFile();
+
+                if( !folder.exists() )
+                {
+                    folder.mkdirs();
+                }
+
                 Files.copy( source, target, options );
             }
             catch( IOException x )
             {
+                x.printStackTrace();
             }
         }
     }
@@ -116,6 +120,7 @@ public class IOUtil
         }
         catch( IOException e )
         {
+            e.printStackTrace();
         }
     }
 
