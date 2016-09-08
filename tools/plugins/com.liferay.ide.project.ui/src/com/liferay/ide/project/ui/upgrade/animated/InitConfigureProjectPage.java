@@ -912,6 +912,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                             createInitBundle( monitor );
 
                             importSDKProject( new Path( newPath ).append( "plugins-sdk" ), monitor );
+
+                            dataModel.setConvertLiferayWorkspace( true );
                         }
                         else
                         {

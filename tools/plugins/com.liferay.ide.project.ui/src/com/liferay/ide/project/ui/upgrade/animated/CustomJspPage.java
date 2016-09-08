@@ -437,6 +437,8 @@ public class CustomJspPage extends Page
 
     private PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
 
+    private static String defaultLocation;
+
     private Image imageFile;
     private Image imageFolder;
 
@@ -449,12 +451,12 @@ public class CustomJspPage extends Page
 
     private boolean hasLiferayWorkspace = false;
 
-    private final String defaultLocation;
+    private Text projectLocation = null;
 
     private ConvertedProjectLocationValidationService convertedProjectLocationValidation =
         dataModel.getConvertedProjectLocation().service( ConvertedProjectLocationValidationService.class );
 
-    private class ConvertedProjectLocationListener extends Listener
+    private class CustomJspFieldListener extends Listener
     {
 
         @Override
@@ -469,16 +471,23 @@ public class CustomJspPage extends Page
                 if( property.name().equals( "ConvertedProjectLocation" ) )
                 {
                     validationStatus = convertedProjectLocationValidation.compute();
+
+                    String message = "ok";
+
+                    if( !validationStatus.ok() )
+                    {
+                        message = validationStatus.message();
+                    }
+
+                    triggerValidationEvent( message );
                 }
-
-                String message = "ok";
-
-                if( !validationStatus.ok() )
+                else if( property.name().equals( "ConvertLiferayWorkspace" ) )
                 {
-                    message = validationStatus.message();
+                    if( dataModel.getConvertLiferayWorkspace().content( true ) )
+                    {
+                        updateDefaultLocation();
+                    }
                 }
-
-                triggerValidationEvent( message );
             }
         }
     }
@@ -499,33 +508,12 @@ public class CustomJspPage extends Page
         Label label = new Label( container, SWT.NONE );
         label.setText( "Converted Project Location:" );
 
-        Text projectLocation = new Text( container, SWT.BORDER );
+        projectLocation = new Text( container, SWT.BORDER );
         projectLocation.setLayoutData( new GridData( GridData.FILL_HORIZONTAL ) );
 
         projectLocation.setForeground( getDisplay().getSystemColor( SWT.COLOR_DARK_GRAY ) );
 
-        String defaultLocationPre = CoreUtil.getWorkspaceRoot().getLocation().toPortableString();
-
-        try
-        {
-            hasLiferayWorkspace = LiferayWorkspaceUtil.hasLiferayWorkspace();
-
-            if( hasLiferayWorkspace )
-            {
-                IProject ws = LiferayWorkspaceUtil.getLiferayWorkspaceProject();
-
-                String modulesDir = LiferayWorkspaceUtil.getLiferayWorkspaceProjectModulesDir( ws );
-
-                defaultLocationPre = ws.getLocation().append( modulesDir ).toPortableString();
-            }
-        }
-        catch( CoreException e )
-        {
-        }
-
-        defaultLocation = defaultLocationPre;
-
-        projectLocation.setText( defaultLocation );
+        updateDefaultLocation();
 
         projectLocation.addFocusListener( new FocusListener()
         {
@@ -595,7 +583,8 @@ public class CustomJspPage extends Page
         buttonGridData.widthHint = 130;
         buttonGridData.heightHint = 35;
 
-        dataModel.getConvertedProjectLocation().attach( new ConvertedProjectLocationListener() );
+        dataModel.getConvertedProjectLocation().attach( new CustomJspFieldListener() );
+        dataModel.getConvertLiferayWorkspace().attach( new CustomJspFieldListener() );
 
         Button selectButton = new Button( buttonContainer, SWT.PUSH );
         selectButton.setText( "Select Projects" );
@@ -1071,6 +1060,38 @@ public class CustomJspPage extends Page
         {
             return false;
         }
+    }
+
+    private void updateDefaultLocation()
+    {
+        defaultLocation = CoreUtil.getWorkspaceRoot().getLocation().toPortableString();
+
+        try
+        {
+            hasLiferayWorkspace = LiferayWorkspaceUtil.hasLiferayWorkspace();
+
+            if( hasLiferayWorkspace )
+            {
+                IProject ws = LiferayWorkspaceUtil.getLiferayWorkspaceProject();
+
+                String modulesDir = LiferayWorkspaceUtil.getLiferayWorkspaceProjectModulesDir( ws );
+
+                defaultLocation = ws.getLocation().append( modulesDir ).toPortableString();
+            }
+        }
+        catch( CoreException e )
+        {
+        }
+
+        UIUtil.async( new Runnable()
+        {
+
+            @Override
+            public void run()
+            {
+                projectLocation.setText( defaultLocation );
+            }
+        } );
     }
 
     public void refreshTreeViews()

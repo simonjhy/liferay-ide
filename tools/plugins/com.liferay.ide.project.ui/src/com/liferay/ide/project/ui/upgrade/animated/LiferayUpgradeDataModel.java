@@ -30,6 +30,7 @@ import org.eclipse.sapphire.modeling.xml.annotations.XmlBinding;
 
 /**
  * @author Simon Jiang
+ * @author Andy Wu
  */
 public interface LiferayUpgradeDataModel extends Element
 {
@@ -179,4 +180,10 @@ public interface LiferayUpgradeDataModel extends Element
 
     void setConvertedProjectLocation( Path convertedProjectLocation );
 
+    @Type(base = Boolean.class)
+    ValueProperty PROP_CONVERT_LIFERAY_WORKSPACE = new ValueProperty( TYPE, "ConvertLiferayWorkspace" );
+
+    Value<Boolean> getConvertLiferayWorkspace();
+
+    void setConvertLiferayWorkspace(Boolean convertLiferayWorkspace);
 }

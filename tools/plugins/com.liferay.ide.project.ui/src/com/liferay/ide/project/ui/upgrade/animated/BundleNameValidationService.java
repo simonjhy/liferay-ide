@@ -15,6 +15,8 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.core.util.CoreUtil;
+
 import org.eclipse.sapphire.modeling.Status;
 import org.eclipse.sapphire.services.ValidationService;
 import org.eclipse.wst.server.core.internal.ServerPlugin;
@@ -33,10 +35,18 @@ public class BundleNameValidationService extends ValidationService
 
         String serverName = op().getBundleName().content();
 
+        if( CoreUtil.empty( serverName ) )
+        {
+            retval = Status.createErrorStatus( "The bundle name is empty. Please input one." );
+
+            return retval;
+        }
+
         if( ServerPlugin.isNameInUse( null, serverName ) )
         {
-            retval =
-                Status.createErrorStatus( "The server or runtime name is already in use. Specify a different name." );
+            retval = Status.createErrorStatus( "The bundle name is already in use. Specify a different name." );
+
+            return retval;
         }
 
         return retval;
