@@ -326,12 +326,12 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         currentPageList.add( initConfigureProjectPage );
         //currentPageList.addAll( staticPageList );
 
-        boolean hasPortlet = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "hasPortlet", "false" ) );
-        boolean hasServiceBuilder = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "hasServiceBuilder", "false" ) );
-        boolean hasHook = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "hasHook", "false" ) );
-        boolean hasLayout = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "hasLayout", "false" ) );
-        boolean hasTheme = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "hasTheme", "false" ) );
-        boolean hasExt = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "hasExt", "false" ) );
+        boolean hasPortlet = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "HasPortlet", "false" ) );
+        boolean hasServiceBuilder = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "HasServiceBuilder", "false" ) );
+        boolean hasHook = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "HasHook", "false" ) );
+        boolean hasLayout = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "HasLayout", "false" ) );
+        boolean hasTheme = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "HasTheme", "false" ) );
+        boolean hasExt = Boolean.parseBoolean( codeUpgradeProperties.getProperty( "HasExt", "false" ) );
 
         if( hasPortlet || hasHook || hasServiceBuilder || hasLayout )
         {

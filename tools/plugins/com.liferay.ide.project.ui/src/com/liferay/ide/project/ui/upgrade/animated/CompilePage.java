@@ -15,19 +15,15 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.project.ui.upgrade.action.CompileAction;
+import com.liferay.ide.ui.util.UIUtil;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
-
-import com.liferay.ide.project.ui.upgrade.action.CompileAction;
-import com.liferay.ide.ui.util.UIUtil;
 
 /**
  * @author Andy Wu
@@ -43,20 +39,6 @@ public class CompilePage extends Page
     public CompilePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
-        GridLayout layout = new GridLayout( 1, true );
-        this.setLayout( layout );
-
-        Label title = new Label( this, SWT.LEFT );
-        title.setText( "Compile" );
-        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
-
-        Text content = new Text( this, SWT.MULTI );
-        final String descriptor =
-            "This step will try to package your upgraded projects to see if it can run successfully.\n" +
-                "If it failed, you can see error logs in console view.\n";
-        content.setText( descriptor );
-        content.setEditable( false );
-        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
 
         Button compileButton = new Button( this, SWT.PUSH );
         compileButton.setText( "Compile" );
@@ -72,6 +54,21 @@ public class CompilePage extends Page
         } );
 
         setActions( actions );
+
         this.setPageId( COMPILE_PAGE_ID );
     }
+
+    @Override
+    public String getDescriptor()
+    {
+        return "This step will try to package your upgraded projects to see if it can run successfully.\n" +
+            "If it failed, you can see error logs in console view.\n";
+    }
+
+    @Override
+    public String getPageTitle()
+    {
+        return "Compile";
+    }
+
 }

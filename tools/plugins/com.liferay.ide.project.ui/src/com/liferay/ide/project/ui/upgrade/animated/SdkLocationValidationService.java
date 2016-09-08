@@ -16,11 +16,9 @@
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.project.core.ProjectCore;
-import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
 import com.liferay.ide.sdk.core.SDK;
 import com.liferay.ide.sdk.core.SDKUtil;
 
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.sapphire.modeling.Path;
 import org.eclipse.sapphire.modeling.Status;

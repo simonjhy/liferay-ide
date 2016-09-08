@@ -15,6 +15,14 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.project.ui.dialog.CustomProjectSelectionDialog;
+import com.liferay.ide.project.ui.upgrade.action.CompileAction;
+import com.liferay.ide.sdk.core.ISDKConstants;
+import com.liferay.ide.sdk.core.SDK;
+import com.liferay.ide.sdk.core.SDKUtil;
+import com.liferay.ide.ui.util.UIUtil;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,22 +39,10 @@ import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IConsole;
-
-import com.liferay.ide.core.util.CoreUtil;
-import com.liferay.ide.project.ui.dialog.CustomProjectSelectionDialog;
-import com.liferay.ide.project.ui.upgrade.action.CompileAction;
-import com.liferay.ide.sdk.core.ISDKConstants;
-import com.liferay.ide.sdk.core.SDK;
-import com.liferay.ide.sdk.core.SDKUtil;
-import com.liferay.ide.ui.util.UIUtil;
 
 /**
  * @author Adny
@@ -63,23 +59,11 @@ public class BuildServicePage extends Page
     public BuildServicePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
-        GridLayout layout = new GridLayout( 1, true );
-        this.setLayout( layout );
-
-        Label title = new Label( this, SWT.LEFT );
-        title.setText( "Build Service" );
-        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
-
-        Text content = new Text( this, SWT.MULTI );
-        final String descriptor = "In this step, we will delete some legacy servicebuilder related files" +
-            " and re-run build-service on servicebuilder projects.\n" +
-            "Note: Please make sure the default installed jre is JDK 8  (Preferences-Java-Installed JREs)\n";
-        content.setText( descriptor );
-        content.setEditable( false );
-        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
 
         Button buildServiceButton = new Button( this, SWT.PUSH );
+
         buildServiceButton.setText( "Build Service" );
+
         buildServiceButton.addSelectionListener( new SelectionAdapter()
         {
 
@@ -122,7 +106,6 @@ public class BuildServicePage extends Page
             @Override
             public void widgetSelected( SelectionEvent e )
             {
-
                 List<IProject> projects = getServiceBuilderProjects();
 
                 CustomProjectSelectionDialog dialog = new CustomProjectSelectionDialog( UIUtil.getActiveShell() );
@@ -198,5 +181,19 @@ public class BuildServicePage extends Page
         setActions( actions );
 
         this.setPageId( BUILDSERVICE_PAGE_ID );
+    }
+
+    @Override
+    public String getDescriptor()
+    {
+        return "In this step, we will delete some legacy servicebuilder related files" +
+            " and re-run build-service on servicebuilder projects.\n" +
+            "Note: Please make sure the default installed jre is JDK 8  (Preferences-Java-Installed JREs)\n";
+    }
+
+    @Override
+    public String getPageTitle()
+    {
+        return "Build Service";
     }
 }

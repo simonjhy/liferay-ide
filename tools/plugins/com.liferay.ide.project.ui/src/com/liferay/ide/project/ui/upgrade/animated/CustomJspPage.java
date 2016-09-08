@@ -493,13 +493,6 @@ public class CustomJspPage extends Page
 
         this.setPageId( CUSTOMJSP_PAGE_ID );
 
-        this.setLayout( new GridLayout( 1, true ) );
-        this.setLayoutData( new GridData( GridData.FILL_BOTH ) );
-
-        Label title = new Label( this, SWT.LEFT );
-        title.setText( "Convert Custom JSP Hooks" );
-        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
-
         Composite container = new Composite( this, SWT.NONE );
 
         container.setLayout( new GridLayout( 3, false ) );
@@ -1145,6 +1138,18 @@ public class CustomJspPage extends Page
         }
 
         converter.doExecute( sourcePaths, targetPath, isLiferayWorkapce );
+    }
+
+    @Override
+    public String getDescriptor()
+    {
+        return "";
+    }
+
+    @Override
+    public String getPageTitle()
+    {
+        return "Convert Custom JSP Hooks";
     }
 
 }

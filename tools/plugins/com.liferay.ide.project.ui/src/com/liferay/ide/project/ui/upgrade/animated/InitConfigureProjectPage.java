@@ -233,16 +233,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
         composite = this;
 
-        GridLayout layout = new GridLayout( 2, false );
-
-        setLayout( layout );
-        setLayoutData( new GridData( GridData.FILL_BOTH ) );
-
-        Label title = new Label( this, SWT.LEFT_TO_RIGHT );
-        title.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );
-        title.setText( "Configure Project" );
-        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
-
         final String descriptor =
             "The first step will help you convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to  Liferay Workspace. \n" +
                 "We will backup your project to a zip file in your eclipse workspace directory.\n" +
@@ -1215,16 +1205,18 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                         if( LiferayWorkspaceUtil.hasLiferayWorkspace() )
                         {
                             liferayWorksapceValidation = false;
-                            workspaceValidationMessage = "A Liferay Workspace project already exists in this Eclipse instance.. ";
+                            workspaceValidationMessage =
+                                "A Liferay Workspace project already exists in this Eclipse instance.. ";
                         }
                     }
                     catch( CoreException e )
                     {
-                        liferayWorksapceValidation =  false;
-                        workspaceValidationMessage = "More than one Liferay workspace build in current Eclipse workspace.. ";
+                        liferayWorksapceValidation = false;
+                        workspaceValidationMessage =
+                            "More than one Liferay workspace build in current Eclipse workspace.. ";
                     }
 
-                    if ( !liferayWorksapceValidation && inputValidation )
+                    if( !liferayWorksapceValidation && inputValidation )
                     {
                         message = workspaceValidationMessage;
                         layoutValidation = false;
@@ -1253,4 +1245,29 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             }
         } );
     }
+
+    @Override
+    public String getDescriptor()
+    {
+        return "";
+    }
+
+    @Override
+    public String getPageTitle()
+    {
+        return "Configure Project";
+    }
+
+    @Override
+    public int getGridLayoutCount()
+    {
+        return 2;
+    }
+
+    @Override
+    public boolean getGridLayoutEqualWidth()
+    {
+        return false;
+    }
+
 }

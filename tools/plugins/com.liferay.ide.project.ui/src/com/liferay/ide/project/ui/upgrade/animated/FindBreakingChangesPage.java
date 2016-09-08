@@ -63,19 +63,16 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.PlatformUI;
 
@@ -105,23 +102,6 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
     public FindBreakingChangesPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
-
-        setLayout( new GridLayout( 1, false ) );
-
-        Label title = new Label( this, SWT.LEFT );
-        title.setText( "Find Breaking Changes" );
-        title.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 3, 1 ) );
-        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
-
-        Text content = new Text( this, SWT.MULTI );
-        final String descriptor =
-            "This step will help you to find  breaking changes for type of java , jsp , xml and properties file.\n" +
-                "It  will not support to find the front-end codes( e.g., javascript, css). For service builder, you\n" +
-                "just need to modify the changes on xxxServiceImp.class, xxxFinder.class, xxxModel.class.\n" +
-                "Others will be solved at step \"Build Service\".";
-        content.setText( descriptor );
-        content.setEditable( false );
-        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
 
         final Composite findBreakingchangesContainer = new Composite( this, SWT.NONE );
         findBreakingchangesContainer.setLayout( new GridLayout( 3, false ) );
@@ -259,7 +239,7 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         final int[] bounds = { 65, 55, 200 };
 
         TableViewerColumn col = createTableViewerColumn( titles[0], bounds[0], _problemsViewer );
-        col.setEditingSupport( new EditingSupport( _problemsViewer)
+        col.setEditingSupport( new EditingSupport( _problemsViewer )
         {
 
             @Override
@@ -576,6 +556,26 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
             _browser.setUrl( "about:blank" );
             // }
         }
+    }
+
+    @Override
+    public String getDescriptor()
+    {
+        return "This step will help you to find  breaking changes for type of java , jsp , xml and properties file.\n" +
+            "It  will not support to find the front-end codes( e.g., javascript, css). For service builder, you\n" +
+            "just need to modify the changes on xxxServiceImp.class, xxxFinder.class, xxxModel.class.\n" +
+            "Others will be solved at step \"Build Service\".";
+    }
+
+    @Override
+    public String getPageTitle()
+    {
+        return "Find Breaking Changes";
+    }
+
+    public boolean getGridLayoutEqualWidth()
+    {
+        return false;
     }
 
 }

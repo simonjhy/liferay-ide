@@ -24,7 +24,9 @@ import java.util.List;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
@@ -90,6 +92,17 @@ public abstract class Page extends Composite
         super( parent, style );
 
         this.dataModel = dataModel;
+
+        setLayout( new GridLayout( getGridLayoutCount(), getGridLayoutEqualWidth() ) );
+
+        Label title = new Label( this, SWT.LEFT );
+        title.setText( getPageTitle() );
+        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
+
+        Text content = new Text( this, SWT.MULTI );
+        content.setText( getDescriptor() );
+        content.setEditable( false );
+        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
     }
 
     public void addPageNavigateListener( PageNavigatorListener listener )
@@ -133,6 +146,18 @@ public abstract class Page extends Composite
         return this.actions;
     }
 
+    public abstract String getDescriptor();
+
+    public int getGridLayoutCount()
+    {
+        return 1;
+    }
+
+    public boolean getGridLayoutEqualWidth()
+    {
+        return true;
+    }
+
     public final int getIndex()
     {
         return index;
@@ -142,6 +167,8 @@ public abstract class Page extends Composite
     {
         return pageId;
     }
+
+    public abstract String getPageTitle();
 
     public PageAction getSelectedAction()
     {

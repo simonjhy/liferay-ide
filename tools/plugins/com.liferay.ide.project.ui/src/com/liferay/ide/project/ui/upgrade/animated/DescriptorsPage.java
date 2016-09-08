@@ -16,11 +16,7 @@
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Text;
 
 /**
  * @author Andy Wu
@@ -35,26 +31,26 @@ public class DescriptorsPage extends Page
     public DescriptorsPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
-        GridLayout layout = new GridLayout( 1, false );
-        this.setLayout( layout );
-
-        Label title = new Label( this, SWT.LEFT );
-        title.setText( "Upgrade Descriptor Files" );
-        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
-
-        Text content = new Text( this, SWT.MULTI );
-        final String descriptor = "This step will upgrade descriptor xml dtd version from 6.2 to 7.0 and " +
-            "delete wap-template-path \ntag in liferay-layout-template.xml.\n" +
-            "Double click the file in the list. It will popup a comparison page which shows the differences\n" +
-            "between your original source file and the upgrade preview file.\n";
-        content.setText( descriptor );
-        content.setEditable( false );
-        content.setBackground( getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
 
         new LiferayDescriptorUpgradeTableViewCustomPart( this, SWT.NONE );
 
         setActions( actions );
         this.setPageId( DESCRIPTORS_PAGE_ID );
+    }
+
+    @Override
+    public String getPageTitle()
+    {
+        return "Upgrade Descriptor Files";
+    }
+
+    @Override
+    public String getDescriptor()
+    {
+        return "This step will upgrade descriptor xml dtd version from 6.2 to 7.0 and " +
+            "delete wap-template-path \ntag in liferay-layout-template.xml.\n" +
+            "Double click the file in the list. It will popup a comparison page which shows the differences\n" +
+            "between your original source file and the upgrade preview file.\n";
     }
 
 }

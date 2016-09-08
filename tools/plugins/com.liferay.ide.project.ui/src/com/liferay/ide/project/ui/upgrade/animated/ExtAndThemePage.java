@@ -15,11 +15,7 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Label;
 
 /**
  * @author Andy Wu
@@ -34,24 +30,30 @@ public class ExtAndThemePage extends Page
     public ExtAndThemePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
         super( parent, style, dataModel );
-        GridLayout layout = new GridLayout( 1, true );
-        this.setLayout( layout );
 
-        Label title = new Label( this, SWT.LEFT );
-        title.setText( "Ext and Theme Project " );
-        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
-//
-//        final String descriptor =
-//            "Theme and Ext projects are not supported to upgrade in this tool currenttly.\n" +
-//            "For Theme Projects, you can upgrade them manually.\n"+
-//            "For Ext Projects, we didn't provide support for them at Liferay 7.0.\n" +
-//            "If you have ext projects, you can change them into modules.\n"+
-//            "For more details, please see <a>Liferay Blade Samples</a>.\n";
-//        String url = new String("https://github.com/liferay/liferay-blade-samples");
-//        Link link = SWTUtil.createHyperLink( this, style, descriptor, 1, url );
+        // final String descriptor =
+        // "Theme and Ext projects are not supported to upgrade in this tool currenttly.\n" +
+        // "For Theme Projects, you can upgrade them manually.\n"+
+        // "For Ext Projects, we didn't provide support for them at Liferay 7.0.\n" +
+        // "If you have ext projects, you can change them into modules.\n"+
+        // "For more details, please see <a>Liferay Blade Samples</a>.\n";
+        // String url = new String("https://github.com/liferay/liferay-blade-samples");
+        // Link link = SWTUtil.createHyperLink( this, style, descriptor, 1, url );
 
         setActions( actions );
 
         this.setPageId( EXTANDTHEME_PAGE_ID );
+    }
+
+    @Override
+    public String getDescriptor()
+    {
+        return "";
+    }
+
+    @Override
+    public String getPageTitle()
+    {
+        return "Ext and Theme Project";
     }
 }
