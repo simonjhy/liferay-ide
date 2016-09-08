@@ -17,7 +17,10 @@ package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.ui.util.SWTUtil;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Link;
 
 /**
  * @author Andy Wu
@@ -47,7 +50,20 @@ public class ExtAndThemePage extends Page
             "For more details, please see <a>Liferay Blade Samples</a>.\n";
         String url = "https://github.com/liferay/liferay-blade-samples";
 
-        SWTUtil.createHyperLink( this, style, descriptor, 1, url );
+        Link  link = SWTUtil.createHyperLink( this, style, descriptor, 1, url );
+        link.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );
+    }
+
+    @Override
+    public int getGridLayoutCount()
+    {
+        return 2;
+    }
+
+    @Override
+    public boolean getGridLayoutEqualWidth()
+    {
+        return false;
     }
 
 }

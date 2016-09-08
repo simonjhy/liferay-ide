@@ -18,7 +18,9 @@ package com.liferay.ide.project.ui.upgrade.animated;
 import com.liferay.ide.ui.util.SWTUtil;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Link;
 
 /**
  * @author Adny
@@ -45,11 +47,24 @@ public class LayoutTemplatePage extends Page
     {
         final String descriptor = "This step will upgrade layout template file from 6.2 to 7.0.\n" +
             "The layout template's rows and columns are affected by the new grid system syntax of Bootsrap.\n" +
-            "For more details, please see <a>Upgrading Layout Templates</a>.\n";
+            "For more details, please see <a>Upgrading Layout Templates</a>.";
 
         String url = "https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/upgrading-layout-templates";
 
-        SWTUtil.createHyperLink( this, style, descriptor, 1, url );
+        Link  link = SWTUtil.createHyperLink( this, style, descriptor, 1, url );
+        link.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 2, 1 ) );
+    }
+
+    @Override
+    public int getGridLayoutCount()
+    {
+        return 2;
+    }
+
+    @Override
+    public boolean getGridLayoutEqualWidth()
+    {
+        return false;
     }
 
 }
