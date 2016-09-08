@@ -15,6 +15,8 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.ui.util.SWTUtil;
+
 import org.eclipse.swt.widgets.Composite;
 
 /**
@@ -25,30 +27,9 @@ import org.eclipse.swt.widgets.Composite;
 public class ExtAndThemePage extends Page
 {
 
-    PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-
     public ExtAndThemePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel );
-
-        // final String descriptor =
-        // "Theme and Ext projects are not supported to upgrade in this tool currenttly.\n" +
-        // "For Theme Projects, you can upgrade them manually.\n"+
-        // "For Ext Projects, we didn't provide support for them at Liferay 7.0.\n" +
-        // "If you have ext projects, you can change them into modules.\n"+
-        // "For more details, please see <a>Liferay Blade Samples</a>.\n";
-        // String url = new String("https://github.com/liferay/liferay-blade-samples");
-        // Link link = SWTUtil.createHyperLink( this, style, descriptor, 1, url );
-
-        setActions( actions );
-
-        this.setPageId( EXTANDTHEME_PAGE_ID );
-    }
-
-    @Override
-    public String getDescriptor()
-    {
-        return "";
+        super( parent, style, dataModel, EXTANDTHEME_PAGE_ID, false );
     }
 
     @Override
@@ -56,4 +37,17 @@ public class ExtAndThemePage extends Page
     {
         return "Ext and Theme Project";
     }
+
+    public void getSpecialDescriptor( Composite parent, int style )
+    {
+        final String descriptor = "Theme and Ext projects are not supported to upgrade in this tool currenttly.\n" +
+            "For Theme Projects, you can upgrade them manually.\n" +
+            "For Ext Projects, we didn't provide support for them at Liferay 7.0.\n" +
+            "If you have ext projects, you can change them into modules.\n" +
+            "For more details, please see <a>Liferay Blade Samples</a>.\n";
+        String url = "https://github.com/liferay/liferay-blade-samples";
+
+        SWTUtil.createHyperLink( this, style, descriptor, 1, url );
+    }
+
 }

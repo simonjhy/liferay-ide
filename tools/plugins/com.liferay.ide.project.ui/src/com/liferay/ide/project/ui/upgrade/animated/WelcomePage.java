@@ -50,28 +50,7 @@ public class WelcomePage extends Page
     @SuppressWarnings( "unused" )
     public WelcomePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel );
-        this.setPageId( WELCOME_PAGE_ID );
-
-        final String desriptor =
-            "This tool will help you to convert Liferay 6.2 projects into Liferay 7.0 projects.\n\n" +
-                "The key functions are described below:\n" +
-                "       1.Convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to Liferay Workspace\n" +
-                "       2.Find  breaking changes in all projects" + " Update Descriptor files from 6.2 to 7.0\n" +
-                "       3.Update Descriptor files from 6.2 to 7.0\n" +
-                "       4.Update Layout Template files from 6.2 to 7.0\n" +
-                "       5.Convert projects with custom jsp hook to modules or fragments\n" + "Note:\n" +
-                "       This tool will help you to backup your sdk.\n" +
-                "       It is still highly recommended that you make back-up copies of your important files.\n" +
-                "       Theme and Ext projects are not supported to upgrade in this tool currenttly.\n" +
-                "       For more details, please see <a>From Liferay 6 to Liferay 7</a>.\n\n" +
-                "       In addition to the mouse you can use left, right, y,n and the gear to work through\n" +
-                "       the following pages. What's more, you can mark with y when one step is well done and\n" +
-                "       mark with n when it failed.";
-        String url =
-            new String( "https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/from-liferay-6-to-liferay-7" );
-        Link link = SWTUtil.createHyperLink( this, style, desriptor, 1, url );
-        link.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 1, 1 ) );
+        super( parent, style, dataModel, WELCOME_PAGE_ID, false );
 
         Control createHorizontalSpacer = createHorizontalSpacer( this, 3 );
         Control createHorizontalSperator = createSeparator( this, 3 );
@@ -133,18 +112,6 @@ public class WelcomePage extends Page
     }
 
     @Override
-    public String getDescriptor()
-    {
-        return "";
-    }
-
-    @Override
-    public String getPageTitle()
-    {
-        return "Welcome to Liferay Code Upgrade Tool";
-    }
-
-    @Override
     public int getGridLayoutCount()
     {
         return 2;
@@ -155,4 +122,33 @@ public class WelcomePage extends Page
     {
         return false;
     }
+
+    @Override
+    public String getPageTitle()
+    {
+        return "Welcome to Liferay Code Upgrade Tool";
+    }
+
+    public void getSpecialDescriptor( Composite parent, int style )
+    {
+        final String desriptor =
+            "This tool will help you to convert Liferay 6.2 projects into Liferay 7.0 projects.\n\n" +
+                "The key functions are described below:\n" +
+                "       1.Convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to Liferay Workspace\n" +
+                "       2.Find  breaking changes in all projects" + " Update Descriptor files from 6.2 to 7.0\n" +
+                "       3.Update Descriptor files from 6.2 to 7.0\n" +
+                "       4.Update Layout Template files from 6.2 to 7.0\n" +
+                "       5.Convert projects with custom jsp hook to modules or fragments\n" + "Note:\n" +
+                "       This tool will help you to backup your sdk.\n" +
+                "       It is still highly recommended that you make back-up copies of your important files.\n" +
+                "       Theme and Ext projects are not supported to upgrade in this tool currenttly.\n" +
+                "       For more details, please see <a>From Liferay 6 to Liferay 7</a>.\n\n" +
+                "       In addition to the mouse you can use left, right, y,n and the gear to work through\n" +
+                "       the following pages. What's more, you can mark with y when one step is well done and\n" +
+                "       mark with n when it failed.";
+        String url = "https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/from-liferay-6-to-liferay-7";
+        Link link = SWTUtil.createHyperLink( this, style, desriptor, 1, url );
+        link.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 1, 1 ) );
+    }
+
 }

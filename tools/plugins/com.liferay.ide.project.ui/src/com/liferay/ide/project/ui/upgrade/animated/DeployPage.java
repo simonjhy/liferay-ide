@@ -37,11 +37,9 @@ import org.eclipse.wst.server.ui.internal.wizard.ModifyModulesWizard;
 public class DeployPage extends Page
 {
 
-    PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-
     public DeployPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel );
+        super( parent, style, dataModel, DEPLOY_PAGE_ID, true );
 
         Button deployButton = new Button( this, SWT.PUSH );
         deployButton.setText( "Deploy" );
@@ -62,9 +60,6 @@ public class DeployPage extends Page
                 dialog.open();
             }
         } );
-
-        setActions( actions );
-        this.setPageId( DEPLOY_PAGE_ID );
     }
 
     @Override

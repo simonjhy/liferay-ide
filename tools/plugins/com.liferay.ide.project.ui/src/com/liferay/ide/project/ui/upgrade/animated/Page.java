@@ -87,7 +87,8 @@ public abstract class Page extends Composite
     protected final List<PageValidationListener> pageValidationListeners =
         Collections.synchronizedList( new ArrayList<PageValidationListener>() );
 
-    public Page( Composite parent, int style, LiferayUpgradeDataModel dataModel )
+    public Page(
+        Composite parent, int style, LiferayUpgradeDataModel dataModel, String pageId, boolean hasFinishAndSkipAction )
     {
         super( parent, style );
 
@@ -97,12 +98,21 @@ public abstract class Page extends Composite
 
         Label title = new Label( this, SWT.LEFT );
         title.setText( getPageTitle() );
-        title.setFont( new Font( null, "Times New Roman", 16, SWT.NORMAL ) );
+        title.setFont( new Font( null, "Times New Roman", 14, SWT.NORMAL ) );
 
         Text content = new Text( this, SWT.MULTI );
         content.setText( getDescriptor() );
         content.setEditable( false );
         content.setBackground( getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
+
+        getSpecialDescriptor( this, style );
+
+        setPageId( pageId );
+
+        if( hasFinishAndSkipAction )
+        {
+            setActions( new PageAction[] { new PageFinishAction(), new PageSkipAction() } );
+        }
     }
 
     public void addPageNavigateListener( PageNavigatorListener listener )
@@ -146,7 +156,10 @@ public abstract class Page extends Composite
         return this.actions;
     }
 
-    public abstract String getDescriptor();
+    public String getDescriptor()
+    {
+        return "";
+    }
 
     public int getGridLayoutCount()
     {
@@ -173,6 +186,10 @@ public abstract class Page extends Composite
     public PageAction getSelectedAction()
     {
         return selectedAction;
+    }
+
+    public void getSpecialDescriptor( Composite parent, int style )
+    {
     }
 
     public String getTitle()

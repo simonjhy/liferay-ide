@@ -54,11 +54,9 @@ import org.eclipse.ui.console.IConsole;
 public class BuildServicePage extends Page
 {
 
-    PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-
     public BuildServicePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel );
+        super( parent, style, dataModel, BUILDSERVICE_PAGE_ID, true );
 
         Button buildServiceButton = new Button( this, SWT.PUSH );
 
@@ -177,10 +175,6 @@ public class BuildServicePage extends Page
                 }
             }
         } );
-
-        setActions( actions );
-
-        this.setPageId( BUILDSERVICE_PAGE_ID );
     }
 
     @Override
@@ -196,4 +190,5 @@ public class BuildServicePage extends Page
     {
         return "Build Service";
     }
+
 }

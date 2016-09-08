@@ -435,8 +435,6 @@ public class CustomJspPage extends Page
         }
     }
 
-    private PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-
     private static String defaultLocation;
 
     private Image imageFile;
@@ -494,11 +492,7 @@ public class CustomJspPage extends Page
 
     public CustomJspPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel );
-
-        setActions( actions );
-
-        this.setPageId( CUSTOMJSP_PAGE_ID );
+        super( parent, style, dataModel, CUSTOMJSP_PAGE_ID, true );
 
         Composite container = new Composite( this, SWT.NONE );
 
@@ -752,7 +746,8 @@ public class CustomJspPage extends Page
                 }
                 else
                 {
-                    MessageDialog.openInformation( Display.getDefault().getActiveShell(), "file not found",
+                    MessageDialog.openInformation(
+                        Display.getDefault().getActiveShell(), "file not found",
                         "there is no such file in liferay 62" );
                 }
             }
@@ -824,8 +819,8 @@ public class CustomJspPage extends Page
                 }
                 else
                 {
-                    MessageDialog.openInformation( Display.getDefault().getActiveShell(), "file not found",
-                        "there is no such file in liferay 7" );
+                    MessageDialog.openInformation(
+                        Display.getDefault().getActiveShell(), "file not found", "there is no such file in liferay 7" );
                 }
             }
         } );
@@ -1152,8 +1147,8 @@ public class CustomJspPage extends Page
 
         if( liferay70Runtime == null )
         {
-            MessageDialog.openError( Display.getDefault().getActiveShell(), "could not convert",
-                "countn't find liferay 7.x server" );
+            MessageDialog.openError(
+                Display.getDefault().getActiveShell(), "could not convert", "countn't find liferay 7.x server" );
 
             return;
         }

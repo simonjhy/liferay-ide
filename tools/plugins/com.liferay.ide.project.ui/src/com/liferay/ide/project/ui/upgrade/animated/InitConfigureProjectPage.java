@@ -224,8 +224,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
     public InitConfigureProjectPage( final Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel );
-        this.setPageId( IMPORT_PAGE_ID );
+        super( parent, style, dataModel, IMPORT_PAGE_ID,false );
 
         dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener() );
         dataModel.getBundleName().attach( new LiferayUpgradeValidationListener() );
@@ -233,16 +232,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
         composite = this;
 
-        final String descriptor =
-            "The first step will help you convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to  Liferay Workspace. \n" +
-                "We will backup your project to a zip file in your eclipse workspace directory.\n" +
-                "Click the \"import\" button to import your project into Eclipse workspace.\n" + "Note:\n" +
-                "       In order to save time, downloading  7.0 ivy cache  locally could be a good choice to upgrade to liferay plugin sdk 7. \n" +
-                "       Theme and ext projects will be ignored for that we do not support to upgrade them  at this tool currently. \n" +
-                "       For more details, please see <a>dev.liferay.com</a>.\n";
-
-        String url = new String( "https://dev.liferay.com/develop/tutorials" );
-        Link link = SWTUtil.createHyperLink( this, style, descriptor, 1, url );
 
         createSeparator = createSeparator( this, 3 );
 
@@ -1249,9 +1238,19 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
     }
 
     @Override
-    public String getDescriptor()
+    public void getSpecialDescriptor( Composite parent, int style )
     {
-        return "";
+        final String descriptor =
+            "The first step will help you convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to  Liferay Workspace. \n" +
+                "We will backup your project to a zip file in your eclipse workspace directory.\n" +
+                "Click the \"import\" button to import your project into Eclipse workspace.\n" + "Note:\n" +
+                "       In order to save time, downloading  7.0 ivy cache  locally could be a good choice to upgrade to liferay plugin sdk 7. \n" +
+                "       Theme and ext projects will be ignored for that we do not support to upgrade them  at this tool currently. \n" +
+                "       For more details, please see <a>dev.liferay.com</a>.\n";
+
+        String url = "https://dev.liferay.com/develop/tutorials";
+
+        SWTUtil.createHyperLink( this, style, descriptor, 1, url );
     }
 
     @Override

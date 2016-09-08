@@ -15,6 +15,8 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.ui.util.SWTUtil;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
@@ -26,29 +28,11 @@ import org.eclipse.swt.widgets.Composite;
 public class LayoutTemplatePage extends Page
 {
 
-    PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-
     public LayoutTemplatePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel );
-
-        // final String descriptor = "This step will upgrade layout template file from 6.2 to 7.0.\n" +
-        // "The layout template's rows and columns are affected by the new grid system syntax of Bootsrap.\n" +
-        // "For more details, please see <a>Upgrading Layout Templates</a>.\n";
-        // String url = new String(
-        // "https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/upgrading-layout-templates" );
-        // Link link = SWTUtil.createHyperLink( this, style, descriptor, 1, url );
+        super( parent, style, dataModel, LAYOUTTEMPLATE_PAGE_ID, true );
 
         new LiferayLayouttplUpgradeTableViewCustomPart( this, SWT.NONE );
-
-        setActions( actions );
-        this.setPageId( LAYOUTTEMPLATE_PAGE_ID );
-    }
-
-    @Override
-    public String getDescriptor()
-    {
-        return "Upgrade Layout Template";
     }
 
     @Override
@@ -56,4 +40,16 @@ public class LayoutTemplatePage extends Page
     {
         return "Upgrade Layout Template";
     }
+
+    public void getSpecialDescriptor( Composite parent, int style )
+    {
+        final String descriptor = "This step will upgrade layout template file from 6.2 to 7.0.\n" +
+            "The layout template's rows and columns are affected by the new grid system syntax of Bootsrap.\n" +
+            "For more details, please see <a>Upgrading Layout Templates</a>.\n";
+
+        String url = "https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/upgrading-layout-templates";
+
+        SWTUtil.createHyperLink( this, style, descriptor, 1, url );
+    }
+
 }

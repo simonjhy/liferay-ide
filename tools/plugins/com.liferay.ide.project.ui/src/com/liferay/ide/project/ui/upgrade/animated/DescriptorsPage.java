@@ -26,22 +26,11 @@ import org.eclipse.swt.widgets.Composite;
 public class DescriptorsPage extends Page
 {
 
-    PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-
     public DescriptorsPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel );
+        super( parent, style, dataModel, DESCRIPTORS_PAGE_ID, true );
 
         new LiferayDescriptorUpgradeTableViewCustomPart( this, SWT.NONE );
-
-        setActions( actions );
-        this.setPageId( DESCRIPTORS_PAGE_ID );
-    }
-
-    @Override
-    public String getPageTitle()
-    {
-        return "Upgrade Descriptor Files";
     }
 
     @Override
@@ -51,6 +40,12 @@ public class DescriptorsPage extends Page
             "delete wap-template-path \ntag in liferay-layout-template.xml.\n" +
             "Double click the file in the list. It will popup a comparison page which shows the differences\n" +
             "between your original source file and the upgrade preview file.";
+    }
+
+    @Override
+    public String getPageTitle()
+    {
+        return "Upgrade Descriptor Files";
     }
 
 }

@@ -91,7 +91,6 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
     private static final Image IMAGE_UNCHECKED =
         ProjectUI.getDefault().getImageRegistry().get( ProjectUI.UNCHECKED_IMAGE_ID );
     public static boolean showAll = false;
-    PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
     MigrationContentProvider migrationContentProvider;
     private Browser _browser;
 
@@ -101,7 +100,7 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
 
     public FindBreakingChangesPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel );
+        super( parent, style, dataModel, FINDBREACKINGCHANGES_PAGE_ID, true );
 
         final Composite findBreakingchangesContainer = new Composite( this, SWT.NONE );
         findBreakingchangesContainer.setLayout( new GridLayout( 3, false ) );
@@ -228,9 +227,6 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
                 _treeViewer.collapseAll();
             }
         } );
-
-        setActions( actions );
-        this.setPageId( FINDBREACKINGCHANGES_PAGE_ID );
     }
 
     private void createColumns( final TableViewer _problemsViewer )

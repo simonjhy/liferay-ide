@@ -34,11 +34,9 @@ import org.eclipse.swt.widgets.Composite;
 public class CompilePage extends Page
 {
 
-    PageAction[] actions = { new PageFinishAction(), new PageSkipAction() };
-
     public CompilePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel );
+        super( parent, style, dataModel, COMPILE_PAGE_ID, true );
 
         Button compileButton = new Button( this, SWT.PUSH );
         compileButton.setText( "Compile" );
@@ -52,10 +50,6 @@ public class CompilePage extends Page
                 compile.run();
             }
         } );
-
-        setActions( actions );
-
-        this.setPageId( COMPILE_PAGE_ID );
     }
 
     @Override
