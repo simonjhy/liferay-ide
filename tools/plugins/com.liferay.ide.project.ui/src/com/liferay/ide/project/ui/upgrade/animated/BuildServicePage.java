@@ -16,6 +16,7 @@
 package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.project.ui.ProjectUI;
 import com.liferay.ide.project.ui.dialog.CustomProjectSelectionDialog;
 import com.liferay.ide.project.ui.upgrade.action.CompileAction;
 import com.liferay.ide.sdk.core.ISDKConstants;
@@ -24,6 +25,7 @@ import com.liferay.ide.sdk.core.SDKUtil;
 import com.liferay.ide.ui.util.UIUtil;
 
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,10 +37,12 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.debug.internal.ui.views.console.ProcessConsole;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.PlatformUI;
@@ -109,6 +113,13 @@ public class BuildServicePage extends Page
                 CustomProjectSelectionDialog dialog = new CustomProjectSelectionDialog( UIUtil.getActiveShell() );
 
                 dialog.setProjects( projects );
+
+                URL imageUrl = ProjectUI.getDefault().getBundle().getEntry( "/icons/e16/service.png");
+                Image serviceXmlImage = ImageDescriptor.createFromURL( imageUrl ).createImage();
+                
+                dialog.setImage( serviceXmlImage );
+                dialog.setTitle( "Liferay Service Project" );
+                dialog.setMessage( "Select Liferay Service Project" );
 
                 List<IProject> liferayServiceProjects = new ArrayList<>();
 

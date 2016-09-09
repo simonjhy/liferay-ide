@@ -17,6 +17,7 @@ package com.liferay.ide.project.ui.upgrade.animated;
 
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
+import com.liferay.ide.project.ui.ProjectUI;
 import com.liferay.ide.project.ui.dialog.CustomProjectSelectionDialog;
 import com.liferay.ide.project.ui.upgrade.CustomJspConverter;
 import com.liferay.ide.server.util.ServerUtil;
@@ -32,6 +33,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +54,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
@@ -1105,6 +1108,12 @@ public class CustomJspPage extends Page
         CustomProjectSelectionDialog dialog = new CustomProjectSelectionDialog( UIUtil.getActiveShell() );
 
         dialog.setProjects( getHookProjects() );
+        URL imageUrl = ProjectUI.getDefault().getBundle().getEntry( "/icons/e16/hook.png");
+        Image hookImage = ImageDescriptor.createFromURL( imageUrl ).createImage();
+        
+        dialog.setImage( hookImage );
+        dialog.setTitle( "Custom JSP Hook Project" );
+        dialog.setMessage( "Select Custom JSP Hook Project" );
 
         List<IProject> hookProjects = new ArrayList<>();
 

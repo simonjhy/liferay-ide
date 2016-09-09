@@ -22,6 +22,7 @@ import com.liferay.ide.project.ui.ProjectUI;
 import com.liferay.ide.project.ui.dialog.JavaProjectSelectionDialog;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceProxy;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -176,6 +178,13 @@ public class LiferayLayouttplUpgradeTableViewCustomPart extends AbstractLiferayT
         final JavaProjectSelectionDialog dialog =
             new JavaProjectSelectionDialog( Display.getCurrent().getActiveShell(), new LayoutProjectViewerFilter() );
 
+            URL imageUrl = ProjectUI.getDefault().getBundle().getEntry( "/icons/e16/layout.png");
+            Image layouttplImage = ImageDescriptor.createFromURL( imageUrl ).createImage();
+            
+            dialog.setImage( layouttplImage );
+            dialog.setTitle( "Layout Template Project" );
+            dialog.setMessage( "Select Layout Template Project" );
+      
         if( dialog.open() == Window.OK )
         {
             final Object[] selectedProjects = dialog.getResult();
