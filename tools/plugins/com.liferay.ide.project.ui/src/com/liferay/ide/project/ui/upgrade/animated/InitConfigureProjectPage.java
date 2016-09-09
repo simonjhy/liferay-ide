@@ -152,31 +152,39 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                                         @Override
                                         public void run()
                                         {
-                                            layoutComb.select( 1 );
-                                            layoutComb.setEnabled( false );
-                                            dataModel.setLayout( layoutComb.getText() );
-                                            createBundleControl();
+                                            if ( layoutComb.getSelectionIndex() != 1 )
+                                            {
+                                                layoutComb.select( 1 );
+                                                layoutComb.setEnabled( false );
+                                                dataModel.setLayout( layoutComb.getText() );
+                                                createBundleControl();                                                
+                                            }
+                                            else
+                                            {
+                                                layoutComb.setEnabled( false );
+                                                dataModel.setLayout( layoutComb.getText() );
+                                            }
                                         }
                                     } );
                                 }
                                 else
                                 {
-                                    createDefaultControl();
+                                    layoutComb.setEnabled( true );
                                 }
                             }
                             else
                             {
-                                createDefaultControl();
+                                layoutComb.setEnabled( true );
                             }
                         }
                         else
                         {
-                            createDefaultControl();
+                            layoutComb.setEnabled( true );
                         }
                     }
                     else
                     {
-                        createDefaultControl();
+                        layoutComb.setEnabled( true );
                     }
                 }
             }
