@@ -317,7 +317,6 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         staticPageList.add( layoutTemplatePage );
         staticPageList.add( customJspPage );
         staticPageList.add( extAndThemePage );
-        staticPageList.add( compilePage );
         staticPageList.add( deployPage );
 
         currentPageList.clear();
@@ -365,7 +364,6 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
         if( hasPortlet || hasHook || hasServiceBuilder || hasLayout )
         {
-            currentPageList.add( compilePage );
             currentPageList.add( deployPage );
         }
 
