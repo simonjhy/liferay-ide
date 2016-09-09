@@ -377,7 +377,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         SubMonitor progress = SubMonitor.convert( monitor, 100 );
         try
         {
-            progress.setTaskName( "Backup sdk folder Job..." );
+            progress.setTaskName( "Backup sdk folder into Eclipse workspace...");
             org.eclipse.sapphire.modeling.Path originalSDKPath = dataModel.getSdkLocation().content();
 
             if( originalSDKPath != null )
@@ -639,6 +639,47 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         importButton.setEnabled( false );
     }
 
+    private void createShowAllPagesElement()
+    {
+        blankLabel2 = new Label( this, SWT.LEFT_TO_RIGHT );
+
+        showAllPagesButton = SWTUtil.createButton( this, "Show All Pages..." );
+        showAllPagesButton.addSelectionListener( new SelectionAdapter()
+        {
+
+            @Override
+            public void widgetSelected( SelectionEvent e )
+            {
+                Boolean openNewLiferayProjectWizard = MessageDialog.openQuestion(
+                    UIUtil.getActiveShell(), "Show All Pages",
+                    "If you fail to import projects, you can click this button to finish the upgrade prossess, "+
+                    "as shown in the following steps:\n" +
+                    "   1.upgrade SDK 6.2 to SDK 7.0 manually\n" +
+                    "   or use blade cli to create a Liferay workspace for your SDK\n" +
+                    "   2.import projects you want to upgrade into Eclipse workspace\n" +
+                    "   3.choose \"yes\" to finish the following steps");
+
+                if( openNewLiferayProjectWizard )
+                {
+                    UpgradeView.resumePages();
+
+                    UpgradeView.resetPages();
+
+                    PageNavigateEvent event = new PageNavigateEvent();
+
+                    event.setTargetPage( 2 );
+
+                    for( PageNavigatorListener listener : naviListeners )
+                    {
+                        listener.onPageNavigate( event );
+                    }
+
+                    setNextPage( true );
+                }
+            }
+        } );
+    }
+
     private void createInitBundle( IProgressMonitor monitor ) throws CoreException
     {
         SubMonitor progress = SubMonitor.convert( monitor, 100 );
@@ -785,42 +826,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         dataModel.setLiferayServerName( serverComb.getText() );
     }
 
-    private void createShowAllPagesElement()
-    {
-        blankLabel2 = new Label( this, SWT.LEFT_TO_RIGHT );
-
-        showAllPagesButton = SWTUtil.createButton( this, "Show All Pages..." );
-        showAllPagesButton.addSelectionListener( new SelectionAdapter()
-        {
-
-            @Override
-            public void widgetSelected( SelectionEvent e )
-            {
-                Boolean openNewLiferayProjectWizard = MessageDialog.openQuestion(
-                    UIUtil.getActiveShell(), "Show All Pages",
-                    "If you fail to import projects or you have done upgrade sdk work manully, you can show all the pages. " );
-
-                if( openNewLiferayProjectWizard )
-                {
-                    UpgradeView.resumePages();
-
-                    UpgradeView.resetPages();
-
-                    PageNavigateEvent event = new PageNavigateEvent();
-
-                    event.setTargetPage( 2 );
-
-                    for( PageNavigatorListener listener : naviListeners )
-                    {
-                        listener.onPageNavigate( event );
-                    }
-
-                    setNextPage( true );
-                }
-            }
-        } );
-    }
-
     private void deleteEclipseConfigFiles( File project )
     {
         for( File file : project.listFiles() )
@@ -955,7 +960,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         final String descriptor =
             "The first step will help you convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to  Liferay Workspace. \n" +
                 "We will backup your project to a zip file in your eclipse workspace directory.\n" +
-                "Click the \"import\" button to import your project into Eclipse workspace.\n" + "Note:\n" +
+                "Click the \"import\" button to import your project into Eclipse workspace" + 
+                "(this process maybe need 5-10mins for bundle init).\n" + "Note:\n" +
                 "       In order to save time, downloading  7.0 ivy cache  locally could be a good choice to upgrade to liferay plugin sdk 7. \n" +
                 "       Theme and ext projects will be ignored for that we do not support to upgrade them  at this tool currently. \n" +
                 "       For more details, please see <a>dev.liferay.com</a>.\n";

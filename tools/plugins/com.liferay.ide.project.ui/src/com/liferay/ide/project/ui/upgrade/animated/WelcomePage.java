@@ -132,7 +132,7 @@ public class WelcomePage extends Page
     public void getSpecialDescriptor( Composite parent, int style )
     {
         final String desriptor =
-            "This tool will help you to convert Liferay 6.2 projects into Liferay 7.0 projects.\n\n" +
+            "Liferay Code Upgrade Tool will help you to convert Liferay 6.2 projects into Liferay 7.0 projects.\n" +
                 "The key functions are described below:\n" +
                 "       1.Convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to Liferay Workspace\n" +
                 "       2.Find  breaking changes in all projects" + " Update Descriptor files from 6.2 to 7.0\n" +
