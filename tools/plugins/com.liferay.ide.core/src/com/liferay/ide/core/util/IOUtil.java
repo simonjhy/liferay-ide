@@ -14,6 +14,8 @@
 
 package com.liferay.ide.core.util;
 
+import com.liferay.ide.core.LiferayCore;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.CopyOption;
@@ -48,19 +50,6 @@ public class IOUtil
         @Override
         public FileVisitResult preVisitDirectory( Path dir, BasicFileAttributes attrs )
         {
-//            CopyOption[] options = new CopyOption[0];
-//
-//            Path newdir = target.resolve( source.relativize( dir ) );
-//
-//            try
-//            {
-//                Files.copy( dir, newdir, options );
-//            }
-//            catch( Exception x )
-//            {
-//                x.printStackTrace();
-//            }
-
             return FileVisitResult.CONTINUE;
         }
 
@@ -99,9 +88,9 @@ public class IOUtil
 
                 Files.copy( source, target, options );
             }
-            catch( IOException x )
+            catch( IOException e )
             {
-                x.printStackTrace();
+                LiferayCore.logError( "copy file " + source.toFile().getName() + " error", e );
             }
         }
     }
@@ -120,7 +109,7 @@ public class IOUtil
         }
         catch( IOException e )
         {
-            e.printStackTrace();
+            LiferayCore.logError( "copy folder " + src.getName() + " error", e );
         }
     }
 
