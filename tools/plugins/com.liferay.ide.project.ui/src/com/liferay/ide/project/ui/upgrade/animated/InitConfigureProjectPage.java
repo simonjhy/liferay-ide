@@ -152,31 +152,39 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                                         @Override
                                         public void run()
                                         {
-                                            layoutComb.select( 1 );
-                                            layoutComb.setEnabled( false );
-                                            dataModel.setLayout( layoutComb.getText() );
-                                            createBundleControl();
+                                            if ( layoutComb.getSelectionIndex() != 1 )
+                                            {
+                                                layoutComb.select( 1 );
+                                                layoutComb.setEnabled( false );
+                                                dataModel.setLayout( layoutComb.getText() );
+                                                createBundleControl();                                                
+                                            }
+                                            else
+                                            {
+                                                layoutComb.setEnabled( false );
+                                                dataModel.setLayout( layoutComb.getText() );
+                                            }
                                         }
                                     } );
                                 }
                                 else
                                 {
-                                    createDefaultControl();
+                                    layoutComb.setEnabled( true );
                                 }
                             }
                             else
                             {
-                                createDefaultControl();
+                                layoutComb.setEnabled( true );
                             }
                         }
                         else
                         {
-                            createDefaultControl();
+                            layoutComb.setEnabled( true );
                         }
                     }
                     else
                     {
-                        createDefaultControl();
+                        layoutComb.setEnabled( true );
                     }
                 }
             }
@@ -184,6 +192,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             startCheckThread();
         }
     }
+
 
     public static final String defaultBundleUrl =
         "https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.0.1%20GA2/liferay-ce-portal-tomcat-7.0-ga2-20160610113014153.zip";
