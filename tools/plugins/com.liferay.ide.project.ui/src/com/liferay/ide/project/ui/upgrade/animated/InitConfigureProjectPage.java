@@ -115,46 +115,6 @@ import org.osgi.framework.Version;
 public class InitConfigureProjectPage extends Page implements IServerLifecycleListener
 {
 
-    public static final String defaultBundleUrl =
-        "https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.0.1%20GA2/liferay-ce-portal-tomcat-7.0-ga2-20160610113014153.zip";
-
-    private static Color GRAY;
-    private Label dirLabel;
-    private Text dirField;
-    // private Label newProjectLabel;
-    // private Text newProjectField;
-    private Combo layoutComb;
-    private Label layoutLabel;
-    private String[] layoutNames = { "Upgrade to Liferay SDK 7", "Use Plugin SDK In Liferay Workspace" };
-    private Label serverLabel;
-    private Combo serverComb;
-    private Button serverButton;
-    protected Label blankLabel;
-    protected Label blankLabel2;
-    private Button importButton;
-    private Button showAllPagesButton;
-    private Label bundleNameLabel;
-    private Label bundleUrlLabel;
-    private Text bundleNameField;
-    private Text bundleUrlField;
-
-    private Composite composite;
-
-    private Control createHorizontalSpacer;
-
-    private Control createSeparator;
-    private SdkLocationValidationService sdkValidation =
-        dataModel.getSdkLocation().service( SdkLocationValidationService.class );
-    private ProjectNameValidationService projectNameValidation =
-        dataModel.getProjectName().service( ProjectNameValidationService.class );
-    private BundleNameValidationService bundleNameValidation =
-        dataModel.getBundleName().service( BundleNameValidationService.class );
-    private BundleUrlValidationService bundleUrlValidation =
-        dataModel.getBundleUrl().service( BundleUrlValidationService.class );
-
-    private SdkLocationDefaultValueService sdkLocationDefaultService =
-        dataModel.getSdkLocation().service( SdkLocationDefaultValueService.class );
-
     private class LiferayUpgradeValidationListener extends Listener
     {
 
@@ -225,16 +185,55 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         }
     }
 
+    public static final String defaultBundleUrl =
+        "https://sourceforge.net/projects/lportal/files/Liferay%20Portal/7.0.1%20GA2/liferay-ce-portal-tomcat-7.0-ga2-20160610113014153.zip";
+    private static Color GRAY;
+    private Label dirLabel;
+    private Text dirField;
+    // private Label newProjectLabel;
+    // private Text newProjectField;
+    private Combo layoutComb;
+    private Label layoutLabel;
+    private String[] layoutNames = { "Upgrade to Liferay SDK 7", "Use Plugin SDK In Liferay Workspace" };
+    private Label serverLabel;
+    private Combo serverComb;
+    private Button serverButton;
+    protected Label blankLabel;
+    protected Label blankLabel2;
+    private Button importButton;
+    private Button showAllPagesButton;
+    private Label bundleNameLabel;
+    private Label bundleUrlLabel;
+    private Text bundleNameField;
+
+    private Text bundleUrlField;
+
+    private Composite composite;
+
+    private Control createHorizontalSpacer;
+    private Control createSeparator;
+    private SdkLocationValidationService sdkValidation =
+        dataModel.getSdkLocation().service( SdkLocationValidationService.class );
+    private ProjectNameValidationService projectNameValidation =
+        dataModel.getProjectName().service( ProjectNameValidationService.class );
+    private BundleNameValidationService bundleNameValidation =
+        dataModel.getBundleName().service( BundleNameValidationService.class );
+
+    private BundleUrlValidationService bundleUrlValidation =
+        dataModel.getBundleUrl().service( BundleUrlValidationService.class );
+
+    private SdkLocationDefaultValueService sdkLocationDefaultService =
+        dataModel.getSdkLocation().service( SdkLocationDefaultValueService.class );
+
     public InitConfigureProjectPage( final Composite parent, int style, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel, IMPORT_PAGE_ID,false );
+        super( parent, style, dataModel, IMPORT_PAGE_ID, false );
 
         dataModel.getSdkLocation().attach( new LiferayUpgradeValidationListener() );
         dataModel.getBundleName().attach( new LiferayUpgradeValidationListener() );
         dataModel.getBundleUrl().attach( new LiferayUpgradeValidationListener() );
 
         composite = this;
-
 
         createSeparator = createSeparator( this, 3 );
 
@@ -264,10 +263,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             }
         } );
 
-        String sdkLocationDefaultValue = sdkLocationDefaultService.compute();
-        dirField.setText( sdkLocationDefaultValue );
-        // dirField.setText( codeUpgradeProperties.getProperty( "SdkLocation", "" ) );
-        dataModel.setSdkLocation( dirField.getText() );
+        dirField.setText( getSDKDefaultValue() );
+        dataModel.setSdkLocation( getSDKDefaultValue() );
 
         SWTUtil.createButton( this, "Browse..." ).addSelectionListener( new SelectionAdapter()
         {
@@ -380,7 +377,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         SubMonitor progress = SubMonitor.convert( monitor, 100 );
         try
         {
-            progress.beginTask( "Backup sdk folder Job...", 100 );
+            progress.setTaskName( "Backup sdk folder Job..." );
             org.eclipse.sapphire.modeling.Path originalSDKPath = dataModel.getSdkLocation().content();
 
             if( originalSDKPath != null )
@@ -388,7 +385,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                 IPath backupLocation = ResourcesPlugin.getWorkspace().getRoot().getLocation();
                 progress.worked( 30 );
                 ZipUtil.zip( originalSDKPath.toFile(), backupLocation.append( "backup.zip" ).toFile() );
-                progress.worked( 100 );
+                progress.setWorkRemaining( 70 );
             }
         }
         catch( IOException e )
@@ -577,6 +574,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
             {
                 layoutComb.select( 0 );
                 layoutComb.setEnabled( true );
+                dataModel.setLayout( layoutComb.getText() );
 
                 disposeBundleElement();
 
@@ -639,42 +637,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         } );
 
         importButton.setEnabled( false );
-    }
-
-    private void createShowAllPagesElement()
-    {
-        blankLabel2 = new Label( this, SWT.LEFT_TO_RIGHT );
-
-        showAllPagesButton = SWTUtil.createButton( this, "Show All Pages..." );
-        showAllPagesButton.addSelectionListener( new SelectionAdapter()
-        {
-
-            @Override
-            public void widgetSelected( SelectionEvent e )
-            {
-                Boolean openNewLiferayProjectWizard = MessageDialog.openQuestion(
-                    UIUtil.getActiveShell(), "Show All Pages",
-                    "If you fail to import projects or you have done upgrade sdk work manully, you can show all the pages. " );
-
-                if( openNewLiferayProjectWizard )
-                {
-                    UpgradeView.resumePages();
-
-                    UpgradeView.resetPages();
-
-                    PageNavigateEvent event = new PageNavigateEvent();
-
-                    event.setTargetPage( 2 );
-
-                    for( PageNavigatorListener listener : naviListeners )
-                    {
-                        listener.onPageNavigate( event );
-                    }
-
-                    setNextPage( true );
-                }
-            }
-        } );
     }
 
     private void createInitBundle( IProgressMonitor monitor ) throws CoreException
@@ -823,6 +785,42 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         dataModel.setLiferayServerName( serverComb.getText() );
     }
 
+    private void createShowAllPagesElement()
+    {
+        blankLabel2 = new Label( this, SWT.LEFT_TO_RIGHT );
+
+        showAllPagesButton = SWTUtil.createButton( this, "Show All Pages..." );
+        showAllPagesButton.addSelectionListener( new SelectionAdapter()
+        {
+
+            @Override
+            public void widgetSelected( SelectionEvent e )
+            {
+                Boolean openNewLiferayProjectWizard = MessageDialog.openQuestion(
+                    UIUtil.getActiveShell(), "Show All Pages",
+                    "If you fail to import projects or you have done upgrade sdk work manully, you can show all the pages. " );
+
+                if( openNewLiferayProjectWizard )
+                {
+                    UpgradeView.resumePages();
+
+                    UpgradeView.resetPages();
+
+                    PageNavigateEvent event = new PageNavigateEvent();
+
+                    event.setTargetPage( 2 );
+
+                    for( PageNavigatorListener listener : naviListeners )
+                    {
+                        listener.onPageNavigate( event );
+                    }
+
+                    setNextPage( true );
+                }
+            }
+        } );
+    }
+
     private void deleteEclipseConfigFiles( File project )
     {
         for( File file : project.listFiles() )
@@ -882,6 +880,18 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         }
     }
 
+    @Override
+    public int getGridLayoutCount()
+    {
+        return 2;
+    }
+
+    @Override
+    public boolean getGridLayoutEqualWidth()
+    {
+        return false;
+    }
+
     private void getLiferayBudnle( IPath targetSDKLocation, IProgressMonitor monitor ) throws BladeCLIException
     {
         StringBuilder sb = new StringBuilder();
@@ -891,6 +901,12 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         sb.append( "init" );
 
         BladeCLI.execute( sb.toString() );
+    }
+
+    @Override
+    public String getPageTitle()
+    {
+        return "Configure Project";
     }
 
     private IProjectBuilder getProjectBuilder( IProject project ) throws CoreException
@@ -910,6 +926,43 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         }
 
         return builder;
+    }
+
+    protected String getSDKDefaultValue()
+    {
+        String retVal = "";
+
+        try
+        {
+            IProject sdk = SDKUtil.getWorkspaceSDKProject();
+
+            if( sdk != null )
+            {
+                retVal = sdk.getLocation().toString();
+            }
+        }
+        catch( CoreException e )
+        {
+            ProjectUI.logError( "Get workspace default sdk value failed.", e );
+        }
+
+        return retVal;
+    }
+
+    @Override
+    public void getSpecialDescriptor( Composite parent, int style )
+    {
+        final String descriptor =
+            "The first step will help you convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to  Liferay Workspace. \n" +
+                "We will backup your project to a zip file in your eclipse workspace directory.\n" +
+                "Click the \"import\" button to import your project into Eclipse workspace.\n" + "Note:\n" +
+                "       In order to save time, downloading  7.0 ivy cache  locally could be a good choice to upgrade to liferay plugin sdk 7. \n" +
+                "       Theme and ext projects will be ignored for that we do not support to upgrade them  at this tool currently. \n" +
+                "       For more details, please see <a>dev.liferay.com</a>.\n";
+
+        String url = "https://dev.liferay.com/develop/tutorials";
+
+        SWTUtil.createHyperLink( this, style, descriptor, 1, url );
     }
 
     protected void importProject() throws CoreException
@@ -1285,40 +1338,6 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                 importButton.setEnabled( layoutValidation && inputValidation );
             }
         } );
-    }
-
-    @Override
-    public void getSpecialDescriptor( Composite parent, int style )
-    {
-        final String descriptor =
-            "The first step will help you convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to  Liferay Workspace. \n" +
-                "We will backup your project to a zip file in your eclipse workspace directory.\n" +
-                "Click the \"import\" button to import your project into Eclipse workspace.\n" + "Note:\n" +
-                "       In order to save time, downloading  7.0 ivy cache  locally could be a good choice to upgrade to liferay plugin sdk 7. \n" +
-                "       Theme and ext projects will be ignored for that we do not support to upgrade them  at this tool currently. \n" +
-                "       For more details, please see <a>dev.liferay.com</a>.\n";
-
-        String url = "https://dev.liferay.com/develop/tutorials";
-
-        SWTUtil.createHyperLink( this, style, descriptor, 1, url );
-    }
-
-    @Override
-    public String getPageTitle()
-    {
-        return "Configure Project";
-    }
-
-    @Override
-    public int getGridLayoutCount()
-    {
-        return 2;
-    }
-
-    @Override
-    public boolean getGridLayoutEqualWidth()
-    {
-        return false;
     }
 
 }
