@@ -67,6 +67,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.sapphire.Event;
 import org.eclipse.sapphire.Listener;
@@ -129,7 +130,9 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
     private Combo serverComb;
     private Button serverButton;
     protected Label blankLabel;
+    protected Label blankLabel2;
     private Button importButton;
+    private Button showAllPagesButton;
     private Label bundleNameLabel;
     private Label bundleUrlLabel;
     private Text bundleNameField;
@@ -314,6 +317,7 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
                     createImportElement();
 
+                    createShowAllPagesElement();
                 }
                 else
                 {
@@ -328,6 +332,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
                     createBundleElement();
 
                     createImportElement();
+
+                    createShowAllPagesElement();
                 }
 
                 composite.layout();
@@ -342,6 +348,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         createServerElement();
 
         createImportElement();
+
+        createShowAllPagesElement();
 
         startCheckThread();
     }
@@ -498,6 +506,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
         createImportElement();
 
+        createShowAllPagesElement();
+
         composite.layout();
     }
 
@@ -578,6 +588,8 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
 
                 createImportElement();
 
+                createShowAllPagesElement();
+
                 composite.layout();
             }
         } );
@@ -627,6 +639,42 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
         } );
 
         importButton.setEnabled( false );
+    }
+
+    private void createShowAllPagesElement()
+    {
+        blankLabel2 = new Label( this, SWT.LEFT_TO_RIGHT );
+
+        showAllPagesButton = SWTUtil.createButton( this, "Show All Pages..." );
+        showAllPagesButton.addSelectionListener( new SelectionAdapter()
+        {
+
+            @Override
+            public void widgetSelected( SelectionEvent e )
+            {
+                Boolean openNewLiferayProjectWizard = MessageDialog.openQuestion(
+                    UIUtil.getActiveShell(), "Show All Pages",
+                    "If you fail to import projects or you have done upgrade sdk work manully, you can show all the pages. " );
+
+                if( openNewLiferayProjectWizard )
+                {
+                    UpgradeView.resumePages();
+
+                    UpgradeView.resetPages();
+
+                    PageNavigateEvent event = new PageNavigateEvent();
+
+                    event.setTargetPage( 2 );
+
+                    for( PageNavigatorListener listener : naviListeners )
+                    {
+                        listener.onPageNavigate( event );
+                    }
+
+                    setNextPage( true );
+                }
+            }
+        } );
     }
 
     private void createInitBundle( IProgressMonitor monitor ) throws CoreException
@@ -805,7 +853,9 @@ public class InitConfigureProjectPage extends Page implements IServerLifecycleLi
     private void disposeImportElement()
     {
         blankLabel.dispose();
+        blankLabel2.dispose();
         importButton.dispose();
+        showAllPagesButton.dispose();
         createSeparator.dispose();
         createHorizontalSpacer.dispose();
     }
