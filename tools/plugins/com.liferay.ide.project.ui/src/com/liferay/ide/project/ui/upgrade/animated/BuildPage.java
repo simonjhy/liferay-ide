@@ -129,28 +129,22 @@ public class BuildPage extends Page
             public Image getImage( Object element )
             {
                 TableViewElement tableViewElement = (TableViewElement) element;
-                if( tableViewElement.buildStatus )
+                if( tableViewElement.buildStatus.equals( "build successful" ) )
                 {
                     return imageSuccess;
                 }
-                else
+                else if ( tableViewElement.buildStatus.equals( "build failed" ) )
                 {
                     return imageFail;
                 }
+                return imageFail;
             }
 
             @Override
             public String getText( Object element )
             {
                 TableViewElement tableViewElement = (TableViewElement) element;
-                if( tableViewElement.buildStatus )
-                {
-                    return "build successful";
-                }
-                else
-                {
-                    return "build failed";
-                }
+                return tableViewElement.buildStatus;
             }
         } );
 
@@ -185,9 +179,9 @@ public class BuildPage extends Page
     class TableViewElement
     {
         public String projectName;
-        public boolean buildStatus;
+        public String buildStatus;
 
-        public TableViewElement( String projectName, boolean buildStatus )
+        public TableViewElement( String projectName, String buildStatus )
         {
             this.projectName = projectName;
             this.buildStatus = buildStatus;
@@ -245,6 +239,27 @@ public class BuildPage extends Page
 
                     for( int i = 0; i < count; i++ )
                     {
+                        final IProject project = selectProjects[i];
+                        final String projectName = project.getName();
+                        TableViewElement tableViewElement = new TableViewElement( projectName, "not build" );
+                        tableViewElementList.add( tableViewElement );
+                    }
+                    
+                    UIUtil.async( new Runnable()
+                    {
+
+                        @Override
+                        public void run()
+                        {
+                            tableViewElements =
+                                tableViewElementList.toArray( new TableViewElement[tableViewElementList.size()] );
+                            tableViewer.setInput( tableViewElements );
+                            tableViewer.refresh();
+                        }
+                    } );  
+                    
+                    for( int i = 0; i < count; i++ )
+                    {
                         monitor.worked( i + 1 * unit );
 
                         if( monitor.isCanceled() )
@@ -256,8 +271,10 @@ public class BuildPage extends Page
                             monitor.worked( 100 );
                         }
 
-                        final IProject project = selectProjects[i];
-                        final String projectName = project.getName();
+                        TableViewElement viewElement = tableViewElementList.get( i );
+                        final String projectName = viewElement.projectName;
+                        
+                        final IProject project = ProjectUtil.getProject( projectName );
 
                         monitor.setTaskName( "Build " + projectName + " Project..." );
 
@@ -279,22 +296,31 @@ public class BuildPage extends Page
                             buildStatus = true;
                         }
 
-                        TableViewElement tableViewElement = new TableViewElement( projectName, buildStatus );
-                        tableViewElementList.add( tableViewElement );
+                        if ( buildStatus )
+                        {
+                            viewElement.buildStatus = "build successful";
+                        }
+                        else
+                        {
+                            viewElement.buildStatus = "build failed";
+                        }
+                        
+                        
+                        UIUtil.async( new Runnable()
+                        {
+
+                            @Override
+                            public void run()
+                            {
+                                tableViewElements =
+                                    tableViewElementList.toArray( new TableViewElement[tableViewElementList.size()] );
+                                tableViewer.setInput( tableViewElements );
+                                tableViewer.refresh();
+                            }
+                        } );
                     }
 
-                    UIUtil.async( new Runnable()
-                    {
 
-                        @Override
-                        public void run()
-                        {
-                            tableViewElements =
-                                tableViewElementList.toArray( new TableViewElement[tableViewElementList.size()] );
-                            tableViewer.setInput( tableViewElements );
-                            tableViewer.refresh();
-                        }
-                    } );
 
                     return StatusBridge.create( Status.createOkStatus() );
                 }
