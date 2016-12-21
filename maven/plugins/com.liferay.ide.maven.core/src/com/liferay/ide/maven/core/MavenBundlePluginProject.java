@@ -29,10 +29,12 @@ import org.apache.maven.project.MavenProject;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.m2e.core.project.IMavenProjectFacade;
 
 /**
@@ -128,14 +130,13 @@ public class MavenBundlePluginProject extends LiferayMavenProject implements IBu
         final IMavenProjectFacade projectFacade = MavenUtil.getProjectFacade( getProject(), monitor );
         final MavenProject mavenProject = projectFacade.getMavenProject( monitor );
 
-        final String targetName = mavenProject.getBuild().getFinalName() + ".jar";
+        final IPath targetPath = new Path( mavenProject.getBuild().getDirectory() );
+        final String targetName = mavenProject.getBuild().getFinalName() + "." + mavenProject.getPackaging();
 
-        // TODO find a better way to get the target folder
-        final IFolder targetFolder = getProject().getFolder( "target" );
-
-        if( targetFolder.exists() )
+        if( targetPath.toFile().exists() )
         {
-            // targetFolder.refreshLocal( IResource.DEPTH_ONE, monitor );
+            IPath targetRelativePath =  targetPath.makeRelativeTo( getProject().getLocation() );
+            final IFolder targetFolder = getProject().getFolder( targetRelativePath );
             final IPath targetFile = targetFolder.getRawLocation().append( targetName );
 
             if( targetFile.toFile().exists() )
