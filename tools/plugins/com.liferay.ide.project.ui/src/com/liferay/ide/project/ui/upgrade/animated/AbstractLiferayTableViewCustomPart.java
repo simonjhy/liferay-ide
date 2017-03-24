@@ -161,9 +161,9 @@ public abstract class AbstractLiferayTableViewCustomPart extends Page
     }
 
     public AbstractLiferayTableViewCustomPart(
-        Composite parent, int style, LiferayUpgradeDataModel dataModel, String pageId, boolean hasFinishAndSkipAction )
+        Composite parent, LiferayUpgradeDataModel dataModel, String pageId, boolean hasFinishAndSkipAction )
     {
-        super( parent, style, dataModel, pageId, hasFinishAndSkipAction );
+        super( parent, dataModel, pageId, hasFinishAndSkipAction );
 
         GridLayout layout = new GridLayout( 2, false );
         layout.marginHeight = 0;
@@ -174,6 +174,7 @@ public abstract class AbstractLiferayTableViewCustomPart extends Page
         final GridData descData = new GridData( GridData.FILL_BOTH );
         descData.grabExcessVerticalSpace = true;
         descData.grabExcessHorizontalSpace = true;
+        descData.widthHint = DEFAULT_PAGE_WIDTH;
         this.setLayoutData( descData );
 
         tableViewer = new TableViewer( this );
@@ -623,7 +624,7 @@ public abstract class AbstractLiferayTableViewCustomPart extends Page
     public void onSelectionChanged( int targetSelection )
     {
         Page selectedPage = UpgradeView.getPage(targetSelection);
-        
+
         String selectedPageId = selectedPage.getPageId();
 
         if ( !selectedPageId.equals( getPageId() ) )
@@ -634,5 +635,5 @@ public abstract class AbstractLiferayTableViewCustomPart extends Page
         handleFindEvent();
     }
 
-    
+
 }

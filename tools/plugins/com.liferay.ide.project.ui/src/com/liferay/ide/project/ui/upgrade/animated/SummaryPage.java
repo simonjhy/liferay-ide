@@ -44,13 +44,15 @@ import com.liferay.ide.ui.util.SWTUtil;
 public class SummaryPage extends Page implements SelectionChangedListener
 {
 
-    public SummaryPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
+    public SummaryPage( Composite parent, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel, SUMMARY_PAGE_ID, false );
+        super( parent, dataModel, SUMMARY_PAGE_ID, false );
 
         Composite container = new Composite( this, SWT.NONE );
         container.setLayout( new GridLayout( 2, false ) );
-        container.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true ) );
+        final GridData layoutData = new GridData( SWT.FILL, SWT.FILL, true, true );
+        layoutData.widthHint = DEFAULT_PAGE_WIDTH;
+        container.setLayoutData( layoutData );
 
         tableViewer = new TableViewer( container );
         tableViewer.setContentProvider( new TableViewContentProvider() );

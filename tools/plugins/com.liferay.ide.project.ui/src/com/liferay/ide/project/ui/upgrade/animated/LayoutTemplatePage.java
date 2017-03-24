@@ -54,9 +54,9 @@ import org.eclipse.swt.widgets.Link;
 public class LayoutTemplatePage extends AbstractLiferayTableViewCustomPart
 {
 
-    public LayoutTemplatePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
+    public LayoutTemplatePage( Composite parent, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel, LAYOUTTEMPLATE_PAGE_ID, true );
+        super( parent, dataModel, LAYOUTTEMPLATE_PAGE_ID, true );
     }
 
     @Override
@@ -214,11 +214,11 @@ public class LayoutTemplatePage extends AbstractLiferayTableViewCustomPart
 
             URL imageUrl = ProjectUI.getDefault().getBundle().getEntry( "/icons/e16/layout.png");
             Image layouttplImage = ImageDescriptor.createFromURL( imageUrl ).createImage();
-            
+
             dialog.setImage( layouttplImage );
             dialog.setTitle( "Layout Template Project" );
             dialog.setMessage( "Select Layout Template Project" );
-      
+
         if( dialog.open() == Window.OK )
         {
             final Object[] selectedProjects = dialog.getResult();

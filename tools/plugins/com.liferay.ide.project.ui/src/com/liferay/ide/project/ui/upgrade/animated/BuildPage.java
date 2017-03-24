@@ -70,13 +70,15 @@ import org.eclipse.ui.ide.IDE.SharedImages;
 public class BuildPage extends Page
 {
 
-    public BuildPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
+    public BuildPage( Composite parent, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel, BUILD_PAGE_ID, true );
+        super( parent, dataModel, BUILD_PAGE_ID, true );
 
         Composite container = new Composite( this, SWT.NONE );
         container.setLayout( new GridLayout( 2, false ) );
-        container.setLayoutData( new GridData( SWT.FILL, SWT.FILL, true, true ) );
+        final GridData layoutData = new GridData( SWT.FILL, SWT.FILL, true, true );
+        layoutData.widthHint = DEFAULT_PAGE_WIDTH;
+        container.setLayoutData( layoutData );
 
         tableViewer = new TableViewer( container );
         tableViewer.setContentProvider( new TableViewContentProvider() );

@@ -161,9 +161,9 @@ public class UpgradePomPage extends Page
 
     private UpgradePomElement[] upgradePomElementsArray = null;
 
-    public UpgradePomPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
+    public UpgradePomPage( Composite parent, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel, UPGRADE_POM_PAGE_ID, true );
+        super( parent, dataModel, UPGRADE_POM_PAGE_ID, true );
 
         GridLayout layout = new GridLayout( 2, false );
         layout.marginHeight = 0;
@@ -183,13 +183,12 @@ public class UpgradePomPage extends Page
 
         fTableViewer.addDoubleClickListener( new IDoubleClickListener()
         {
-
             @Override
             public void doubleClick( DoubleClickEvent event )
             {
                 handleCompare( (IStructuredSelection) event.getSelection() );
             }
-        } );
+        });
 
         final Table table = fTableViewer.getTable();
 
@@ -208,7 +207,6 @@ public class UpgradePomPage extends Page
         selectAllButton.setLayoutData( new GridData( SWT.FILL, SWT.TOP, false, false, 1, 1 ) );
         selectAllButton.addSelectionListener( new SelectionAdapter()
         {
-
             @Override
             public void widgetSelected( SelectionEvent e )
             {
@@ -227,37 +225,34 @@ public class UpgradePomPage extends Page
                     object = fTableViewer.getElementAt( i++ );
                 }
             }
-        } );
+        });
 
         final Button disSelectAllButton = new Button( buttonContainer, SWT.NONE );
         disSelectAllButton.setText( "Deselect All" );
         disSelectAllButton.setLayoutData( new GridData( SWT.FILL, SWT.TOP, false, false, 1, 1 ) );
         disSelectAllButton.addSelectionListener( new SelectionAdapter()
         {
-
             @Override
             public void widgetSelected( SelectionEvent e )
             {
                 fTableViewer.setAllChecked( false );
             }
-        } );
+        });
 
         upgradeButton = new Button( buttonContainer, SWT.NONE );
         upgradeButton.setText( "Upgrade Selected" );
         upgradeButton.setLayoutData( new GridData( SWT.FILL, SWT.TOP, false, false ) );
         upgradeButton.addListener( SWT.Selection, new Listener()
         {
-
             @Override
             public void handleEvent( Event event )
             {
                 handleUpgradeEvent();
             }
-        } );
+        });
 
         fTableViewer.addCheckStateListener( new ICheckStateListener()
         {
-
             @Override
             public void checkStateChanged( CheckStateChangedEvent event )
             {
@@ -268,7 +263,13 @@ public class UpgradePomPage extends Page
                     fTableViewer.setChecked( element, false );
                 }
             }
-        } );
+        });
+    }
+
+    @Override
+    public int getGridLayoutCount()
+    {
+        return 2;
     }
 
     public void createSpecialDescriptor( Composite parent, int style )

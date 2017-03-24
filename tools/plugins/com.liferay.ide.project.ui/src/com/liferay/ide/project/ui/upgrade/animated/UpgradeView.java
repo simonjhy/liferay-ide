@@ -40,7 +40,7 @@ import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
-import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -65,7 +65,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
     private static List<Page> staticPageList = new ArrayList<Page>();
 
-    private static Composite pagesSwitchControler = null;
+    private static Composite pagesContainer = null;
 
     private static Page[] pages = null;
 
@@ -215,11 +215,11 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
     public void setSelectPage( int i )
     {
-        StackLayout stackLayout = (StackLayout) pagesSwitchControler.getLayout();
+        StackLayout stackLayout = (StackLayout) pagesContainer.getLayout();
 
         stackLayout.topControl = pages[i];
 
-        pagesSwitchControler.layout();
+        pagesContainer.layout();
     }
 
     public static Page getPage( int i )
@@ -251,11 +251,8 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
     @Override
     public void createPartControl( Composite parent )
     {
-        ScrolledComposite scrolledComposite = new ScrolledComposite(parent, SWT.DOUBLE_BUFFERED | SWT.H_SCROLL | SWT.V_SCROLL);
-        scrolledComposite.setExpandHorizontal(true);
-        scrolledComposite.setExpandVertical(true);
-
-        Composite container = SWTUtil.createComposite( scrolledComposite, 1, 0, GridData.FILL_BOTH);
+        Composite container = SWTUtil.createComposite( parent, 1, 0, GridData.FILL_BOTH );
+        container.setBackground( parent.getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
 
         GridLayout gridLayout = new GridLayout( 1, false );
         gridLayout.marginWidth = 0;
@@ -263,78 +260,65 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
         gridLayout.marginHeight = 0;
         container.setLayout( gridLayout );
 
-        Composite composite = new Composite( container, SWT.NONE );
-
-        composite.setLayout( new GridLayout( 1, true ) );
-
-        GridData grData = new GridData( GridData.FILL_BOTH );
-        Color backgroundColor = composite.getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND );
-
-        grData.grabExcessVerticalSpace = true;
-        grData.grabExcessHorizontalSpace = true;
-        composite.setLayoutData( grData );
-        composite.setBackground( backgroundColor );
-
-        final GearControl gear = new GearControl( composite, SWT.NONE );
+        final GearControl gear = new GearControl( container, SWT.NONE );
 
         GridData gridData = new GridData( GridData.FILL_HORIZONTAL );
-        gridData.grabExcessHorizontalSpace = true;
-        gridData.widthHint = 400;
         gridData.heightHint = 150;
 
         gear.setLayoutData( gridData );
-        gear.setBackground( backgroundColor );
+
+        ScrolledComposite scrolledComposite = new ScrolledComposite( container, SWT.V_SCROLL | SWT.BORDER );
+        scrolledComposite.setLayoutData( new GridData( GridData.FILL_BOTH ) );
+        scrolledComposite.setBackground( parent.getDisplay().getSystemColor( SWT.COLOR_YELLOW ) );
+
+        Composite pageParent = new Composite( scrolledComposite, SWT.NONE );
+        pageParent.setLayout( new FillLayout( SWT.VERTICAL ) );
+        pageParent.setBackground( parent.getDisplay().getSystemColor( SWT.COLOR_RED ) );
 
         StackLayout stackLayout = new StackLayout();
 
-        pagesSwitchControler = new Composite(composite , SWT.BORDER );
-        pagesSwitchControler.setLayout( stackLayout );
-
-        GridData containerData = new GridData( GridData.FILL_BOTH );
-        containerData.grabExcessHorizontalSpace = true;
-        containerData.grabExcessVerticalSpace = true;
-        containerData.grabExcessHorizontalSpace = true;
-        pagesSwitchControler.setLayoutData( containerData );
+        pagesContainer = new Composite( pageParent, SWT.NONE );
+        pagesContainer.setLayout( stackLayout );
 
         int pageIndex = 0;
 
-        Page welcomePage = new WelcomePage( pagesSwitchControler, SWT.NONE, dataModel );
+        Page welcomePage = new WelcomePage( pagesContainer, dataModel );
         welcomePage.setIndex( pageIndex++ );
         welcomePage.setTitle( "Welcome" );
         welcomePage.setBackPage( false );
         welcomePage.addPageNavigateListener( gear );
 
-        Page initConfigureProjectPage = new InitConfigureProjectPage( pagesSwitchControler, SWT.NONE, dataModel );
+        Page initConfigureProjectPage = new InitConfigureProjectPage( pagesContainer, dataModel );
         initConfigureProjectPage.setIndex( pageIndex++ );
         initConfigureProjectPage.setTitle( "Select project(s) to upgrade" );
         initConfigureProjectPage.addPageNavigateListener( gear );
         initConfigureProjectPage.addPageValidationListener( gear );
         initConfigureProjectPage.setNextPage( false );
 
-        Page upgradePomPage = new UpgradePomPage( pagesSwitchControler, SWT.NONE, dataModel );
+        Page upgradePomPage = new UpgradePomPage( pagesContainer, dataModel );
         upgradePomPage.setIndex( pageIndex++ );
         upgradePomPage.setTitle( "Upgrade POM Files" );
         upgradePomPage.addPageValidationListener( gear );
 
-        Page findBreakingChangesPage = new FindBreakingChangesPage( pagesSwitchControler, SWT.NONE, dataModel );
+        Page findBreakingChangesPage = new FindBreakingChangesPage( pagesContainer, dataModel );
         findBreakingChangesPage.setIndex( pageIndex++ );
         findBreakingChangesPage.setTitle( "Find Breaking Changes" );
 
-        Page descriptorsPage = new DescriptorsPage( pagesSwitchControler, SWT.NONE, dataModel );
+        Page descriptorsPage = new DescriptorsPage( pagesContainer, dataModel );
         descriptorsPage.setIndex( pageIndex++ );
         descriptorsPage.setTitle( "Update Descriptor Files" );
         descriptorsPage.addPageValidationListener( gear );
 
-        Page buildServicePage = new BuildServicePage( pagesSwitchControler, SWT.NONE, dataModel );
+        Page buildServicePage = new BuildServicePage( pagesContainer, dataModel );
         buildServicePage.setIndex( pageIndex++ );
         buildServicePage.setTitle( "Build Services" );
 
-        Page layoutTemplatePage = new LayoutTemplatePage( pagesSwitchControler, SWT.NONE, dataModel );
+        Page layoutTemplatePage = new LayoutTemplatePage( pagesContainer, dataModel );
         layoutTemplatePage.setIndex( pageIndex++ );
         layoutTemplatePage.setTitle( "Layout Templates" );
         layoutTemplatePage.addPageValidationListener( gear );
 
-        Page customJspPage = new CustomJspPage( pagesSwitchControler, SWT.NONE, dataModel );
+        Page customJspPage = new CustomJspPage( pagesContainer, dataModel );
         customJspPage.setIndex( pageIndex++ );
         customJspPage.setTitle( "Custom Jsp" );
         customJspPage.addPageValidationListener( gear );
@@ -343,11 +327,11 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 //        extAndThemePage.setIndex( 7 );
 //        extAndThemePage.setTitle( "Ext and Theme" );
 
-        Page buildPage = new BuildPage( pagesSwitchControler, SWT.NONE, dataModel );
+        Page buildPage = new BuildPage( pagesContainer, dataModel );
         buildPage.setIndex( pageIndex++ );
         buildPage.setTitle( "Build" );
 
-        Page summaryPage = new SummaryPage( pagesSwitchControler, SWT.NONE, dataModel );
+        Page summaryPage = new SummaryPage( pagesContainer, dataModel );
         summaryPage.setIndex( pageIndex++ );
         summaryPage.setTitle( "Summary" );
         summaryPage.setNextPage( false );
@@ -369,32 +353,34 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
         resetPages();
 
-        final NavigatorControl navigator = new NavigatorControl( composite, SWT.NONE );
+        final NavigatorControl navigator = new NavigatorControl( container, SWT.NONE );
+        navigator.setBackground( parent.getDisplay().getSystemColor( SWT.COLOR_WIDGET_BACKGROUND ) );
 
         navigator.addPageNavigateListener( gear );
         navigator.addPageActionListener( gear );
 
         gear.addSelectionChangedListener( navigator );
         gear.addSelectionChangedListener( this );
-        gear.addSelectionChangedListener( (SelectionChangedListener) initConfigureProjectPage );
-        gear.addSelectionChangedListener( (SelectionChangedListener) descriptorsPage );
-        gear.addSelectionChangedListener( (SelectionChangedListener) upgradePomPage );
-        gear.addSelectionChangedListener( (SelectionChangedListener) layoutTemplatePage );
-        gear.addSelectionChangedListener( (SelectionChangedListener) summaryPage );
+        gear.addSelectionChangedListener( initConfigureProjectPage );
+        gear.addSelectionChangedListener( descriptorsPage );
+        gear.addSelectionChangedListener( upgradePomPage );
+        gear.addSelectionChangedListener( layoutTemplatePage );
+        gear.addSelectionChangedListener( summaryPage );
 
         GridData navData = new GridData( GridData.FILL_HORIZONTAL );
 
         navData.grabExcessHorizontalSpace = true;
-//        navData.widthHint = 400;
-//        navData.heightHint = 55;
 
         navigator.setLayoutData( navData );
-        navigator.setBackground( backgroundColor );
-
-        scrolledComposite.setContent(container);
-//        scrolledComposite.setMinSize(container.computeSize(SWT.DEFAULT, 670));
 
         setSelectPage( 0 );
+
+        scrolledComposite.setContent( pageParent );
+        scrolledComposite.setExpandHorizontal( true );
+        scrolledComposite.setExpandVertical( true );
+        scrolledComposite.setMinSize( pageParent.computeSize( SWT.DEFAULT, SWT.DEFAULT ) );
+
+        stackLayout.topControl = welcomePage;
 
         parent.addDisposeListener( new DisposeListener()
         {
@@ -466,7 +452,7 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
 
             event.setTargetPage( 2 );
 
-            StackLayout stackLayout = (StackLayout) pagesSwitchControler.getLayout();
+            StackLayout stackLayout = (StackLayout) pagesContainer.getLayout();
 
             Page currentPage = (Page) stackLayout.topControl;
 
@@ -552,11 +538,11 @@ public class UpgradeView extends ViewPart implements SelectionChangedListener
     @Override
     public void onSelectionChanged( int targetSelection )
     {
-        StackLayout stackLayout = (StackLayout) pagesSwitchControler.getLayout();
+        StackLayout stackLayout = (StackLayout) pagesContainer.getLayout();
 
         stackLayout.topControl = pages[targetSelection];
 
-        pagesSwitchControler.layout();
+        pagesContainer.layout();
     }
 
 }

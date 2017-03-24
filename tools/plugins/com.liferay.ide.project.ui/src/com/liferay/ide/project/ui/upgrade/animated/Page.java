@@ -28,7 +28,6 @@ import java.util.List;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -44,6 +43,7 @@ import org.eclipse.swt.widgets.Text;
 public abstract class Page extends Composite implements SelectionChangedListener
 {
 
+    static final int DEFAULT_PAGE_WIDTH = 375;
     public static String WELCOME_PAGE_ID = "welcome";
     public static String INIT_CONFIGURE_PROJECT_PAGE_ID = "initconfigureproject";
     public static String UPGRADE_POM_PAGE_ID = "upgradepom";
@@ -63,6 +63,7 @@ public abstract class Page extends Composite implements SelectionChangedListener
         GridData gd = new GridData( GridData.FILL_HORIZONTAL );
         gd.horizontalSpan = hSpan;
         l.setLayoutData( gd );
+
         return l;
     }
 
@@ -71,8 +72,10 @@ public abstract class Page extends Composite implements SelectionChangedListener
         Label label = new Label( parent, SWT.SEPARATOR | SWT.HORIZONTAL );
         GridData gd = new GridData( SWT.FILL, SWT.CENTER, true, false, hspan, 1 );
         label.setLayoutData( gd );
+
         return label;
     }
+
     protected boolean canBack = true;
     protected boolean canNext = true;
 
@@ -99,18 +102,15 @@ public abstract class Page extends Composite implements SelectionChangedListener
         Collections.synchronizedList( new ArrayList<PageValidationListener>() );
 
     public Page(
-        Composite parent, int style, LiferayUpgradeDataModel dataModel, String pageId, boolean hasFinishAndSkipAction )
+        Composite parent, LiferayUpgradeDataModel dataModel, String pageId, boolean hasFinishAndSkipAction )
     {
-        super( parent, style );
-
-        this.dataModel = dataModel;
+        super( parent, SWT.NONE );
 
         setLayout( new GridLayout( getGridLayoutCount(), getGridLayoutEqualWidth() ) );
 
-        Label title = SWTUtil.createLabel( this, getPageTitle(), getGridLayoutCount() );
-        title.setFont( new Font( null, "Times New Roman", 14, SWT.NORMAL ) );
+        SWTUtil.createLabel( this, getPageTitle(), getGridLayoutCount() );
 
-        createSpecialDescriptor( this, style );
+        createSpecialDescriptor( parent );
 
         setPageId( pageId );
 
@@ -118,6 +118,8 @@ public abstract class Page extends Composite implements SelectionChangedListener
         {
             setActions( new PageAction[] { pageFinishAction, pageSkipAction } );
         }
+
+        this.dataModel = dataModel;
     }
 
     public void addPageNavigateListener( PageNavigatorListener listener )
@@ -140,14 +142,16 @@ public abstract class Page extends Composite implements SelectionChangedListener
         return label;
     }
 
-    public void createSpecialDescriptor( Composite parent, int style )
+    public void createSpecialDescriptor( Composite parent )
     {
     }
 
     protected Text createTextField( Composite composite, int style )
     {
         Text text = new Text( composite, SWT.BORDER | style );
-        text.setLayoutData( new GridData( GridData.FILL_HORIZONTAL ) );
+        final GridData gd = new GridData( GridData.FILL_HORIZONTAL );
+        gd.widthHint = DEFAULT_PAGE_WIDTH;
+        text.setLayoutData( gd );
 
         return text;
     }
@@ -203,10 +207,12 @@ public abstract class Page extends Composite implements SelectionChangedListener
         {
             return pageFinishAction;
         }
+
         if( actionName.equals( "PageSkipAction" ) )
         {
             return pageSkipAction;
         }
+
         return selectedAction;
     }
 

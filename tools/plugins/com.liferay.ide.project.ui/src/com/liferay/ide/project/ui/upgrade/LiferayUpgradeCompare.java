@@ -39,11 +39,11 @@ import org.eclipse.swt.graphics.Image;
  */
 public class LiferayUpgradeCompare
 {
-    
+
     private final IPath soruceFile;
     private final IPath targetFile;
     private String fileName;
-    
+
     public LiferayUpgradeCompare( final IPath soruceFile, final IPath targetFile, String fileName )
     {
         this.fileName = fileName;
@@ -69,8 +69,8 @@ public class LiferayUpgradeCompare
             final ITypedElement right = new CompareItem( getTargetFile(), this.fileName + "_preview" );
 
             final CompareConfiguration configuration = new CompareConfiguration();
-            configuration.setLeftLabel( "Original File" );
-            configuration.setRightLabel( "Upgraded File" );
+            configuration.setLeftLabel( "Original file" );
+            configuration.setRightLabel( "Upgrade changes" );
 
             CompareEditorInput editorInput = new CompareEditorInput( configuration )
             {

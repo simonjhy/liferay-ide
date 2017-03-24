@@ -30,9 +30,9 @@ import org.eclipse.swt.widgets.Link;
 public class ExtAndThemePage extends Page
 {
 
-    public ExtAndThemePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
+    public ExtAndThemePage( Composite parent, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel, EXTANDTHEME_PAGE_ID, false );
+        super( parent, dataModel, EXTANDTHEME_PAGE_ID, false );
     }
 
     @Override

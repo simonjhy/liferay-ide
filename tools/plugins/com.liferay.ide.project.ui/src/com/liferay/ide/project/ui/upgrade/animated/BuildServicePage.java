@@ -61,9 +61,9 @@ import org.eclipse.ui.console.IConsole;
 public class BuildServicePage extends Page
 {
 
-    public BuildServicePage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
+    public BuildServicePage( Composite parent, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel, BUILDSERVICE_PAGE_ID, true );
+        super( parent, dataModel, BUILDSERVICE_PAGE_ID, true );
 
         Button buildServiceButton = new Button( this, SWT.PUSH );
 

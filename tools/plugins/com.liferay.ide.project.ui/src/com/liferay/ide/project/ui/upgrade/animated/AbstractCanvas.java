@@ -52,7 +52,7 @@ import org.eclipse.swt.widgets.Display;
 public abstract class AbstractCanvas extends Canvas
 {
 
-    private static final int DEFAULT_TIMER_INTERVAL = 10;
+    private static final int DEFAULT_TIMER_INTERVAL = 25;
 
     public static final int NONE = -1;
 

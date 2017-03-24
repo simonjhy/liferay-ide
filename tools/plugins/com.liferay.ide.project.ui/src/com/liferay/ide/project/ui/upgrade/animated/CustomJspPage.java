@@ -497,20 +497,22 @@ public class CustomJspPage extends Page
         }
     }
 
-    public CustomJspPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
+    public CustomJspPage( Composite parent, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel, CUSTOMJSP_PAGE_ID, true );
+        super( parent, dataModel, CUSTOMJSP_PAGE_ID, true );
 
         Composite container = new Composite( this, SWT.NONE );
 
         container.setLayout( new GridLayout( 3, false ) );
-        container.setLayoutData( new GridData( GridData.FILL_HORIZONTAL ) );
+        final GridData gd = new GridData( GridData.FILL_HORIZONTAL );
+        gd.widthHint = DEFAULT_PAGE_WIDTH;
+        container.setLayoutData( gd );
 
         Label label = new Label( container, SWT.NONE );
         label.setText( "Converted Project Location:" );
 
         projectLocation = new Text( container, SWT.BORDER );
-        projectLocation.setLayoutData( new GridData( GridData.FILL_HORIZONTAL ) );
+        projectLocation.setLayoutData( gd );
 
         projectLocation.setForeground( getDisplay().getSystemColor( SWT.COLOR_DARK_GRAY ) );
 
@@ -637,6 +639,7 @@ public class CustomJspPage extends Page
         sashForm.setLayout( sashLayout );
 
         GridData sashFormLayoutData = new GridData( GridData.FILL_BOTH );
+        sashFormLayoutData.widthHint = DEFAULT_PAGE_WIDTH;
 
         sashForm.setLayoutData( sashFormLayoutData );
 

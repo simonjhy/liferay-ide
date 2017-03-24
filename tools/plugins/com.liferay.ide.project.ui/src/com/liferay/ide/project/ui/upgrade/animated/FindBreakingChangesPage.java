@@ -114,19 +114,21 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
     private MigratorComparator _comparator;
     private TreeViewer _treeViewer;
 
-    public FindBreakingChangesPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
+    public FindBreakingChangesPage( Composite parent, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel, FINDBREACKINGCHANGES_PAGE_ID, true );
+        super( parent, dataModel, FINDBREACKINGCHANGES_PAGE_ID, true );
 
         final Composite findBreakingchangesContainer = SWTUtil.createComposite( this, 2, 1, GridData.FILL_BOTH, 0, 0 );
 
         _sashForm = new SashForm( findBreakingchangesContainer, SWT.HORIZONTAL | SWT.H_SCROLL );
-        _sashForm.setLayoutData( new GridData( GridData.FILL_BOTH ) );
+        final GridData gd = new GridData( GridData.FILL_BOTH );
+        gd.widthHint = DEFAULT_PAGE_WIDTH;
+        _sashForm.setLayoutData( gd );
 
         SashForm nestedSashForm = new SashForm( _sashForm, SWT.VERTICAL | SWT.H_SCROLL );
-        nestedSashForm.setLayoutData( new GridData( GridData.FILL_BOTH ) );
+        nestedSashForm.setLayoutData( gd );
 
-        GridData treeData = new GridData( GridData.FILL_BOTH );
+        GridData treeData = gd;
         treeData.minimumWidth = 200;
         treeData.heightHint = 200;
 
@@ -153,7 +155,7 @@ public class FindBreakingChangesPage extends Page implements IDoubleClickListene
         createTableView( nestedSashForm );
 
         _browser = new Browser( _sashForm, SWT.BORDER );
-        _browser.setLayoutData( new GridData( GridData.FILL_BOTH ) );
+        _browser.setLayoutData( gd );
 
         _treeViewer.addSelectionChangedListener( new ISelectionChangedListener()
         {

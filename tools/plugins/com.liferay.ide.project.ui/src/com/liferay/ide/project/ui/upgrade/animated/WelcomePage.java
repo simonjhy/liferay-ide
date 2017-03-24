@@ -31,9 +31,9 @@ import org.eclipse.swt.widgets.Link;
 public class WelcomePage extends Page
 {
 
-    public WelcomePage( final Composite parent, int style, LiferayUpgradeDataModel dataModel )
+    public WelcomePage( final Composite parent, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel, WELCOME_PAGE_ID, false );
+        super( parent, dataModel, WELCOME_PAGE_ID, false );
     }
 
     @Override
@@ -54,9 +54,10 @@ public class WelcomePage extends Page
         return "Welcome to the Liferay Code Upgrade Tool";
     }
 
-    public void createSpecialDescriptor( Composite parent, int style )
+    @Override
+    public void createSpecialDescriptor( Composite parent )
     {
-        final String desriptor =
+        final String descriptor =
             "The Liferay code upgrade tool will help you to upgrade Liferay 6.2 plugin projects into Liferay 7.0 projects.\n\n" +
                 "The key functions are described below:\n" +
                 "       1. Convert Liferay Plugins SDK 6.2 to Liferay Plugins SDK 7.0 or to Liferay Workspace\n" +
@@ -76,8 +77,11 @@ public class WelcomePage extends Page
 
         String url = "https://dev.liferay.com/develop/tutorials/-/knowledge_base/7-0/from-liferay-6-to-liferay-7";
 
-        Link link = SWTUtil.createHyperLink( this, style, desriptor, 1, url );
+        Link link = SWTUtil.createHyperLink( this, SWT.WRAP, descriptor, 1, url );
 
-        link.setLayoutData( new GridData( SWT.FILL, SWT.BEGINNING, true, false, 1, 1 ) );
+        final GridData layoutData = new GridData();
+        layoutData.widthHint = DEFAULT_PAGE_WIDTH + 100;
+        layoutData.horizontalAlignment = SWT.FILL;
+        link.setLayoutData( layoutData );
     }
 }

@@ -54,15 +54,15 @@ import org.jdom.output.XMLOutputter;
  */
 public class DescriptorsPage extends AbstractLiferayTableViewCustomPart
 {
-    private final static String[][] DESCRIPTORS_AND_IMAGES = 
-    { 
+    private final static String[][] DESCRIPTORS_AND_IMAGES =
+    {
         { "liferay-portlet.xml", "/icons/e16/portlet.png" },
-        { "liferay-display.xml", "/icons/e16/liferay_display_xml.png" }, 
+        { "liferay-display.xml", "/icons/e16/liferay_display_xml.png" },
         { "service.xml", "/icons/e16/service.png" },
         { "liferay-hook.xml", "/icons/e16/hook.png" },
         { "liferay-layout-templates.xml", "/icons/e16/layout.png" },
-        { "liferay-look-and-feel.xml", "/icons/e16/theme.png" }, 
-        { "liferay-portlet-ext.xml", "/icons/e16/ext.png" } 
+        { "liferay-look-and-feel.xml", "/icons/e16/theme.png" },
+        { "liferay-portlet-ext.xml", "/icons/e16/ext.png" }
     };
 
     private final static String PUBLICID_REGREX =
@@ -71,9 +71,9 @@ public class DescriptorsPage extends AbstractLiferayTableViewCustomPart
     private final static String SYSTEMID_REGREX =
         "^http://www.liferay.com/dtd/[-A-Za-z0-9+&@#/%?=~_()]*(\\d_\\d_\\d).dtd";
 
-    public DescriptorsPage( Composite parent, int style, LiferayUpgradeDataModel dataModel )
+    public DescriptorsPage( Composite parent, LiferayUpgradeDataModel dataModel )
     {
-        super( parent, style, dataModel, DESCRIPTORS_PAGE_ID, true );
+        super( parent, dataModel, DESCRIPTORS_PAGE_ID, true );
     }
 
     public void createSpecialDescriptor( Composite parent, int style )
@@ -107,7 +107,7 @@ public class DescriptorsPage extends AbstractLiferayTableViewCustomPart
         builder.setValidation( false );
         builder.setFeature( "http://xml.org/sax/features/validation", false );
         builder.setFeature( "http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false );
-        builder.setFeature( "http://apache.org/xml/features/nonvalidating/load-external-dtd", false ); 
+        builder.setFeature( "http://apache.org/xml/features/nonvalidating/load-external-dtd", false );
 
         try( FileInputStream ivyInput = new FileInputStream( srcFile ) )
         {
@@ -344,5 +344,5 @@ public class DescriptorsPage extends AbstractLiferayTableViewCustomPart
             ProjectUI.logError( e );
         }
     }
-    
+
 }
