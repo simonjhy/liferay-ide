@@ -199,7 +199,7 @@ public class MavenModuleProjectTests extends AbstractMavenProjectTestCase
 
         NewLiferayComponentOp cop = NewLiferayComponentOp.TYPE.instantiate();
         cop.setProjectName( pop.getProjectName().content() );
-        cop.setComponentClassTemplateName( "PortletActionCommand" );
+        cop.setComponentClassTemplate( "PortletActionCommand" );
 
         NewLiferayComponentOpMethods.execute( cop, ProgressMonitorBridge.create( new NullProgressMonitor() ) );
 
@@ -233,7 +233,7 @@ public class MavenModuleProjectTests extends AbstractMavenProjectTestCase
 
         NewLiferayComponentOp copRest = NewLiferayComponentOp.TYPE.instantiate();
         copRest.setProjectName( pop.getProjectName().content() );
-        copRest.setComponentClassTemplateName( "RestService" );
+        copRest.setComponentClassTemplate( "RestService" );
 
         NewLiferayComponentOpMethods.execute( copRest, ProgressMonitorBridge.create( new NullProgressMonitor() ) );
 
@@ -263,7 +263,7 @@ public class MavenModuleProjectTests extends AbstractMavenProjectTestCase
 
         NewLiferayComponentOp copAuth = NewLiferayComponentOp.TYPE.instantiate();
         copAuth.setProjectName( pop.getProjectName().content() );
-        copAuth.setComponentClassTemplateName( "Authenticator" );
+        copAuth.setComponentClassTemplate( "Authenticator" );
 
         NewLiferayComponentOpMethods.execute( copAuth, ProgressMonitorBridge.create( new NullProgressMonitor() ) );
 

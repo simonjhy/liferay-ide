@@ -50,7 +50,7 @@ public class NewLiferayComponentOpTests
 
         op.setProjectName( "my-test-project" );
 
-        op.setComponentClassTemplateName( "PortletActionCommand" );
+        op.setComponentClassTemplate( "PortletActionCommand" );
 
         assertEquals( "MyTestProjectPortletActionCommand", op.getComponentClassName().content( true ) );
     }
@@ -62,7 +62,7 @@ public class NewLiferayComponentOpTests
 
         op.setProjectName( "my_test_project" );
 
-        op.setComponentClassTemplateName( "PortletActionCommand" );
+        op.setComponentClassTemplate( "PortletActionCommand" );
 
         assertEquals( "MyTestProjectPortletActionCommand", op.getComponentClassName().content( true ) );
     }
@@ -74,7 +74,7 @@ public class NewLiferayComponentOpTests
 
         op.setProjectName( "my.test.project" );
 
-        op.setComponentClassTemplateName( "PortletActionCommand" );
+        op.setComponentClassTemplate( "PortletActionCommand" );
 
         assertEquals( "MyTestProjectPortletActionCommand", op.getComponentClassName().content( true ) );
     }
@@ -86,7 +86,7 @@ public class NewLiferayComponentOpTests
 
         op.setProjectName( "my.test.project" );
 
-        op.setComponentClassTemplateName( "PortletActionCommand" );
+        op.setComponentClassTemplate( "PortletActionCommand" );
 
         assertEquals( "MyTestProjectPortletActionCommand", op.getComponentClassName().content( true ) );
 
@@ -96,17 +96,17 @@ public class NewLiferayComponentOpTests
     }
 
     @Test
-    public void testNewLiferayComponentDefaultValueServiceIsListeningToComponentClassTemplateName() throws Exception
+    public void testNewLiferayComponentDefaultValueServiceIsListeningToComponentClassTemplate() throws Exception
     {
         NewLiferayComponentOp op = NewLiferayComponentOp.TYPE.instantiate();
 
         op.setProjectName( "my.test.project" );
 
-        op.setComponentClassTemplateName( "PortletActionCommand" );
+        op.setComponentClassTemplate( "PortletActionCommand" );
 
         assertEquals( "MyTestProjectPortletActionCommand", op.getComponentClassName().content( true ) );
 
-        op.setComponentClassTemplateName( "FriendlyUrlMapper" );
+        op.setComponentClassTemplate( "FriendlyUrlMapper" );
 
         assertEquals( "MyTestProjectFriendlyUrlMapper", op.getComponentClassName().content( true ) );
     }
@@ -139,7 +139,7 @@ public class NewLiferayComponentOpTests
 
         NewLiferayComponentOp cop = NewLiferayComponentOp.TYPE.instantiate();
         cop.setProjectName( pop.getProjectName().content() );
-        cop.setComponentClassTemplateName( "PortletActionCommand" );
+        cop.setComponentClassTemplate( "PortletActionCommand" );
 
         NewLiferayComponentOpMethods.execute( cop, ProgressMonitorBridge.create( new NullProgressMonitor() ) );
 
@@ -159,7 +159,7 @@ public class NewLiferayComponentOpTests
 
         NewLiferayComponentOp copRest = NewLiferayComponentOp.TYPE.instantiate();
         copRest.setProjectName( pop.getProjectName().content() );
-        copRest.setComponentClassTemplateName( "RestService" );
+        copRest.setComponentClassTemplate( "RestService" );
 
         NewLiferayComponentOpMethods.execute( copRest, ProgressMonitorBridge.create( new NullProgressMonitor() ) );
 
@@ -176,7 +176,7 @@ public class NewLiferayComponentOpTests
 
         NewLiferayComponentOp copAuth = NewLiferayComponentOp.TYPE.instantiate();
         copAuth.setProjectName( pop.getProjectName().content() );
-        copAuth.setComponentClassTemplateName( "Authenticator" );
+        copAuth.setComponentClassTemplate( "Authenticator" );
 
         NewLiferayComponentOpMethods.execute( copAuth, ProgressMonitorBridge.create( new NullProgressMonitor() ) );
 

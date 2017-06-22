@@ -34,16 +34,16 @@
 				<property-editor>PackageName</property-editor>
 				<property-editor>ComponentClassName</property-editor>
 				<property-editor>
-					<property>ComponentClassTemplateName</property>
+					<property>ComponentClassTemplate</property>
 					<style>Sapphire.PropertyEditor.PopUpListField.Strict</style>
 				</property-editor>
 				<property-editor>
-					<visible-when>${ ComponentClassTemplateName == 'ServiceHook' }
+					<visible-when>${ ComponentClassTemplate == 'ServiceHook' }
 					</visible-when>
 					<property>ServiceName</property>
 				</property-editor>
 				<property-editor>
-					<visible-when>${ ComponentClassTemplateName == 'ModelListener' }
+					<visible-when>${ ComponentClassTemplate == 'ModelListener' }
 					</visible-when>
 					<property>ModelClass</property>
 				</property-editor>

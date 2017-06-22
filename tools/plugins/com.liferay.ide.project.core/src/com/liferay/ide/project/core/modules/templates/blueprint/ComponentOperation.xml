@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ComponentOperation>
+	<operations>
+		<operation>
+			<name>BlueprintPortlet</name>
+			<isPrimary>true</isPrimary>
+			<source>BlueprintPortlet.java.ftl</source>
+			<type>java</type>
+		</operation>
+		<operation>
+			<name>blueprint.xml</name>
+			<source>blueprint.xml.ftl</source>
+			<type>resource</type>
+			<isInChildFolder>false</isInChildFolder>
+			<location>OSGI-INF/blueprint</location>
+		</operation>
+		<operation>
+			<name>bnd.bnd</name>
+			<source>bnd.bnd.template</source>
+			<type>bnd</type>
+		</operation>
+	</operations>
+</ComponentOperation>

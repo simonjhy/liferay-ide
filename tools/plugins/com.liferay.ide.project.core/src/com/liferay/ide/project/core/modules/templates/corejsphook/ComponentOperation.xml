@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ComponentOperation>
+	<operations>
+		<operation>
+			<name>BladeCustomJspBag</name>
+			<source>BladeCustomJspBag.java.ftl</source>
+			<type>java</type>
+			<isPrimary>true</isPrimary>
+		</operation>
+		<operation>
+			<name>bottom-ext.jsp</name>
+			<source>bottom-ext.jsp.ftl</source>
+			<type>resource</type>
+			<location>META-INF/resources/jsps/html/common/themes</location>
+		</operation>
+		<operation>
+			<name>bnd.bnd</name>
+			<source>bnd.bnd.template</source>
+			<type>bnd</type>
+		</operation>
+	</operations>
+</ComponentOperation>

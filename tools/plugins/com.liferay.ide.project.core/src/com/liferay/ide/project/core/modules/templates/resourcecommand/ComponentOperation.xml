@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ComponentOperation>
+	<operations>
+		<operation>
+			<name>CustomMVCResourceCommand</name>
+			<isPrimary>true</isPrimary>
+			<source>CustomMVCResourceCommand.java.ftl</source>
+			<type>java</type>
+		</operation>
+		<operation>
+			<name>bnd.bnd</name>
+			<source>bnd.bnd.template</source>
+			<type>bnd</type>
+		</operation>
+	</operations>
+</ComponentOperation>

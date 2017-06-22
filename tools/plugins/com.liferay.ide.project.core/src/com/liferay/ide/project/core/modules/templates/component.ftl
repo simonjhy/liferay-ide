@@ -1,4 +1,9 @@
 @Component(
+<#if (attributes?size>0) >
+	<#list attributes as attribute>
+		${attribute}
+	</#list>
+</#if>
 <#if (properties?size>0) >
 	immediate = true,
 	property = {

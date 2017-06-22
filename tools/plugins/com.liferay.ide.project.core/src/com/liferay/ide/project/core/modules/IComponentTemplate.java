@@ -15,6 +15,8 @@
 
 package com.liferay.ide.project.core.modules;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 
@@ -27,6 +29,8 @@ public interface IComponentTemplate<NewLiferayComponentOp>
     String getDisplayName();
 
     String getShortName();
-    
+
+    List<ComponentTemplateOperation> getComponentTemplateOperation();
+
     void doExecute( NewLiferayComponentOp op, IProgressMonitor monitor ) throws CoreException;  
 }

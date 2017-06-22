@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ComponentOperation>
+	<operations>
+		<operation>
+			<name>BladeProductNavigationControlMenuEntry</name>
+			<source>BladeProductNavigationControlMenuEntry.java.ftl</source>
+			<isPrimary>true</isPrimary>
+			<type>java</type>
+		</operation>
+		<operation>
+			<name>Language.properties</name>
+			<source>Language.properties.ftl</source>
+			<type>properties</type>
+			<location>content</location>
+		</operation>
+		<operation>
+			<name>bnd.bnd</name>
+			<source>bnd.bnd.template</source>
+			<type>bnd</type>
+		</operation>
+	</operations>
+</ComponentOperation>

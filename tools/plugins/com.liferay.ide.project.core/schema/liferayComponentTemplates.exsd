@@ -49,8 +49,6 @@
 
    <element name="liferayComponentTemplate">
       <complexType>
-         <sequence>
-         </sequence>
          <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>

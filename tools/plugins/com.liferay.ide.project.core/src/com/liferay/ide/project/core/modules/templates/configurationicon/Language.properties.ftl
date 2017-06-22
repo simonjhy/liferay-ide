@@ -1,0 +1,1 @@
+${componentNameWithoutTemplateName}-sample-link=Sample Link

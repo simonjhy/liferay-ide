@@ -68,7 +68,7 @@ public class NewLiferayComponentStrutsPortletActionOperation extends AbstractLif
                     initFreeMarker();
 
                     IFile srcFile = prepareClassFile( this.componentNameWithoutTemplateName + "PortletAction" );
-                    doSourceCodeOperation( srcFile );
+                    doSourceCodeOperation( srcFile, op );
 
                     op.setComponentClassName( this.componentNameWithoutTemplateName + "PortletAction" );
 

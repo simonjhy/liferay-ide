@@ -16,6 +16,7 @@
 package com.liferay.ide.project.core.modules.templates.strutsinaction;
 
 import com.liferay.ide.project.core.ProjectCore;
+import com.liferay.ide.project.core.modules.NewLiferayComponentOp;
 import com.liferay.ide.project.core.modules.templates.AbstractLiferayComponentTemplate;
 import com.liferay.ide.project.core.modules.templates.BndProperties;
 import com.liferay.ide.project.core.modules.templates.BndPropertiesValue;

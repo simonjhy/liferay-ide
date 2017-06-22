@@ -33,7 +33,7 @@ public class NewLiferayComponentOpMethods
     public static void createNewComponent( NewLiferayComponentOp op, IProgressMonitor monitor ) throws CoreException
     {
         IComponentTemplate<NewLiferayComponentOp> componentOp =
-            op.getComponentClassTemplateName().content( true );
+            op.getComponentClassTemplate().content( true );
 
         if( componentOp != null )
         {

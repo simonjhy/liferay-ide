@@ -78,11 +78,11 @@ public interface NewLiferayComponentOp extends ExecutableElement
     @DefaultValue( text = "Portlet" )
     @Label( standard = "Component Class Template" )
     @Service( impl = NewLiferayComponentTemplatePossibleValuesService.class )
-    ValueProperty PROP_COMPONENT_CLASS_TEMPLATE_NAME = new ValueProperty( TYPE, "ComponentClassTemplateName" );
+    ValueProperty PROP_COMPONENT_CLASS_TEMPLATE = new ValueProperty( TYPE, "ComponentClassTemplate" );
 
-    Value<IComponentTemplate<NewLiferayComponentOp>> getComponentClassTemplateName();
-    void setComponentClassTemplateName( IComponentTemplate<NewLiferayComponentOp> value );
-    void setComponentClassTemplateName( String value );
+    Value<IComponentTemplate<NewLiferayComponentOp>> getComponentClassTemplate();
+    void setComponentClassTemplate( IComponentTemplate<NewLiferayComponentOp> value );
+    void setComponentClassTemplate( String value );
 
 
     // *** ModleClass ***

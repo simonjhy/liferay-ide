@@ -19,6 +19,9 @@ import com.liferay.ide.core.ExtensionReader;
 import com.liferay.ide.project.core.ProjectCore;
 import com.liferay.ide.project.core.modules.templates.AbstractLiferayComponentTemplate;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.IConfigurationElement;
 
 /**
@@ -32,6 +35,7 @@ public class LiferayComponentTemplateReader extends ExtensionReader<IComponentTe
     private static final String COMPONENT_TEMPLATE = "liferayComponentTemplate";
     private static final String COMPONENT_TEMPLATE_DISPLAY_NAME_ELEMENT = "displayName";
     private static final String COMPONENT_TEMPLATE_SHORT_NAME_ELEMENT = "shortName";
+
 
     public LiferayComponentTemplateReader()
     {

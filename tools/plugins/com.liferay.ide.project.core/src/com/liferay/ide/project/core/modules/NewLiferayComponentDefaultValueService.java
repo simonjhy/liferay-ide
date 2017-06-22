@@ -44,7 +44,7 @@ public class NewLiferayComponentDefaultValueService extends DefaultValueService
         };
 
         op().property( NewLiferayComponentOp.PROP_PROJECT_NAME ).attach( this.listener );
-        op().property( NewLiferayComponentOp.PROP_COMPONENT_CLASS_TEMPLATE_NAME ).attach( this.listener );
+        op().property( NewLiferayComponentOp.PROP_COMPONENT_CLASS_TEMPLATE ).attach( this.listener );
     }
 
     
@@ -61,11 +61,11 @@ public class NewLiferayComponentDefaultValueService extends DefaultValueService
         }
 
         IComponentTemplate<NewLiferayComponentOp> componentTemplate =
-            op().getComponentClassTemplateName().content( true );
+            op().getComponentClassTemplate().content( true );
 
         if( componentTemplate != null )
         {
-            final String projectTemplate = op().getComponentClassTemplateName().content( true ).getShortName();
+            final String projectTemplate = op().getComponentClassTemplate().content( true ).getShortName();
 
             final char[] tokens = new char[] { '-', '.', '_' };
 
@@ -95,7 +95,7 @@ public class NewLiferayComponentDefaultValueService extends DefaultValueService
     {
         if( op() != null )
         {
-            op().property( NewLiferayComponentOp.PROP_COMPONENT_CLASS_TEMPLATE_NAME ).detach( this.listener );
+            op().property( NewLiferayComponentOp.PROP_COMPONENT_CLASS_TEMPLATE ).detach( this.listener );
             op().property( NewLiferayComponentOp.PROP_PROJECT_NAME ).detach( this.listener );
         }
 

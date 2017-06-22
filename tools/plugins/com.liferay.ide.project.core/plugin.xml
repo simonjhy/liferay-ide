@@ -703,6 +703,60 @@
             displayName="MVC Portlet"
             shortName="MVCPortlet"
             id="newLiferayComponentMVCPortletOperation">
-      </liferayComponentTemplate>       
+      </liferayComponentTemplate>  
+	  <liferayComponentTemplate
+            class="com.liferay.ide.project.core.modules.templates.configurationaction.ConfigurationActionOperation"
+            displayName="Configuration Action"
+            shortName="ConfigurationAction"
+            id="configurationActionOperation">
+      </liferayComponentTemplate>
+	  <liferayComponentTemplate
+            class="com.liferay.ide.project.core.modules.templates.controlmenuentry.ControlMenuEntryOperation"
+            displayName="Control Menu Entry"
+            shortName="ControlMenuEntry"
+            id="controlmenuentry">
+      </liferayComponentTemplate>
+      <liferayComponentTemplate
+            class="com.liferay.ide.project.core.modules.templates.corejsphook.CoreJspHookOperation"
+            displayName="Core JSP Hook"
+            shortName="CoreJSPHook"
+            id="corejsphook">
+       </liferayComponentTemplate>
+       <liferayComponentTemplate
+            class="com.liferay.ide.project.core.modules.templates.resourcecommand.ResourceCommandOperation"
+            displayName="Resource Command Override"
+            shortName="ResourceCommandOverride"
+            id="resourcecommandoverride">
+       </liferayComponentTemplate>
+       <liferayComponentTemplate
+            class="com.liferay.ide.project.core.modules.templates.documentaction.DocumentActionOperation"
+            displayName="Document Action"
+            shortName="DocumentAction"
+            id="documentaction">
+       </liferayComponentTemplate>
+	   <liferayComponentTemplate
+            class="com.liferay.ide.project.core.modules.templates.resoucebundle.ResourceBundleOperation"
+            displayName="Resource Bundle"
+            shortName="ResouceBundle"
+            id="resourcebundle">
+       </liferayComponentTemplate>
+	   <liferayComponentTemplate
+            class="com.liferay.ide.project.core.modules.templates.blueprint.BluePrintOperation"
+            displayName="Portle Blue Print"
+            shortName="PortletBluePrint"
+            id="portletblueprint">
+       </liferayComponentTemplate>
+	   <liferayComponentTemplate
+            class="com.liferay.ide.project.core.modules.templates.configurationicon.ConfigurationIconOperation"
+            displayName="Configuration Icon"
+            shortName="ConfigurationIcon"
+            id="configurationicon">
+       </liferayComponentTemplate>
+	  <liferayComponentTemplate
+            class="com.liferay.ide.project.core.modules.templates.controlpanel.ControlPanelOperation"
+            displayName="Control Panel"
+            shortName="ControlPanelOperation"
+            id="controlpanel">
+      </liferayComponentTemplate>
    </extension>
 </plugin>

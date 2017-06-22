@@ -48,7 +48,7 @@ public class LiferayComponentTemplateValueLabelService extends ValueLabelService
 
             final ValueProperty prop = context.find( ValueProperty.class );
 
-            if( prop != null && prop.equals( NewLiferayComponentOp.PROP_COMPONENT_CLASS_TEMPLATE_NAME ) )
+            if( prop != null && prop.equals( NewLiferayComponentOp.PROP_COMPONENT_CLASS_TEMPLATE ) )
             {
                 retval = true;
             }

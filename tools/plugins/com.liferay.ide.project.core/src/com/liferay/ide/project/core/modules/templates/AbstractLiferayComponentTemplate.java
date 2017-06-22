@@ -21,6 +21,7 @@ import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.project.core.IProjectBuilder;
 import com.liferay.ide.project.core.ProjectCore;
+import com.liferay.ide.project.core.modules.ComponentTemplateOperation;
 import com.liferay.ide.project.core.modules.IComponentTemplate;
 import com.liferay.ide.project.core.modules.NewLiferayComponentOp;
 import com.liferay.ide.project.core.modules.PropertyKey;
@@ -71,6 +72,12 @@ public abstract class AbstractLiferayComponentTemplate implements IComponentTemp
 {
     protected String displayName;
     protected String shortName;
+    protected List<ComponentTemplateOperation> operations;
+    
+    public void setOperations( List<ComponentTemplateOperation> operations )
+    {
+        this.operations = operations;
+    }
 
     protected final static String TEMPLATE_DIR = "com/liferay/ide/project/core/modules/templates";
 
@@ -86,6 +93,7 @@ public abstract class AbstractLiferayComponentTemplate implements IComponentTemp
     protected IProject project;
     protected String projectName;
     protected List<String> properties = new ArrayList<String>();
+    protected List<String> attributes = new ArrayList<String>();
 
     protected String serviceName;
     protected File[] sourceTemplateFiles;
@@ -100,6 +108,13 @@ public abstract class AbstractLiferayComponentTemplate implements IComponentTemp
         { "org.osgi", "org.osgi.service.component.annotations", "1.3.0"}
     };
 
+
+    @Override
+    public List<ComponentTemplateOperation> getComponentTemplateOperation()
+    {
+        return operations;
+    }
+    
     public AbstractLiferayComponentTemplate()
     {
         super();
@@ -271,7 +286,7 @@ public abstract class AbstractLiferayComponentTemplate implements IComponentTemp
         this.projectName = op.getProjectName().content( true );
         this.packageName = op.getPackageName().content( true );
         this.componentClassName = op.getComponentClassName().content( true );
-        this.templateName = op.getComponentClassTemplateName().content( true ).getShortName();
+        this.templateName = op.getComponentClassTemplate().content( true ).getShortName();
         this.serviceName = op.getServiceName().content( true );
         this.modelClass = op.getModelClass().content( true );
 
@@ -313,7 +328,7 @@ public abstract class AbstractLiferayComponentTemplate implements IComponentTemp
                     initFreeMarker();
 
                     IFile srcFile = prepareClassFile( this.componentClassName );
-                    doSourceCodeOperation( srcFile );
+                    doSourceCodeOperation( srcFile, op );
 
                     doNewPropertiesOperation();
 
@@ -399,7 +414,7 @@ public abstract class AbstractLiferayComponentTemplate implements IComponentTemp
         builder.updateProjectDependency( project, getComponentDependency() );
     }
 
-    protected void doSourceCodeOperation( IFile srcFile ) throws CoreException
+    protected void doSourceCodeOperation( IFile srcFile, NewLiferayComponentOp op ) throws CoreException
     {
         try(OutputStream fos = new FileOutputStream( srcFile.getLocation().toFile() ))
         {
@@ -453,6 +468,11 @@ public abstract class AbstractLiferayComponentTemplate implements IComponentTemp
         return properties;
     }
 
+    protected List<String> getAttributes()
+    {
+        return attributes;
+    }    
+    
     protected IPackageFragmentRoot getSourceFolder( IJavaProject javaProject )
     {
         try

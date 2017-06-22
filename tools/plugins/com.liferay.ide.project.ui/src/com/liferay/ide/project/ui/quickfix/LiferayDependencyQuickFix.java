@@ -240,7 +240,7 @@ public class LiferayDependencyQuickFix implements IQuickFixProcessor
                         Version retriveVersion = new Version( bundleVersion );
 
                         String[] dependency = new String[] { bundleGroup, bundleName,
-                            retriveVersion.getMajor() + "." + retriveVersion.getMinor() + ".0" };
+                            retriveVersion.getMajor() + "." + retriveVersion.getMinor() + "." + retriveVersion.getMicro() };
                         List<String[]> dependencyList = new ArrayList<String[]>();
                         dependencyList.add( dependency );
                         builder.updateProjectDependency( project, dependencyList );

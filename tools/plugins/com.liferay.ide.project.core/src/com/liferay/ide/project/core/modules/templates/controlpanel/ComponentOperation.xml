@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ComponentOperation>
+	<operations>
+		<operation>
+			<name>ControlPanelDemo</name>
+			<source>ControlPanelDemo.java.ftl</source>
+			<isPrimary>true</isPrimary>
+			<type>java</type>
+		</operation>
+		<operation>
+			<name>ControlPanelPortlet</name>
+			<source>ControlPanelPortlet.java.ftl</source>
+			<type>java</type>
+		</operation>
+		<operation>
+			<name>Language.properties</name>
+			<source>Language.properties.ftl</source>
+			<type>properties</type>
+			<location>content</location>
+		</operation>
+		<operation>
+			<name>init.jsp</name>
+			<source>init.jsp.ftl</source>
+			<type>resource</type>
+			<location>META-INF/resources</location>
+		</operation>
+		<operation>
+			<name>view.jsp</name>
+			<source>view.jsp.ftl</source>
+			<type>resource</type>
+			<location>META-INF/resources</location>
+		</operation>
+		<operation>
+			<name>bnd.bnd</name>
+			<source>bnd.bnd.template</source>
+			<type>bnd</type>
+		</operation>
+	</operations>
+</ComponentOperation>
