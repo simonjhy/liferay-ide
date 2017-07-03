@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -342,4 +343,15 @@ public class PortalJBossBundle extends AbstractPortalBundle
         }
     }
 
+    @Override
+    public boolean shouldLoadLiferayProcess()
+    {
+        return true;
+    }
+
+    @Override
+    public IPath getLogPath()
+    {
+        return getLiferayHome().append( "logs" ).append( "Liferay." + sdf.format( new Date() ) + ".log" );
+    }
 }

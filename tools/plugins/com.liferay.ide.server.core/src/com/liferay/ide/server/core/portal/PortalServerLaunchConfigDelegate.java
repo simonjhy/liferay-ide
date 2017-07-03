@@ -26,6 +26,8 @@ import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.sourcelookup.AbstractSourceLookupDirector;
+import org.eclipse.debug.core.model.IProcess;
+import org.eclipse.debug.core.model.RuntimeProcess;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.ExecutionArguments;
 import org.eclipse.jdt.launching.IVMInstall;
@@ -102,6 +104,23 @@ public class PortalServerLaunchConfigDelegate extends AbstractJavaLaunchConfigur
             runConfig.setBootClassPath( bootpath );
         }
 
+        if( server.getRuntime() != null )
+        {
+            PortalRuntime portalRuntime = (PortalRuntime) server.getRuntime().loadAdapter( PortalRuntime.class, null );
+            
+            boolean shouldLoadLiferayProcess = portalRuntime.getPortalBundle().shouldLoadLiferayProcess();
+            
+            if ( shouldLoadLiferayProcess == true )
+            {
+                PortalServerBehavior portalServerBehavior =
+                                (PortalServerBehavior) server.loadAdapter( PortalServerBehavior.class, monitor );
+                IProcess streamProxyProcess = createTerminateableStreamsProxyProcess(
+                    server, portalRuntime, portalServerBehavior, launch, "debug".equals( mode ) );
+
+                portalServerBehavior.setProcess( streamProxyProcess );            
+            }
+        }
+        
         portalServer.launchServer( launch, mode, monitor );
 
         server.addServerListener(new IServerListener()
@@ -142,7 +161,12 @@ public class PortalServerLaunchConfigDelegate extends AbstractJavaLaunchConfigur
         try
         {
             runner.run( runConfig, launch, monitor );
-            portalServer.addProcessListener( launch.getProcesses()[0] );
+            IProcess mainProcess = getMainProcess( launch );
+
+            if ( mainProcess != null )
+            {
+                portalServer.addProcessListener( mainProcess );    
+            }
         }
         catch( Exception e )
         {
@@ -150,4 +174,43 @@ public class PortalServerLaunchConfigDelegate extends AbstractJavaLaunchConfigur
         }
     }
 
+    private IProcess getMainProcess( final ILaunch launch )
+    {
+        IProcess[] processes = launch.getProcesses();
+
+        for( IProcess process : processes )
+        {
+            if ( process instanceof RuntimeProcess )
+            {
+                return process;
+            }
+        }
+        return null;
+    }
+    
+    private IProcess createTerminateableStreamsProxyProcess(
+        IServer server, PortalRuntime portalRuntime, final PortalServerBehavior portalServerBehavior,
+        ILaunch launch, boolean isDebug )
+    {
+        if( ( portalRuntime == null ) || ( server == null ) || ( portalServerBehavior == null ) || ( launch == null ) )
+        {
+            return null;
+        }
+
+        IProcess retvalProcess  = portalServerBehavior.getProcess();
+        
+        if ( retvalProcess == null )
+        {
+            ITerminateableStreamsProxy streamsProxy = new LiferayServerLogFileStreamsProxy( portalRuntime, launch );
+            retvalProcess  = new LiferayMonitorProcess( server, portalServerBehavior, launch, streamsProxy );
+            retvalProcess .setAttribute( IProcess.ATTR_PROCESS_TYPE, "java" );
+            retvalProcess .setAttribute( IProcess.ATTR_PROCESS_LABEL, server.getName() + ":" + portalRuntime.getPortalBundle().getHttpPort() );
+            launch.addProcess( retvalProcess  );
+        }
+        else
+        {
+            launch.addProcess( retvalProcess );
+        }
+        return retvalProcess;
+    }    
 }
