@@ -14,18 +14,12 @@
 
 package com.liferay.ide.project.core.modules;
 
-import com.liferay.ide.core.util.FileListing;
-import com.liferay.ide.core.util.FileUtil;
-import com.liferay.ide.project.core.util.TargetPlatformUtil;
-import com.liferay.ide.server.core.portal.PortalRuntime;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-
+import java.net.URL;
 import java.nio.file.Files;
-
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -37,9 +31,21 @@ import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 
 import org.apache.commons.lang.StringUtils;
-
+import org.codehaus.jackson.map.ObjectMapper;
+import org.eclipse.core.resources.WorkspaceJob;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.wst.server.core.IServer;
+
+import com.liferay.ide.core.util.FileListing;
+import com.liferay.ide.core.util.FileUtil;
+import com.liferay.ide.project.core.ProjectCore;
+import com.liferay.ide.project.core.util.TargetPlatformUtil;
+import com.liferay.ide.server.core.portal.PortalRuntime;
 
 /**
  * @author Lovett Li
@@ -55,6 +61,41 @@ public class ServiceWrapperCommand {
 		_serviceWrapperName = serviceWrapperName;
 	}
 
+	private File checkStaticServicesFile() throws IOException {
+		final URL url =
+			FileLocator.toFileURL(ProjectCore.getDefault().getBundle().getEntry("OSGI-INF/wrappers-static.json"));
+		final File servicesFile = new File(url.getFile());
+
+		if (servicesFile.exists()) {
+			return servicesFile;
+		}
+
+		throw new FileNotFoundException("can't find static services file services-static.json");
+	}
+
+	private void updateServicesWrapperStaticFile(final String[] servicesList)
+		throws Exception {
+		final File servicesFile = checkStaticServicesFile();
+		final ObjectMapper mapper = new ObjectMapper();
+
+		final Job job = new WorkspaceJob("Update services wrapper static file...") {
+
+			@Override
+			public IStatus runInWorkspace(IProgressMonitor monitor) {
+				try {
+					mapper.writeValue(servicesFile, servicesList);
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+					return Status.CANCEL_STATUS;
+				}
+				return Status.OK_STATUS;
+			}
+		};
+
+		job.schedule();
+	}
+
 	public ServiceContainer execute() throws Exception {
 		if (_server == null) {
 			return _getServiceWrapperFromTargetPlatform();
@@ -65,6 +106,7 @@ public class ServiceWrapperCommand {
 
 		if (_serviceWrapperName == null) {
 			result = new ServiceContainer(Arrays.asList(dynamicServiceWrappers.keySet().toArray(new String[0])));
+			updateServicesWrapperStaticFile(result.getServiceList().toArray(new String[dynamicServiceWrappers.size()]));
 		}
 		else {
 			String[] wrapperBundle = dynamicServiceWrappers.get(_serviceWrapperName);
@@ -76,7 +118,7 @@ public class ServiceWrapperCommand {
 	}
 
 	private Map<String, String[]> _getDynamicServiceWrapper() throws IOException {
-		PortalRuntime portalRuntime = (PortalRuntime)_server.getRuntime().loadAdapter(PortalRuntime.class, null);
+		PortalRuntime portalRuntime = (PortalRuntime) _server.getRuntime().loadAdapter(PortalRuntime.class, null);
 
 		IPath bundleLibPath = portalRuntime.getAppServerLibGlobalDir();
 		IPath bundleServerPath = portalRuntime.getAppServerDir();
@@ -132,8 +174,7 @@ public class ServiceWrapperCommand {
 										}
 									}
 								}
-								catch (Exception e) {
-								}
+								catch (Exception e) {}
 								finally {
 									if (jarInputStream != null) {
 										jarInputStream.close();
@@ -158,8 +199,7 @@ public class ServiceWrapperCommand {
 								_getServiceWrapperList(map, name, jarinput);
 							}
 						}
-						catch (IOException ioe) {
-						}
+						catch (IOException ioe) {}
 						finally {
 							if (jarinput != null) {
 								jarinput.close();
@@ -169,8 +209,7 @@ public class ServiceWrapperCommand {
 				}
 			}
 		}
-		catch (FileNotFoundException fnfe) {
-		}
+		catch (FileNotFoundException fnfe) {}
 
 		return map;
 	}
@@ -212,7 +251,9 @@ public class ServiceWrapperCommand {
 				}
 			}
 
-			wrapperMap.put(name, new String[] {group, bundleName, version});
+			wrapperMap.put(name, new String[] {
+				group, bundleName, version
+			});
 		}
 	}
 

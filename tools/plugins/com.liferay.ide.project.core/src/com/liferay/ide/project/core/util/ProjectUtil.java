@@ -1377,7 +1377,8 @@ public class ProjectUtil {
 			name.endsWith(ISDKConstants.HOOK_PLUGIN_PROJECT_SUFFIX) ||
 			name.endsWith(ISDKConstants.THEME_PLUGIN_PROJECT_SUFFIX) ||
 			name.endsWith(ISDKConstants.LAYOUTTPL_PLUGIN_PROJECT_SUFFIX) ||
-			name.endsWith(ISDKConstants.WEB_PLUGIN_PROJECT_SUFFIX)) {
+			name.endsWith(ISDKConstants.WEB_PLUGIN_PROJECT_SUFFIX) ||
+			name.endsWith(ISDKConstants.SHARED_PLUGIN_PROJECT_SUFFIX)) {
 
 			return true;
 		}

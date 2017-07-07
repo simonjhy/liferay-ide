@@ -113,6 +113,56 @@ public class GogoTelnetClient implements AutoCloseable {
 		return readUntilNextGogoPrompt();
 	}
 
+	public String send(String command, boolean ignoreInput) throws IOException {
+		byte[] bytes = command.getBytes();
+		int[] codes = new int[bytes.length + 2];
+
+		for (int i = 0; i < bytes.length; i++) {
+			codes[i] = bytes[i];
+		}
+
+		codes[bytes.length] = '\r';
+		codes[bytes.length + 1] = '\n';
+
+		sendCommand(codes);
+
+		return _readUntilNextGogoPrompt(ignoreInput ? codes.length : 0);
+	}
+
+
+	private String _readUntilNextGogoPrompt(int ignoreLenth) throws IOException {
+		StringBuilder sb = new StringBuilder();
+
+		int c = _inputStream.read();
+
+		int replyCount = 0;
+
+		while (c != -1) {
+
+			if (ignoreLenth > 0) {
+				if (replyCount >= ignoreLenth) {
+					sb.append((char) c);
+				}
+				else {
+					replyCount++;
+				}
+			}
+			else {
+				sb.append((char) c);
+			}
+
+			if (sb.toString().endsWith("g! ")) {
+				break;
+			}
+
+			c = _inputStream.read();
+		}
+
+		String output = sb.substring(0, sb.length() - 3);
+
+		return output.trim();
+	}
+	
 	private void sendCommand(int... codes) throws IOException {
 		for (int code : codes) {
 			_outputStream.write(code);

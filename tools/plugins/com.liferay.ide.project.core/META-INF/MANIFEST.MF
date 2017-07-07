@@ -39,7 +39,10 @@ Require-Bundle: org.eclipse.wst.common.project.facet.core;visibility:=reexport,
  org.apache.ant,
  biz.aQute.bndlib;bundle-version="[3.4,4.0)",
  biz.aQute.remote.api;bundle-version="[3.4,4.0)",
- com.liferay.ide.upgrade.core
+ com.liferay.ide.upgrade.core,
+ com.liferay.ide.project.core,
+ org.apache.commons.collections,
+ org.apache.commons.collections
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: com.liferay.ide.project.core,
@@ -57,3 +60,6 @@ Export-Package: com.liferay.ide.project.core,
 Bundle-ClassPath: lib/jackson-core-asl-1.9.13.jar,
  lib/jackson-mapper-asl-1.9.13.jar,
  .
+Import-Package: com.liferay.ide.project.core,
+ org.apache.commons.collections.list,
+ org.apache.commons.collections.set

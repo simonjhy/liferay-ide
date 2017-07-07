@@ -20,16 +20,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections.list.SetUniqueList;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.eclipse.core.resources.WorkspaceJob;
@@ -269,7 +266,6 @@ public class ServiceCommand
     private String[] getServices( BundleSupervisor supervisor ) throws Exception
     {
         supervisor.getAgent().stdin( "services" );
-
         return parseService( supervisor.getOutInfo() );
     }
 
@@ -349,81 +345,62 @@ public class ServiceCommand
         return null;
     }
 
+    @SuppressWarnings( "unchecked" )
     private String[] parseService( String outinfo )
     {
         final Pattern pattern = Pattern.compile( "(?<=\\{)(.+?)(?=\\})" );
         final Matcher matcher = pattern.matcher( outinfo );
-        final List<String> ls = new ArrayList<>();
+        final List<String> serviceList = SetUniqueList.decorate(new ArrayList<String>());  
 
-        while( matcher.find() )
+        while ( matcher.find() )
         {
-            ls.add( matcher.group() );
-        }
-
-        Iterator<String> iterator = ls.iterator();
-
-        while( iterator.hasNext() )
-        {
-            String serviceName = iterator.next();
-
-            if( serviceName.contains( "bundle.id=" ) || serviceName.contains( "service.id=" ) ||
-                serviceName.contains( "=" ) )
+            for( int i=0; i < matcher.groupCount(); i++ )
             {
-                iterator.remove();
-            }
-        }
+                String serviceName = matcher.group( i );
 
-        final List<String> listservice = new ArrayList<>();
-
-        for( String bs : ls )
-        {
-            if( bs.split( "," ).length > 1 )
-            {
-                for( String bbs : bs.split( "," ) )
+                if( serviceName.contains( "bundle.id=" ) || serviceName.contains( "service.id=" ) ||
+                    serviceName.contains( "=" ) )
                 {
-                    listservice.add( bbs.trim() );
+                    continue;
                 }
-            }
-            else
-            {
-                listservice.add( bs );
-            }
-        }
-
-        final Set<String> set = new HashSet<String>();
-        final List<String> newList = new ArrayList<>();
-
-        for( Iterator<String> iter = listservice.iterator(); iter.hasNext(); )
-        {
-            String element = iter.next();
-
-            if( set.add( element ) )
-            {
-                newList.add( element );
-            }
-        }
-
-        Collections.sort( newList );
-
-        Iterator<String> newListIterator = newList.iterator();
-
-        while( newListIterator.hasNext() )
-        {
-            String serviceName = newListIterator.next();
-
-            for( String packageName : _portalImplExpPackage )
-            {
-                if( serviceName.startsWith( packageName ) )
+                else
                 {
-                    newListIterator.remove();
-                    break;
+                    if( serviceName.split( "," ).length > 1 )
+                    {
+                        for( String bbs : serviceName.split( "," ) )
+                        {
+                            if ( checkPackageName( bbs ) )
+                            {
+                                serviceList.add( bbs.trim() );    
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if ( checkPackageName( serviceName ) )
+                        {
+                            serviceList.add( serviceName );    
+                        }       
+                    }
                 }
             }
         }
 
-        return newList.toArray( new String[0] );
+        return serviceList.stream().sorted().toArray(String[]::new);
     }
 
+    private boolean checkPackageName( final String serviceName )
+    {
+        for( String packageName : _portalImplExpPackage )
+        {
+            if( serviceName.startsWith( packageName ) )
+            {
+                return false;
+            }
+        }
+        
+        return true;
+    }
     private String[] parseSymbolicName( String info )
     {
         final int symbolicIndex = info.indexOf( "bundle-symbolic-name" );

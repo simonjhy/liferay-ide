@@ -219,5 +219,7 @@ public interface ISDKConstants {
 	public static final String WEB_PLUGIN_PROJECT_FOLDER = "webs";
 
 	public static final String WEB_PLUGIN_PROJECT_SUFFIX = "-web";
+	
+	public static final String SHARED_PLUGIN_PROJECT_SUFFIX = "-shared";
 
 }
