@@ -107,6 +107,10 @@ public abstract class MavenGoalAction extends AbstractObjectAction
                             MavenUtil.getProjectFacade( p ), getGroupId() + ":" + getPluginKey(),
                             new NullProgressMonitor() );
                     }
+                    
+                	if(!isVersion(plugin.getVersion())) {
+                		plugin = null ;
+                	}
                 }
                 catch( CoreException e1 )
                 {
@@ -151,6 +155,11 @@ public abstract class MavenGoalAction extends AbstractObjectAction
             }
         }
     }
+    
+    private boolean isVersion(String str){
+        String reg = "^((\\d+)\\.(\\d+)\\.(\\d+))(\\.(\\w|-)+)?";
+        return str.matches(reg);
+    } 
 
     private void runMavenGoal( IFile pomFile, String goal, IProgressMonitor monitor ) throws CoreException
     {
