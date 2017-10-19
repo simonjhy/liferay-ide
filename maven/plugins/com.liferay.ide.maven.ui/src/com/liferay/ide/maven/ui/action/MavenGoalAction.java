@@ -15,6 +15,7 @@
 
 package com.liferay.ide.maven.ui.action;
 
+import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.maven.core.ILiferayMavenConstants;
 import com.liferay.ide.maven.core.MavenUtil;
 import com.liferay.ide.maven.ui.LiferayMavenUI;
@@ -42,6 +43,7 @@ import org.eclipse.m2e.core.project.IMavenProjectRegistry;
 /**
  * @author Gregory Amerson
  * @author Terry Jia
+ * @author Charles Wu
  */
 @SuppressWarnings( "restriction" )
 public abstract class MavenGoalAction extends AbstractObjectAction
@@ -107,10 +109,11 @@ public abstract class MavenGoalAction extends AbstractObjectAction
                             MavenUtil.getProjectFacade( p ), getGroupId() + ":" + getPluginKey(),
                             new NullProgressMonitor() );
                     }
-                    
-                	if(!isVersion(plugin.getVersion())) {
-                		plugin = null ;
-                	}
+
+                    if( !CoreUtil.isVersion( plugin.getVersion() ) )
+                    {
+                        plugin = null;
+                    }
                 }
                 catch( CoreException e1 )
                 {
@@ -155,11 +158,6 @@ public abstract class MavenGoalAction extends AbstractObjectAction
             }
         }
     }
-    
-    private boolean isVersion(String str){
-        String reg = "^((\\d+)\\.(\\d+)\\.(\\d+))(\\.(\\w|-)+)?";
-        return str.matches(reg);
-    } 
 
     private void runMavenGoal( IFile pomFile, String goal, IProgressMonitor monitor ) throws CoreException
     {
