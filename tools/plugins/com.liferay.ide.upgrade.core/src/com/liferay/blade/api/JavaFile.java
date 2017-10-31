@@ -41,4 +41,5 @@ public interface JavaFile extends SourceFile {
 
 	List<SearchResult> findSuperClass(String superClassName);
 
+	List<SearchResult> findQualifiedName(String QualifiedName);
 }

@@ -43,6 +43,7 @@ import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.osgi.framework.BundleContext;
@@ -501,32 +502,32 @@ public class JavaFileJDT extends WorkspaceFile implements JavaFile {
 		return null;
 	}
 
-	public List<SearchResult> findQualifiedName(final String exception) {
+	public List<SearchResult> findQualifiedName(final String qualifyName) {
 		final List<SearchResult> searchResults = new ArrayList<>();
 
-//		_ast.accept(new ASTVisitor() {
-//
-//			@Override
-//			public boolean visit(QualifiedName node) {
-//				String qualifyName = node.getFullyQualifiedName();
-//				boolean retVal = false;
-//
-//				if (qualifyName.equals(exception)) {
-//					final int startLine = _ast
-//							.getLineNumber(node.getStartPosition());
-//					final int startOffset = node.getStartPosition();
-//					int endLine = _ast.getLineNumber(
-//							node.getStartPosition() + node.getLength());
-//					int endOffset = node.getStartPosition() + node.getLength();
-//					searchResults.add(createSearchResult(startOffset,
-//							endOffset, startLine, endLine, true));
-//
-//					retVal = true;
-//				}
-//
-//				return retVal;
-//			}
-//		});
+		_ast.accept(new ASTVisitor() {
+
+			@Override
+			public boolean visit(QualifiedName node) {
+				String findQualifyName = node.getFullyQualifiedName();
+				boolean retVal = false;
+
+				if (findQualifyName.equals(qualifyName)) {
+					final int startLine = _ast
+							.getLineNumber(node.getStartPosition());
+					final int startOffset = node.getStartPosition();
+					int endLine = _ast.getLineNumber(
+							node.getStartPosition() + node.getLength());
+					int endOffset = node.getStartPosition() + node.getLength();
+					searchResults.add(createSearchResult(qualifyName,startOffset,
+							endOffset, startLine, endLine, true));
+
+					retVal = true;
+				}
+
+				return retVal;
+			}
+		});
 
 		return searchResults;
 	}

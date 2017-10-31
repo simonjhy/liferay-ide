@@ -51,56 +51,6 @@ import org.osgi.service.component.annotations.Component;
 )
 public class RenamePortalKernelImports extends ImportStatementMigrator {
 
-	// In my code I didn't handle the following package or class as I didn't find them in
-	// 6.2.x portal-service source or they are wrong.
-	// Keep them here for future research to make sure need them or not at all.
-
-	// private final static String[] IMPORTS = new String[] {
-	// "com.liferay.portal.exception",
-	// "com.liferay.portal.jdbc.pool.metrics",
-	// "com.liferay.portal.mail",
-	// "com.liferay.portal.model.adapter",
-	// "com.liferay.portal.security.exportimport",
-	// "com.liferay.portal.service.configuration",
-	// "com.liferay.portal.service.http",
-	// "com.liferay.portal.verify.model",
-	// "com.liferay.portlet.admin.util",
-	// "com.liferay.portlet.blogs.exception",
-	// "com.liferay.portlet.exportimport",
-	// "com.liferay.portlet.imagegallerydisplay.display.context",
-	// "com.liferay.portlet.journal.util",
-	// "com.liferay.portlet.messageboards.constants",
-	// "com.liferay.portlet.messageboards.exception",
-	// "com.liferay.portlet.useradmin.util",
-	// "com.liferay.portlet.ratings.definition",
-	// "com.liferay.portlet.ratings.display.context",
-	// "com.liferay.portlet.ratings.exception",
-	// "com.liferay.portlet.ratings.transformer"
-	// };
-	//
-	// private final static String[] IMPORTS_FIXED = new String[] {
-	// "com.liferay.portal.kernel.exception",
-	// "com.liferay.portal.kernel.jdbc.pool.metrics",
-	// "com.liferay.portal.kernel.mail",
-	// "com.liferay.portal.kernel.model.adapter",
-	// "com.liferay.portal.kernel.security.exportimport",
-	// "com.liferay.portal.kernel.service.configuration",
-	// "com.liferay.portal.kernel.service.http",
-	// "com.liferay.portal.kernel.verify.model",
-	// "com.liferay.admin.kernel.util",
-	// "com.liferay.blogs.kernel.exception",
-	// "com.liferay.exportimport.kernel",
-	// "com.liferay.image.gallery.display.kernel.display.context",
-	// "com.liferay.journal.kernel.util",
-	// "com.liferay.message.boards.kernel.constants",
-	// "com.liferay.message.boards.kernel.exception",
-	// "com.liferay.users.admin.kernel.util",
-	// "com.liferay.ratings.kernel.definition",
-	// "com.liferay.ratings.kernel.display.context",
-	// "com.liferay.ratings.kernel.exception",
-	// "com.liferay.ratings.kernel.transformer"
-	// };
-
 	public RenamePortalKernelImports() {
 		super(getImports());
 	}
@@ -183,15 +133,17 @@ public class RenamePortalKernelImports extends ImportStatementMigrator {
 	public List<SearchResult> searchFile(File file, JavaFile javaFile) {
 		final List<SearchResult> searchResults = new ArrayList<>();
 
-		final List<SearchResult> importResult = javaFile.findImports((getImports().keySet().toArray(new String[0])));
+		final List<SearchResult> importResult = javaFile.findImports(_importFixes.keySet().toArray(new String[0]));
 
 		if (importResult.size() != 0) {
+		    String[] fixedImportArray = _importFixes.values().toArray(new String[0]);
+		    
 			for (SearchResult result : importResult) {
 				// make sure that our import is not in list of fixed imports
 				boolean skip = false;
 
 				if (result.searchContext != null) {
-					for (String fixed : getImports().values().toArray(new String[0])) {
+					for (String fixed : fixedImportArray) {
 						if (result.searchContext.contains(fixed)) {
 							skip = true;
 							break;

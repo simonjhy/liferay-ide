@@ -43,7 +43,7 @@ import org.osgi.framework.ServiceReference;
 public abstract class ImportStatementMigrator extends AbstractFileMigrator<JavaFile> implements AutoMigrator {
 
 	private static final String PREFIX = "import:";
-	private final Map<String, String> _importFixes;
+	protected final Map<String, String> _importFixes;
 
 	public ImportStatementMigrator(Map<String, String> importFixes) {
 		super(JavaFile.class);
