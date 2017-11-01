@@ -15,13 +15,17 @@
 
 package com.liferay.ide.project.ui.upgrade.animated;
 
+import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.project.core.ProjectCore;
 import com.liferay.ide.project.core.util.SearchFilesVisitor;
 import com.liferay.ide.project.ui.ProjectUI;
 import com.liferay.ide.ui.util.SWTUtil;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -60,6 +64,10 @@ public class DescriptorsPage extends AbstractLiferayTableViewCustomPart
         { "liferay-hook.xml", "/icons/e16/hook.png" }, { "liferay-layout-templates.xml", "/icons/e16/layout.png" },
         { "liferay-look-and-feel.xml", "/icons/e16/theme.png" }, { "liferay-portlet-ext.xml", "/icons/e16/ext.png" } };
 
+    private static final Pattern ENCODING_PATTERN = Pattern.compile(
+        "<\\?xml.*encoding[\\s]*=[\\s]*((?:\".[^\"]*\")|(?:'.[^']*'))",
+        Pattern.MULTILINE);
+
     private final static String PUBLICID_REGREX =
         "-\\//(?:[a-z][a-z]+)\\//(?:[a-z][a-z]+)[\\s+(?:[a-z][a-z0-9_]*)]*\\s+(\\d\\.\\d\\.\\d)\\//(?:[a-z][a-z]+)";
 
@@ -93,6 +101,40 @@ public class DescriptorsPage extends AbstractLiferayTableViewCustomPart
     public int getGridLayoutCount()
     {
         return 2;
+    }
+
+    public boolean checkDefineEncoding( File srcFile )
+    {
+        try
+        {
+            BufferedReader bReader = new BufferedReader( new StringReader( FileUtil.readContents( srcFile ) ) );
+            StringBuffer prolog = new StringBuffer();
+            String line = bReader.readLine();
+
+            while( line != null )
+            {
+                prolog.append( line );
+
+                if( line.indexOf( '>' ) > 0 )
+                {
+                    break;
+                }
+                line = bReader.readLine();
+            }
+
+            Matcher m = ENCODING_PATTERN.matcher( prolog );
+
+            if( m.find() )
+            {
+                return true;
+            }
+        }
+        catch( IOException e )
+        {
+            ProjectCore.logError( e );
+        }
+
+        return false;
     }
 
     @Override
