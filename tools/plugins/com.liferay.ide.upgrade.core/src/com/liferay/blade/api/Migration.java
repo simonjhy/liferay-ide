@@ -15,7 +15,6 @@
 package com.liferay.blade.api;
 
 import java.io.File;
-
 import java.util.List;
 import java.util.Set;
 

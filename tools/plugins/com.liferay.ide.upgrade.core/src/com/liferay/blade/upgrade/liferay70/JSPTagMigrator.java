@@ -221,27 +221,23 @@ public abstract class JSPTagMigrator extends AbstractFileMigrator<JSPFile> imple
 		List<SearchResult> searchResults = new ArrayList<>();
 
 		for (String tagName : _tagNames) {
-			List<SearchResult> jspTagResults = new ArrayList<>();
 
 			if ((_tagNames.length > 0) && (_attrNames.length == 0) && (_attrValues.length == 0)) {
-				jspTagResults = jspFileChecker.findJSPTags(tagName);
+				searchResults.addAll(jspFileChecker.findJSPTags(tagName));
 			}
 			else if ((_tagNames.length > 0) && (_attrNames.length > 0) && (_attrValues.length == 0)) {
-				jspTagResults = jspFileChecker.findJSPTags(tagName, _attrNames);
+				searchResults.addAll(jspFileChecker.findJSPTags(tagName, _attrNames));
 			}
 			else if ((_tagNames.length > 0) && (_attrNames.length > 0) && (_attrValues.length > 0)) {
-				jspTagResults = jspFileChecker.findJSPTags(tagName, _attrNames, _attrValues);
-			}
-
-			if (!jspTagResults.isEmpty()) {
-				searchResults.addAll(jspTagResults);
+				searchResults.addAll(jspFileChecker.findJSPTags(tagName, _attrNames, _attrValues));
 			}
 		}
 
 		if ((_newAttrNames.length > 0) || (_newAttrValues.length > 0) || (_newTagNames.length > 0)) {
-			for (SearchResult searchResult : searchResults) {
-				Class<? extends JSPTagMigrator> class1 = getClass();
 
+			Class<? extends JSPTagMigrator> class1 = getClass();
+
+			for (SearchResult searchResult : searchResults) {
 				searchResult.autoCorrectContext = "jsptag:" + class1.getName();
 			}
 		}

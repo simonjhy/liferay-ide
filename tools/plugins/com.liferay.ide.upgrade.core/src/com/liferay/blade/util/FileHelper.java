@@ -16,19 +16,19 @@ package com.liferay.blade.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStream;
-
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +67,18 @@ public class FileHelper {
 		return files;
 	}
 
+	public boolean checkFileNoContent(File file) {
+		try(BufferedReader br = new BufferedReader(new FileReader(file))) {
+			if ((br != null) && (br.readLine() == null)) {
+			    return true;
+			}
+		}
+		catch( Exception e) {
+			return false;
+		}
+		return false;
+	}
+	
 	public String readFile(File file) throws FileNotFoundException, IOException {
 		return new String(Files.readAllBytes(file.toPath()));
 	}

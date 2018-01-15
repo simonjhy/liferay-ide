@@ -43,6 +43,15 @@ import org.osgi.service.component.annotations.Component;
 	service = FileMigrator.class)
 public class WebContentTypeRemoved extends JavaFileMigrator {
 
+	
+	private static String[] _journalArticleLocalServiceUtilParameters = new String[] {
+		"long", "long", "long", "long", "long", "String", "boolean", "double",
+		"java.util.Map<java.util.Locale,java.lang.String>", "java.util.Map<java.util.Locale,java.lang.String>",
+		"String", "String", "String", "String", "String", "int", "int", "int", "int", "int", "int", "int",
+		"int", "int", "int", "boolean", "int", "int", "int", "int", "int", "boolean", "boolean", "boolean",
+		"String", "File", "java.util.Map<java.lang.String,byte[]>", "String", "ServiceContext"
+		};
+	
 	@Override
 	protected List<SearchResult> searchFile(File file, JavaFile javaFileChecker) {
 		List<SearchResult> searchResults = new ArrayList<>();
@@ -73,13 +82,7 @@ public class WebContentTypeRemoved extends JavaFileMigrator {
 
 		List<SearchResult> journalArticleLocalServiceUtil = javaFileChecker.findMethodInvocations(
 			null, "JournalArticleLocalServiceUtil", "addArticle",
-			new String[] {
-				"long", "long", "long", "long", "long", "String", "boolean", "double",
-				"java.util.Map<java.util.Locale,java.lang.String>", "java.util.Map<java.util.Locale,java.lang.String>",
-				"String", "String", "String", "String", "String", "int", "int", "int", "int", "int", "int", "int",
-				"int", "int", "int", "boolean", "int", "int", "int", "int", "int", "boolean", "boolean", "boolean",
-				"String", "File", "java.util.Map<java.lang.String,byte[]>", "String", "ServiceContext"
-			});
+			_journalArticleLocalServiceUtilParameters);
 
 		searchResults.addAll(journalArticleLocalServiceUtil);
 

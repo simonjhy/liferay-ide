@@ -64,7 +64,7 @@ public class WorkspaceFile implements SourceFile {
 
 		if (retval == null) {
 			try {
-				retval = _helper.createIFile(MigrationConstants.HELPER_PROJECT_NAME, file);
+				retval = new WorkspaceHelper().createIFile(MigrationConstants.HELPER_PROJECT_NAME, file);
 			}
 			catch (CoreException | IOException e) {
 				e.printStackTrace();
@@ -80,7 +80,4 @@ public class WorkspaceFile implements SourceFile {
 	}
 
 	protected File file;
-
-	private WorkspaceHelper _helper = new WorkspaceHelper();
-
 }
