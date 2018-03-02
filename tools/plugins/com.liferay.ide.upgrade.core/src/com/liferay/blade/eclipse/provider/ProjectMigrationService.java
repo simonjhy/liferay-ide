@@ -223,12 +223,20 @@ public class ProjectMigrationService implements Migration {
 		return FileVisitResult.CONTINUE;
 	}
 
-	private void _countTotal(File dir) {
+	private void _countTotal(File startDir) {
 		FileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
 
 			@Override
 			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 				if (dir.endsWith(".git")) {
+					return FileVisitResult.SKIP_SUBTREE;
+				}
+
+				if (dir.endsWith(".settings")) {
+					return FileVisitResult.SKIP_SUBTREE;
+				}
+
+				if (dir.endsWith("target") && dir.startsWith(startDir.getPath())) {
 					return FileVisitResult.SKIP_SUBTREE;
 				}
 
@@ -249,7 +257,7 @@ public class ProjectMigrationService implements Migration {
 		};
 
 		try {
-			Files.walkFileTree(dir.toPath(), visitor);
+			Files.walkFileTree(startDir.toPath(), visitor);
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
@@ -273,12 +281,20 @@ public class ProjectMigrationService implements Migration {
 		}
 	}
 
-	private void _walkFiles(File dir, List<Problem> problems, ProgressMonitor monitor) {
+	private void _walkFiles(File startDir, List<Problem> problems, ProgressMonitor monitor) {
 		FileVisitor<Path> visitor = new SimpleFileVisitor<Path>() {
 
 			@Override
 			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 				if (dir.endsWith(".git")) {
+					return FileVisitResult.SKIP_SUBTREE;
+				}
+
+				if (dir.endsWith(".settings")) {
+					return FileVisitResult.SKIP_SUBTREE;
+				}
+
+				if (dir.endsWith("target") && dir.startsWith(startDir.getPath())) {
 					return FileVisitResult.SKIP_SUBTREE;
 				}
 
@@ -307,7 +323,7 @@ public class ProjectMigrationService implements Migration {
 		};
 
 		try {
-			Files.walkFileTree(dir.toPath(), visitor);
+			Files.walkFileTree(startDir.toPath(), visitor);
 		}
 		catch (IOException ioe) {
 			ioe.printStackTrace();
