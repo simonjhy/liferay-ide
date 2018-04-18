@@ -296,4 +296,14 @@
 			href="https://aer.ctrlflow.com/liferay/community/discovery" />
 		</server>
 	</extension>
+	
+	<extension
+	     point="org.eclipse.jdt.ui.javaEditorTextHovers">
+	  <hover
+	        label="DDDDDDDDD"
+	        description="AAAAAA"
+	        class="com.liferay.ide.ui.LiferayPropertiesFileHover"
+	        id="com.liferay.ide.properties.LiferayPropertiesFileHover">
+	  </hover>
+	</extension>	
 </plugin>

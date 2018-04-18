@@ -30,7 +30,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.wst.html.search.editor,
  org.eclipse.text,
  org.eclipse.jst.jsp.ui,
- org.eclipse.wst.jsdt.web.support.jsp
+ org.eclipse.wst.jsdt.web.support.jsp,
+ org.eclipse.wst.validation.ui;bundle-version="1.2.501"
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: com.liferay.ide.xml.search.ui,

@@ -850,4 +850,18 @@
 		>
 		</liferayComponentTemplate>
 	</extension>
+	<extension
+		point="org.eclipse.core.contenttype.contentTypes">
+		<content-type
+			base-type="org.eclipse.jdt.core.javaProperties"
+			default-charset="UTF-8"
+			file-extensions="properties"
+			id="liferaybuildpropertiesfile"
+			name="Liferay SDK Build Properties File"
+			priority="high">
+			<describer
+				class="com.liferay.ide.project.core.descriptor.LiferayBuildPropertiesFileDescriber">
+			</describer>
+		</content-type>
+	</extension>	
 </plugin>

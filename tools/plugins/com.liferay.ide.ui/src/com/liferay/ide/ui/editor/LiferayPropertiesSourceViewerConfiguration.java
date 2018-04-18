@@ -23,13 +23,13 @@ import com.liferay.ide.core.properties.PortalPropertiesConfiguration;
 import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.server.core.ILiferayRuntime;
 import com.liferay.ide.server.util.ServerUtil;
+import com.liferay.ide.ui.LiferayPropetiesFileHover;
 import com.liferay.ide.ui.LiferayUIPlugin;
 import com.liferay.ide.ui.editor.LiferayPropertiesContentAssistProcessor.PropKey;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -43,7 +43,6 @@ import java.util.zip.ZipEntry;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfigurationLayout;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -55,6 +54,7 @@ import org.eclipse.jface.internal.text.html.HTMLTextPresenter;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
+import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
@@ -80,6 +80,11 @@ public class LiferayPropertiesSourceViewerConfiguration extends PropertiesFileSo
 			IPropertiesFilePartitions.PROPERTIES_FILE_PARTITIONING);
 	}
 
+	@Override
+	public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType, int stateMask) {
+		return new LiferayPropetiesFileHover(sourceViewer );
+	}	
+	
 	@Override
 	public IContentAssistant getContentAssistant(ISourceViewer sourceViewer) {
 		if (_propKeys == null) {
