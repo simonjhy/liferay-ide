@@ -61,12 +61,6 @@ public class ServerTomcat71Tests extends ServerTomcat7xBase {
 
 	@Ignore("To wait for IDE-3343")
 	@Test
-	public void serverEditorPortsChange() {
-		super.serverEditorPortsChange();
-	}
-
-	@Ignore("To wait for IDE-3343")
-	@Test
 	public void serverEditorPortsChangeAndStart() {
 		super.serverEditorPortsChangeAndStart();
 	}

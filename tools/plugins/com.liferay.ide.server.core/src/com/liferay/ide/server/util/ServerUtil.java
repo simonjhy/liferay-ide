@@ -29,10 +29,12 @@ import com.liferay.ide.server.core.ILiferayRuntime;
 import com.liferay.ide.server.core.ILiferayServer;
 import com.liferay.ide.server.core.LiferayServerCore;
 import com.liferay.ide.server.core.gogo.GogoBundleDeployer;
+import com.liferay.ide.server.core.portal.LiferayServerPort;
 import com.liferay.ide.server.core.portal.PortalBundle;
 import com.liferay.ide.server.core.portal.PortalBundleFactory;
 import com.liferay.ide.server.core.portal.PortalRuntime;
 import com.liferay.ide.server.core.portal.PortalServer;
+import com.liferay.ide.server.core.portal.PortalServerDelegate;
 import com.liferay.ide.server.remote.IRemoteServer;
 import com.liferay.ide.server.remote.IServerManagerConnection;
 
@@ -135,6 +137,31 @@ public class ServerUtil {
 
 		serverWC.setName(serverRuntimeName);
 		serverWC.save(true, monitor);
+	}
+
+	public static List<String> checkUsingPorts(String serverName, LiferayServerPort port)
+	{
+
+		final List<String> servers = new ArrayList<>();
+
+		for (final IServer server : ServerCore.getServers()) {
+			final PortalServerDelegate portalServer = (PortalServerDelegate)server.loadAdapter(
+				PortalServer.class, null);
+
+			String name = server.getName();
+
+			if ((portalServer != null) && !name.equals(serverName)) {
+				for (final LiferayServerPort usedPort : portalServer.getLiferayServerPorts()) {
+					if (usedPort.getPort() == port.getPort()) {
+						if (!servers.contains(server.getName())) {
+							servers.add(server.getName());
+						}
+					}
+				}
+			}
+		}
+
+		return servers;
 	}
 
 	public static Map<String, String> configureAppServerProperties(ILiferayRuntime liferayRuntime) {
