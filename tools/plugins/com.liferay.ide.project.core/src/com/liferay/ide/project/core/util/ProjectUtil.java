@@ -46,7 +46,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -56,7 +55,6 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.WordUtils;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -103,7 +101,6 @@ import org.eclipse.wst.common.project.facet.core.ProjectFacetsManager;
 import org.eclipse.wst.common.project.facet.core.internal.FacetedProjectWorkingCopy;
 import org.eclipse.wst.common.project.facet.core.runtime.IRuntime;
 import org.eclipse.wst.common.project.facet.core.runtime.internal.BridgedRuntime;
-
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
 
@@ -784,6 +781,11 @@ public class ProjectUtil {
 		return fpwc.getProject();
 	}
 
+
+	public static void downloadWorkspaceDistroFile() {
+		
+	}
+	
 	public static void fixExtProjectSrcFolderLinks(IProject extProject) throws JavaModelException {
 		if (extProject == null) {
 			return;

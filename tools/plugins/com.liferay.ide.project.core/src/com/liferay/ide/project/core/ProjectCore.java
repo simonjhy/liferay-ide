@@ -14,6 +14,7 @@
 
 package com.liferay.ide.project.core;
 
+import com.liferay.ide.core.LiferayCore;
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.core.util.ListUtil;
@@ -64,6 +65,19 @@ import org.osgi.util.tracker.ServiceTracker;
  */
 @SuppressWarnings("rawtypes")
 public class ProjectCore extends Plugin {
+
+	private static final File _golbalDir = LiferayCore.GLOBAL_SETTINGS_PATH.toFile();
+	public static final File distroCacheDir = new File(_golbalDir, "distroCache");
+	public static final File bomCacheDir = new File(_golbalDir, "bomCache");
+
+	public static final String distro_file_name = "distro_{0}.jar";
+	public static final String bom_file_name = "bom_{0}.pom";
+	public static final String target_file_name = "targetplatform_file_{0}.xml";
+	public static final String target_lib_name = "targetplatform_lib_{0}.xml";
+
+	public static final String distroDownloadUrl = "https://repository.liferay.com/nexus/content/groups/public/com/liferay/com.liferay.ce.portal.distro/{0}/com.liferay.ce.portal.distro-{1}.jar";
+	public static final String bomDownloadUrl = "https://repository.liferay.com/nexus/content/groups/public/com/liferay/com.liferay.ce.portal.bom/{0}/com.liferay.ce.portal.bom-{1}.pom";
+
 
 	// The liferay project marker type
 

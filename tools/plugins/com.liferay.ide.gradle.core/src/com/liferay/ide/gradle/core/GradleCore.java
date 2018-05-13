@@ -14,10 +14,16 @@
 
 package com.liferay.ide.gradle.core;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.liferay.ide.core.LiferayCore;
 
 import java.io.File;
+import java.net.URL;
+import java.text.MessageFormat;
 
+import org.apache.commons.io.FileUtils;
 import org.eclipse.buildship.core.CorePlugin;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.ILog;
@@ -46,6 +52,8 @@ public class GradleCore extends Plugin {
 	public static final String PLUGIN_ID = "com.liferay.ide.gradle.core";
 
 	public static final File customModelCache = LiferayCore.GLOBAL_SETTINGS_PATH.toFile();
+
+
 
 	public static IStatus createErrorStatus(Exception ex) {
 		return new Status(IStatus.ERROR, PLUGIN_ID, ex.getMessage(), ex);

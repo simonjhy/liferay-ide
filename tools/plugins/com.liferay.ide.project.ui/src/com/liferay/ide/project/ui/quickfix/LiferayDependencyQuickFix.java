@@ -15,11 +15,14 @@
 package com.liferay.ide.project.ui.quickfix;
 
 import com.liferay.ide.core.ILiferayProject;
+import com.liferay.ide.core.IWorkspaceProject;
 import com.liferay.ide.core.LiferayCore;
+import com.liferay.ide.core.TargetPlatformDependency;
 import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.project.core.IProjectBuilder;
 import com.liferay.ide.project.core.ProjectCore;
 import com.liferay.ide.project.core.modules.ServiceContainer;
+import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
 import com.liferay.ide.project.core.util.TargetPlatformUtil;
 import com.liferay.ide.project.ui.ProjectUI;
 
@@ -43,7 +46,6 @@ import org.eclipse.jdt.ui.text.java.IQuickFixProcessor;
 import org.eclipse.jdt.ui.text.java.correction.CUCorrectionProposal;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.graphics.Image;
-
 import org.osgi.framework.Version;
 
 /**
@@ -94,12 +96,15 @@ public class LiferayDependencyQuickFix implements IQuickFixProcessor {
 		}
 	}
 
-	private IJavaCompletionProposal _createDepProposal(IInvocationContext context, ServiceContainer bundle) {
-		final String bundleGroup = bundle.getBundleGroup();
-		final String bundleName = bundle.getBundleName();
-		final String bundleVersion = bundle.getBundleVersion();
-
-		return new CUCorrectionProposal("Add module dependency " + bundleName, context.getCompilationUnit(), null, -0) {
+	private IJavaCompletionProposal _createDepProposal(IInvocationContext context, TargetPlatformDependency dependency) {
+		final String bundleGroup = dependency.getGroup();
+		final String bundleName = dependency.getName();
+		final String bundleVersion = dependency.getVersion();
+		boolean defaultDependency = dependency.isDefaultDependency();
+		
+		String proposalDispalyString = (defaultDependency==true)?"Loading, please wait moment.":bundleName;
+		
+		return new CUCorrectionProposal("Add module dependency: " + proposalDispalyString, context.getCompilationUnit(), null, -0) {
 
 			@Override
 			public void apply(IDocument document) {
@@ -186,27 +191,31 @@ public class LiferayDependencyQuickFix implements IQuickFixProcessor {
 		List<String> servicesList;
 
 		try {
-			List<String> serviceWrapperList = TargetPlatformUtil.getServiceWrapperList().getServiceList();
+			IProject wsProject = LiferayWorkspaceUtil.getWorkspaceProject();
+			
+			IWorkspaceProject workspaceProject = LiferayCore.create(IWorkspaceProject.class, wsProject);
+			
+			TargetPlatformDependency dependency = workspaceProject.getDependency(importName);
+			
+			if ( dependency==null ) {
+				List<String> serviceWrapperList = TargetPlatformUtil.getServiceWrapperList().getServiceList();
 
-			servicesList = TargetPlatformUtil.getServicesList().getServiceList();
-
-			if (serviceWrapperList.contains(importName)) {
-				ServiceContainer bundle = TargetPlatformUtil.getServiceWrapperBundle(importName);
-
-				proposals.add(_createDepProposal(context, bundle));
+				servicesList = TargetPlatformUtil.getServicesList().getServiceList();
+				if (serviceWrapperList.contains(importName)) {
+					ServiceContainer serviceWrapperBundle = TargetPlatformUtil.getServiceWrapperBundle(importName);
+					dependency = new TargetPlatformDependency(serviceWrapperBundle.getBundleGroup(),serviceWrapperBundle.getBundleName(), serviceWrapperBundle.getBundleVersion());
+				}
+				else if (servicesList.contains(importName)) {
+					ServiceContainer serviceWrapperBundle = TargetPlatformUtil.getServiceBundle(importName);
+					dependency = new TargetPlatformDependency(serviceWrapperBundle.getBundleGroup(),serviceWrapperBundle.getBundleName(), serviceWrapperBundle.getBundleVersion());
+				}
+				else if (TargetPlatformUtil.getThirdPartyBundleList(importName) != null) {
+					ServiceContainer serviceWrapperBundle = TargetPlatformUtil.getThirdPartyBundleList(importName);
+					dependency = new TargetPlatformDependency(serviceWrapperBundle.getBundleGroup(),serviceWrapperBundle.getBundleName(), serviceWrapperBundle.getBundleVersion());
+				}			
 			}
 
-			if (servicesList.contains(importName)) {
-				ServiceContainer bundle = TargetPlatformUtil.getServiceBundle(importName);
-
-				proposals.add(_createDepProposal(context, bundle));
-			}
-
-			if (TargetPlatformUtil.getThirdPartyBundleList(importName) != null) {
-				ServiceContainer bundle = TargetPlatformUtil.getThirdPartyBundleList(importName);
-
-				proposals.add(_createDepProposal(context, bundle));
-			}
+			proposals.add(_createDepProposal(context,dependency) );
 		}
 		catch (Exception e) {
 			ProjectCore.logError("Error processing import not found proposals", e);
@@ -236,8 +245,8 @@ public class LiferayDependencyQuickFix implements IQuickFixProcessor {
 			for (String wrapper : serviceWrapperList) {
 				if (wrapper.endsWith(fullyQualifiedName)) {
 					ServiceContainer bundle = TargetPlatformUtil.getServiceWrapperBundle(wrapper);
-
-					proposals.add(_createDepProposal(context, bundle));
+					TargetPlatformDependency dependency = new TargetPlatformDependency(bundle.getBundleGroup(),bundle.getBundleName(),bundle.getBundleVersion());
+					proposals.add(_createDepProposal(context, dependency));
 				}
 			}
 
@@ -247,8 +256,8 @@ public class LiferayDependencyQuickFix implements IQuickFixProcessor {
 				for (String service : servicesList) {
 					if (service.endsWith(fullyQualifiedName)) {
 						ServiceContainer bundle = TargetPlatformUtil.getServiceBundle(service);
-
-						proposals.add(_createDepProposal(context, bundle));
+						TargetPlatformDependency dependency = new TargetPlatformDependency(bundle.getBundleGroup(),bundle.getBundleName(),bundle.getBundleVersion());
+						proposals.add(_createDepProposal(context, dependency));
 					}
 				}
 			}

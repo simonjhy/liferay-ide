@@ -20,12 +20,19 @@ import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
 import com.liferay.ide.server.core.LiferayServerCore;
 import com.liferay.ide.server.util.ServerUtil;
 
+import java.io.File;
+import java.net.URL;
+import java.text.MessageFormat;
+
+import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
+import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.sapphire.modeling.ProgressMonitor;
 import org.eclipse.sapphire.modeling.Status;
 import org.eclipse.sapphire.platform.ProgressMonitorBridge;
@@ -83,6 +90,7 @@ public class NewLiferayWorkspaceOpMethods {
 						"Location " + bundlesLocation + " is not Liferay Portal Bundle, bundle init failed.");
 				}
 			}
+
 		}
 		catch (Exception e) {
 			String msg = "Error creating Liferay Workspace project.";
@@ -115,4 +123,5 @@ public class NewLiferayWorkspaceOpMethods {
 		}
 	}
 
+	
 }

@@ -55,6 +55,10 @@ public class JavaUtil {
 			try (ZipFile jar = new ZipFile(systemJarFile)) {
 				ZipEntry manifest = jar.getEntry("META-INF/MANIFEST.MF");
 
+				if ( manifest == null) {
+					return null;
+				}
+
 				Manifest mf = new Manifest(jar.getInputStream(manifest));
 
 				Attributes a = mf.getMainAttributes();

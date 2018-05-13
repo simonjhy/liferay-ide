@@ -16,13 +16,13 @@ package com.liferay.ide.core;
 
 import java.util.List;
 
-import org.eclipse.core.runtime.IPath;
-
 /**
  * @author Gregory Amerson
  */
 public interface IWorkspaceProject extends ILiferayProject {
 
-	public List<IPath> getTargetPlatformArtifacts();
+//	public List<TargetPlatformDependency> getTargetPlatformArtifacts();
+	
+	public TargetPlatformDependency getDependency(String importPackageName);
 
 }

@@ -171,6 +171,22 @@ public class LiferayWorkspaceUtil {
 
 		return retVal;
 	}
+	
+	public static void saveGradleProperty(String projectLocation, String key, String Value) {
+		File gradleProperties = new File(projectLocation, "gradle.properties");
+
+		String retVal = null;
+
+		if (FileUtil.exists(gradleProperties)) {
+			Properties properties = PropertiesUtil.loadProperties(gradleProperties);
+
+			retVal = properties.getProperty(key);
+			
+			if ( CoreUtil.isNullOrEmpty(retVal)) {
+				properties.put(key, Value);
+			}
+		}
+	}	
 
 	public static String getHomeDir(String location) {
 		String result = getGradleProperty(location, LIFERAY_WORKSPACE_HOME_DIR, "bundles");

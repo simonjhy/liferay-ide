@@ -40,4 +40,7 @@
 		>
 		</liferayProjectImporter>
 	</extension>
+ <extension
+       point="org.eclipse.buildship.core.executionparticipants">
+ </extension>
 </plugin>
