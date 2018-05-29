@@ -18,6 +18,7 @@ import com.liferay.ide.core.IWatchableProject;
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.project.core.ProjectCore;
+import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -51,6 +52,12 @@ public class LiferayGradleWatchableProject extends LiferayGradleProject implemen
 
 		boolean watchable = GradleUtil.isWatchable(buildFile);
 
+		IProject workspaceProject = LiferayWorkspaceUtil.getWorkspaceProject();
+		boolean inLiferayWorkspace = LiferayWorkspaceUtil.inLiferayWorkspace(getProject());
+		if (LiferayWorkspaceUtil.isValidWorkspace(workspaceProject) && inLiferayWorkspace) {
+			return true;
+		}
+		
 		if (watchable) {
 			IEclipsePreferences projectScope = new ProjectScope(getProject()).getNode(ProjectCore.PLUGIN_ID);
 
@@ -91,40 +98,40 @@ public class LiferayGradleWatchableProject extends LiferayGradleProject implemen
 					// Do not use this way as the buildship issue but need to add it back when it be fixed, see:
 					// https://github.com/eclipse/buildship/issues/703
 
-					// GradleUtil.runGradleTask(getProject(), new String[] {
-					// "watch"
-					// }, new String[] {
-					// "--continuous"
-					// }, monitor);
+					 GradleUtil.runGradleTask(getProject(), new String[] {
+					 "watch"
+					 }, new String[] {
+					 "--continuous"
+					 }, monitor);
 
-					ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
-
-					ILaunchConfigurationType launchConfigurationType = launchManager.getLaunchConfigurationType(
-						"org.eclipse.ui.externaltools.ProgramLaunchConfigurationType");
-
-					IPath basedirLocation = getProject().getLocation();
-
-					String newName = launchManager.generateLaunchConfigurationName(basedirLocation.lastSegment());
-
-					ILaunchConfigurationWorkingCopy workingCopy = launchConfigurationType.newInstance(null, newName);
-
-					String gwFileName = "gradlew";
-
-					if (CoreUtil.isWindows()) {
-						gwFileName = "gradlew.bat";
-					}
-
-					workingCopy.setAttribute(
-						"org.eclipse.ui.externaltools.ATTR_LOCATION", basedirLocation.append(gwFileName).toOSString());
-					workingCopy.setAttribute("org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS", "watch --continuous");
-					workingCopy.setAttribute("org.eclipse.ui.externaltools.ATTR_WORKING_DIRECTORY", basedirLocation.toOSString());
-
-				
-					workingCopy.setAttribute("org.eclipse.debug.ui.ATTR_CAPTURE_IN_CONSOLE", Boolean.FALSE);
-					workingCopy.setAttribute("org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND", Boolean.FALSE);
-					workingCopy.setAttribute("org.eclipse.debug.ui.ATTR_PRIVATE", Boolean.FALSE);
-
-					workingCopy.launch("run", monitor);
+//					ILaunchManager launchManager = DebugPlugin.getDefault().getLaunchManager();
+//
+//					ILaunchConfigurationType launchConfigurationType = launchManager.getLaunchConfigurationType(
+//						"org.eclipse.ui.externaltools.ProgramLaunchConfigurationType");
+//
+//					IPath basedirLocation = getProject().getLocation();
+//
+//					String newName = launchManager.generateLaunchConfigurationName(basedirLocation.lastSegment());
+//
+//					ILaunchConfigurationWorkingCopy workingCopy = launchConfigurationType.newInstance(null, newName);
+//
+//					String gwFileName = "gradlew";
+//
+//					if (CoreUtil.isWindows()) {
+//						gwFileName = "gradlew.bat";
+//					}
+//
+//					workingCopy.setAttribute(
+//						"org.eclipse.ui.externaltools.ATTR_LOCATION", basedirLocation.append(gwFileName).toOSString());
+//					workingCopy.setAttribute("org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS", "watch --continuous");
+//					workingCopy.setAttribute("org.eclipse.ui.externaltools.ATTR_WORKING_DIRECTORY", basedirLocation.toOSString());
+//
+//				
+//					workingCopy.setAttribute("org.eclipse.debug.ui.ATTR_CAPTURE_IN_CONSOLE", Boolean.FALSE);
+//					workingCopy.setAttribute("org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND", Boolean.FALSE);
+//					workingCopy.setAttribute("org.eclipse.debug.ui.ATTR_PRIVATE", Boolean.FALSE);
+//
+//					workingCopy.launch("run", monitor);
 				}
 				catch (CoreException e) {
 					status = GradleCore.createErrorStatus(e);

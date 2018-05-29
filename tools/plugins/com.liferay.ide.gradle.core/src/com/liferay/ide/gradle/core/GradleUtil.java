@@ -62,7 +62,6 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
-
 import org.gradle.tooling.GradleConnector;
 import org.osgi.framework.Version;
 
@@ -117,10 +116,16 @@ public class GradleUtil {
 		GradleBuild build = gradleWorkspaceManager.getGradleBuild(buildConfig);
 
 		SynchronizationJob synchronizeJob = new SynchronizationJob(NewProjectHandler.IMPORT_AND_MERGE, build);
+		//SynchronizeGradleBuildsOperation
+		
+		
+//        BuildConfiguration buildConfiguration = createOverridingBuildConfiguration(location, distribution)
+//        CorePlugin.gradleWorkspaceManager().getGradleBuild(buildConfiguration).synchronize(newProjectHandler, GradleConnector.newCancellationTokenSource(), new NullProgressMonitor())
+ 
 
 		synchronizeJob.schedule();
 
-		waitImport();
+		//waitImport();
 
 		return Status.OK_STATUS;
 	}
@@ -298,7 +303,7 @@ public class GradleUtil {
 
 		return new GradleRunConfigurationAttributes(
 			tasks, projectDirectoryExpression, serializeString, gradleUserHome, null,
-			Collections.<String>emptyList(), arguments, true, true,
+			Collections.<String>emptyList(), arguments, false, false,
 			buildConfig.isOverrideWorkspaceSettings(), buildConfig.isOfflineMode(), buildConfig.isBuildScansEnabled());
 	}
 

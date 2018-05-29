@@ -59,8 +59,9 @@ public class GradleWatchableProjectProvider extends AbstractLiferayProjectProvid
 		ILiferayProject retval = null;
 
 		if (watchable) {
-			if (LiferayWorkspaceUtil.isValidWorkspace(project)) {
-				retval = new WatchableLiferayWorkspaceProject(project);
+			IProject workspaceProject = LiferayWorkspaceUtil.getWorkspaceProject();
+			if (LiferayWorkspaceUtil.isValidWorkspace(workspaceProject)) {
+				retval = new LiferayGradleWatchableProject(project);
 			}
 			else {
 				if (!inLiferayWorkspace) {
@@ -73,7 +74,7 @@ public class GradleWatchableProjectProvider extends AbstractLiferayProjectProvid
 	}
 
 	public int getPriority() {
-		return 20;
+		return 1;
 	}
 
 }

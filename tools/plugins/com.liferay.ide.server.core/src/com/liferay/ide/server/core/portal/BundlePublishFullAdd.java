@@ -15,6 +15,8 @@
 package com.liferay.ide.server.core.portal;
 
 import com.liferay.ide.core.IBundleProject;
+import com.liferay.ide.core.ILiferayProject;
+import com.liferay.ide.core.ILiferayProjectProvider;
 import com.liferay.ide.core.IWatchableProject;
 import com.liferay.ide.core.LiferayCore;
 import com.liferay.ide.core.util.FileUtil;
@@ -68,12 +70,19 @@ public class BundlePublishFullAdd extends BundlePublishOperation {
 			}
 
 			IBundleProject bundleProject = LiferayCore.create(IBundleProject.class, project);
-
+			boolean enableWatch  = false;
 			if (bundleProject != null) {
 				IWatchableProject watchableProject = LiferayCore.create(IWatchableProject.class, project);
-
-				if ((server.getServerState() == IServer.STATE_STARTED) && ServerUtil.enableWatch(watchableProject)) {
-					watchableProject.watch();
+				if ((server.getServerState() == IServer.STATE_STARTED)) {
+					ILiferayProjectProvider provider = LiferayCore.getProvider("gradle-watchable");
+					ILiferayProject watchProject = provider.provide(project);
+					if (watchProject!=null ) {
+						enableWatch = ServerUtil.enableWatch((IWatchableProject)watchProject); 
+					}
+					
+					if ( enableWatch) {
+						((IWatchableProject)watchProject).watch();	
+					}
 				}
 				else {
 					// TODO catch error in getOutputJar and show a popup notification instead

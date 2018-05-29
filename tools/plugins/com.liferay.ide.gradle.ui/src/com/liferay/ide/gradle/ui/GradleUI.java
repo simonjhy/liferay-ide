@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
-
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -39,6 +38,7 @@ public class GradleUI extends Plugin {
 	 * @return the shared instance
 	 */
 	public static GradleUI getDefault() {
+
 		return _plugin;
 	}
 
