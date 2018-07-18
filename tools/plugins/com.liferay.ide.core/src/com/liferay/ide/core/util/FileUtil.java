@@ -31,11 +31,8 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-
 import java.net.URL;
-
 import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -64,9 +61,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.osgi.util.NLS;
-
 import org.w3c.dom.Document;
-
 import org.xml.sax.EntityResolver;
 import org.xml.sax.ErrorHandler;
 
@@ -375,6 +370,50 @@ public class FileUtil {
 		return toPortableString(folder.getLocation());
 	}
 
+	public static IPath getResourceLocation(IResource resource) {
+		if (resource == null) {
+			return null;
+		}
+
+		IPath location = resource.getLocation();
+
+		if (location == null) {
+			return resource.getRawLocation();
+		}
+
+		return location;
+	}
+
+	public static IPath getLocation(IResource resource) {
+		return resource.getLocation();
+	}
+
+	public static String getLocationString(IResource resource) {
+		IPath fileLocation = resource.getLocation();
+
+		return fileLocation.toString();
+	}
+	
+	public static int segmentCount(IPath resourcePath) {
+		return resourcePath.segmentCount();
+	}
+
+	public static String getFilePath(IPath resourcePath) {
+		File resourceFile = resourcePath.toFile();
+
+		return resourceFile.getPath();
+	}
+
+	public static String getLocationPortableString(IResource resource) {
+		IPath location = resource.getLocation();
+
+		return location.toPortableString();
+	}
+
+	public static String getFilePath(File resourceFile) {
+		return resourceFile.getPath();
+	}
+	
 	public static IContainer getWorkspaceContainer(File file) {
 		IWorkspaceRoot root = CoreUtil.getWorkspaceRoot();
 
