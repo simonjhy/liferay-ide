@@ -657,7 +657,7 @@ public class MavenUtil {
 
 					projectConfigurationManager.enableMavenNature(project, configuration, monitor);
 
-					projectConfigurationManager.importProjects(projectsToImport, importConfiguration, monitor);
+					projectConfigurationManager.importProjects(projectsToImport, importConfiguration,monitor);
 
 					projectConfigurationManager.updateProjectConfiguration(project, monitor);
 				}

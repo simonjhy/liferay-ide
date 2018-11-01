@@ -26,17 +26,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.OutputStream;
-
 import java.nio.file.Files;
-
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 import org.apache.maven.execution.MavenExecutionResult;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.lifecycle.MavenExecutionPlan;
-import org.apache.maven.model.Build;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.model.Plugin;
@@ -44,9 +41,7 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.project.MavenProject;
-
 import org.codehaus.plexus.util.xml.Xpp3Dom;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -278,27 +273,13 @@ public class MavenProjectBuilder extends AbstractProjectBuilder implements IWork
 				Model model = mavenReader.read(reader);
 
 				if (model != null) {
-					Build build = model.getBuild();
+					try (FileWriter fileWriter = new FileWriter(pomFile)) {
+						Properties properties = model.getProperties();
 
-					Map<String, Plugin> map = build.getPluginsAsMap();
+						properties.put("liferay.workspace.bundle.url", bundleUrl);
+						model.setProperties(properties);
 
-					Plugin plugin = map.get("com.liferay:com.liferay.portal.tools.bundle.support");
-
-					if (plugin != null) {
-						try (FileWriter fileWriter = new FileWriter(pomFile)) {
-							Xpp3Dom origin = (Xpp3Dom)plugin.getConfiguration();
-							Xpp3Dom newConfiguration = new Xpp3Dom("configuration");
-
-							Xpp3Dom url = new Xpp3Dom("url");
-
-							url.setValue(bundleUrl);
-
-							newConfiguration.addChild(url);
-
-							plugin.setConfiguration(Xpp3Dom.mergeXpp3Dom(newConfiguration, origin));
-
-							mavenWriter.write(fileWriter, model);
-						}
+						mavenWriter.write(fileWriter, model);
 					}
 				}
 			}
@@ -310,9 +291,13 @@ public class MavenProjectBuilder extends AbstractProjectBuilder implements IWork
 		IMavenProjectFacade facade = MavenUtil.getProjectFacade(project, monitor);
 
 		try {
-			_execMavenLaunch(project, MavenGoalUtil.getMavenInitBundleGoal(project), facade, monitor);
+			boolean status = _execMavenLaunch(project, MavenGoalUtil.getMavenInitBundleGoal(project), facade, monitor);
 
 			project.refreshLocal(IResource.DEPTH_INFINITE, monitor);
+			
+			if ( status != true) {
+				return LiferayMavenCore.createErrorStatus("Failed to execute init bundle");
+			}
 		}
 		catch (CoreException ce) {
 			return LiferayMavenCore.createErrorStatus("Init Liferay Bundle failed", ce);
@@ -552,9 +537,9 @@ public class MavenProjectBuilder extends AbstractProjectBuilder implements IWork
 				workingCopy.setAttribute(_attrProfiles, selectedProfiles);
 			}
 
-			new LaunchHelper().launch(workingCopy, "run", monitor);
+			int retValue = new LaunchHelper().launch(workingCopy, "run", monitor);
 
-			return true;
+			return retValue==0?true:false;
 		}
 		else {
 			return false;

@@ -43,13 +43,10 @@ public class InitBundleJob extends Job {
 			new JobChangeAdapter() {
 
 				@Override
-				public void aboutToRun(IJobChangeEvent event) {
-					JobUtil.waitForLiferayProjectJob();
-				}
-
-				@Override
 				public void done(IJobChangeEvent event) {
 					LiferayWorkspaceUtil.addPortalRuntime(serverName);
+					
+					event.getJob().removeJobChangeListener(this);
 				}
 
 			});
@@ -57,7 +54,7 @@ public class InitBundleJob extends Job {
 
 	@Override
 	public boolean belongsTo(Object family) {
-		return family.equals(LiferayCore.LIFERAY_JOB_FAMILY);
+		return family.equals(LiferayCore.LIFERAY_INIT_JOB_FAMILY);
 	}
 
 	@Override

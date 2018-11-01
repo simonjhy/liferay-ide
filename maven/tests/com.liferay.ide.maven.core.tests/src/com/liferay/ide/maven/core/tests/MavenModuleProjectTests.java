@@ -31,16 +31,13 @@ import com.liferay.ide.project.core.util.SearchFilesVisitor;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-
 import java.net.URL;
-
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
 import org.apache.maven.project.MavenProject;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -63,7 +60,7 @@ import org.eclipse.m2e.tests.common.AbstractMavenProjectTestCase;
 import org.eclipse.sapphire.Value;
 import org.eclipse.sapphire.modeling.Status;
 import org.eclipse.sapphire.platform.ProgressMonitorBridge;
-
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**

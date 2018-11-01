@@ -111,4 +111,20 @@ public class MavenTestUtil {
 		JobHelpers.waitForJobsToComplete();
 	}
 
+	public static void waitForJobsToComplete(String family) throws InterruptedException, CoreException {
+		JobHelpers.waitForJobs(job -> {
+			Object property = job.getProperty(ILiferayProjectProvider.LIFERAY_PROJECT_JOB);
+
+			if (property != null || job.belongsTo(family)) {
+				return true;
+			}
+
+			return false;
+		},
+
+		30 * 60 * 1000);
+
+		JobHelpers.waitForJobsToComplete();
+	}
+	
 }

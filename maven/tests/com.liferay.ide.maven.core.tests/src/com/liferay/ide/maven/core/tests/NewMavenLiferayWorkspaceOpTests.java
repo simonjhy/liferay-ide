@@ -14,12 +14,12 @@
 
 package com.liferay.ide.maven.core.tests;
 
+import com.liferay.ide.core.LiferayCore;
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.project.core.workspace.NewLiferayWorkspaceOp;
 
 import java.io.File;
-
 import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IProject;
@@ -31,7 +31,6 @@ import org.eclipse.sapphire.modeling.ProgressMonitor;
 import org.eclipse.sapphire.modeling.Status;
 import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.ServerCore;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -97,7 +96,8 @@ public class NewMavenLiferayWorkspaceOpTests {
 		op.setLocation(rootLocation.toPortableString());
 		op.setProjectProvider("maven-liferay-workspace");
 		op.setProvisionLiferayBundle(true);
-
+		op.setLiferayVersion("7.0");
+		
 		Value<String> url = op.getBundleUrl();
 
 		String bundleUrl = url.content();
@@ -106,9 +106,13 @@ public class NewMavenLiferayWorkspaceOpTests {
 			"https://releases-cdn.liferay.com/portal/7.0.6-ga7/liferay-ce-portal-tomcat-7.0-ga7-20180507111753223.zip",
 				bundleUrl);
 
-		op.execute(new ProgressMonitor());
+		Status status = op.execute(new ProgressMonitor());
+		
+		Assert.assertEquals("ok", status.message());
+		
+		Assert.assertEquals(true, status.ok());
 
-		MavenTestUtil.waitForJobsToComplete();
+		MavenTestUtil.waitForJobsToComplete(LiferayCore.LIFERAY_INIT_JOB_FAMILY);
 
 		IPath fullLocation = rootLocation.append(projectName);
 
@@ -117,7 +121,7 @@ public class NewMavenLiferayWorkspaceOpTests {
 		Assert.assertTrue(FileUtil.exists(pomPath));
 
 		IPath bundlesPath = fullLocation.append("bundles");
-
+		
 		Assert.assertTrue(FileUtil.exists(bundlesPath));
 
 		String content = FileUtil.readContents(pomPath.toFile());
@@ -200,7 +204,7 @@ public class NewMavenLiferayWorkspaceOpTests {
 		String projectName = "test-liferay-workspace-url";
 
 		String bundleUrl =
-			"https://releases-cdn.liferay.com/portal/7.0.6-ga7/liferay-ce-portal-tomcat-7.0-ga7-20180507111753223.zip";
+			"https://releases-cdn.liferay.com/portal/7.0.5-ga6/liferay-ce-portal-tomcat-7.0-ga6-20180320170724974.zip";
 
 		IWorkspaceRoot wsRoot = CoreUtil.getWorkspaceRoot();
 
@@ -215,7 +219,7 @@ public class NewMavenLiferayWorkspaceOpTests {
 
 		op.execute(new ProgressMonitor());
 
-		MavenTestUtil.waitForJobsToComplete();
+		MavenTestUtil.waitForJobsToComplete(LiferayCore.LIFERAY_INIT_JOB_FAMILY);
 
 		IPath wslocation = workspaceLocation.append(projectName);
 

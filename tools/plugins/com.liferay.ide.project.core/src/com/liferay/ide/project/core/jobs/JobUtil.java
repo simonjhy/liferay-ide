@@ -42,4 +42,19 @@ public class JobUtil {
 		}
 	}
 
+	public static void waitForLiferayProjectJob(String family) {
+		IJobManager jobManager = Job.getJobManager();
+
+		Job[] jobs = jobManager.find(family);
+
+		for (Job job : jobs) {
+			try {
+				job.join();
+			}
+			catch (InterruptedException ie) {
+				ProjectCore.logError(ie);
+			}
+		}
+	}
+	
 }

@@ -32,12 +32,13 @@ public interface NewLiferayWorkspaceProjectProvider<T extends ExecutableElement>
 	public String getInitBundleUrl(String workspaceLocation);
 
 	public IStatus importProject(IPath workspaceLocation, IProgressMonitor monitor);
-
+	
 	public default void initBundle(String bundleUrl, String serverName, String workspaceName) {
 		IProject project = CoreUtil.getProject(workspaceName);
 
 		InitBundleJob job = new InitBundleJob(project, serverName, bundleUrl);
 
+		job.setRule(project);
 		job.schedule();
 	}
 

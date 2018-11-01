@@ -16,8 +16,11 @@ package com.liferay.ide.maven.core;
 
 import com.liferay.ide.core.ILiferayProject;
 import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.core.util.SapphireUtil;
 import com.liferay.ide.core.util.WorkspaceConstants;
+import com.liferay.ide.project.core.IWorkspaceProjectBuilder;
 import com.liferay.ide.project.core.ProjectCore;
+import com.liferay.ide.project.core.jobs.JobUtil;
 import com.liferay.ide.project.core.modules.BladeCLI;
 import com.liferay.ide.project.core.modules.BladeCLIException;
 import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
@@ -26,16 +29,10 @@ import com.liferay.ide.project.core.workspace.NewLiferayWorkspaceProjectProvider
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.Properties;
 
-import java.util.Map;
-
-import org.apache.maven.model.Build;
 import org.apache.maven.model.Model;
-import org.apache.maven.model.Plugin;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-
-import org.codehaus.plexus.util.xml.Xpp3Dom;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -95,12 +92,25 @@ public class LiferayMavenWorkspaceProjectProvider
 
 		Value<Boolean> initBundle = op.getProvisionLiferayBundle();
 
-		if (initBundle.content()) {
+		if (SapphireUtil.getContent(initBundle)) {
 			Value<String> bundleUrl = op.getBundleUrl();
 
 			Value<String> serverName = op.getServerName();
 
-			initBundle(bundleUrl.content(), serverName.content(), workspaceName);
+			IProject project = CoreUtil.getProject(workspaceName);
+
+			IWorkspaceProjectBuilder workspaceProjectBuilder = LiferayWorkspaceUtil.getWorkspaceProjectBuilder(
+					project);
+
+			IStatus initBundleStatus = workspaceProjectBuilder.initBundle(project, bundleUrl.content(), monitor);
+			
+			LiferayWorkspaceUtil.addPortalRuntime(serverName.content());
+			
+//			JobUtil.waitForLiferayProjectJob();
+//
+//			initBundle(bundleUrl.content(), serverName.content(), workspaceName);
+			
+			return initBundleStatus;
 		}
 
 		return Status.OK_STATUS;
@@ -116,27 +126,10 @@ public class LiferayMavenWorkspaceProjectProvider
 			Model model = mavenReader.read(reader);
 
 			if (model != null) {
-				Build build = model.getBuild();
-
-				Map<String, Plugin> plugins = build.getPluginsAsMap();
-
-				Plugin plugin = plugins.get("com.liferay:com.liferay.portal.tools.bundle.support");
-
-				if (plugin != null) {
-					Xpp3Dom config = (Xpp3Dom)plugin.getConfiguration();
-
-					if (config != null) {
-						Xpp3Dom url = config.getChild("url");
-
-						if (url != null) {
-							String urlValue = url.getValue();
-
-							if (!urlValue.isEmpty()) {
-								return urlValue;
-							}
-						}
-					}
-				}
+				
+				Properties properties = model.getProperties();
+				
+				return properties.getProperty("liferay.workspace.bundle.url");
 			}
 		}
 		catch (Exception e) {
@@ -151,6 +144,7 @@ public class LiferayMavenWorkspaceProjectProvider
 			String wsName = workspaceLocation.lastSegment();
 
 			CoreUtil.openProject(wsName, workspaceLocation, monitor);
+			
 			MavenUtil.updateProjectConfiguration(wsName, workspaceLocation.toOSString(), monitor);
 		}
 		catch (Exception ce) {
@@ -186,5 +180,4 @@ public class LiferayMavenWorkspaceProjectProvider
 
 		return retval;
 	}
-
 }
