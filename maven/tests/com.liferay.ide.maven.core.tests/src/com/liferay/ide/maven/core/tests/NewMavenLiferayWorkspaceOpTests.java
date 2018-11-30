@@ -117,7 +117,7 @@ public class NewMavenLiferayWorkspaceOpTests {
 		Assert.assertTrue(FileUtil.exists(pomPath));
 
 		IPath bundlesPath = fullLocation.append("bundles");
-
+		//test
 		Assert.assertTrue(FileUtil.exists(bundlesPath));
 
 		String content = FileUtil.readContents(pomPath.toFile());
@@ -147,7 +147,7 @@ public class NewMavenLiferayWorkspaceOpTests {
 		String projectLocation = wslocation.toPortableString();
 
 		File pomFile = new File(projectLocation, "pom.xml");
-
+		
 		Assert.assertTrue(pomFile.exists());
 
 		String content = FileUtil.readContents(pomFile);
