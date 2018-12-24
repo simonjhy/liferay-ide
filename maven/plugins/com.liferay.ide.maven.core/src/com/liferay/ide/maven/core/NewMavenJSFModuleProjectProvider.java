@@ -277,13 +277,14 @@ public class NewMavenJSFModuleProjectProvider
 			Exception cause = result.getCause();
 
 			if (cause != null) {
-				throw new CoreException(LiferayCore.createErrorStatus("Unable to create project from archetype."));
+				throw new CoreException(
+					LiferayCore.createErrorStatus("Unable to create project from archetype.", cause.getMessage()));
 			}
 
 			projectLocation = location.append(artifactId);
 
 			if (FileUtil.notExists(projectLocation)) {
-				throw new CoreException(LiferayCore.createErrorStatus("Can not create gradle JSF project. "));
+				throw new CoreException(LiferayCore.createErrorStatus("Can not create JSF project. "));
 			}
 		}
 		catch (Exception e) {
