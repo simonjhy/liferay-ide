@@ -62,7 +62,7 @@ public class MavenModuleFragmentProjectProvider
 		sb.append(file.getAbsolutePath());
 
 		sb.append("\" ");
-		sb.append("-b ");
+		sb.append("-P ");
 		sb.append("maven ");
 		sb.append("-t ");
 		sb.append("fragment ");

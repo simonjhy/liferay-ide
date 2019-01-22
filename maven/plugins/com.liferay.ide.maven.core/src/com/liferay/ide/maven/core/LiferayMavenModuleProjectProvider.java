@@ -80,7 +80,7 @@ public class LiferayMavenModuleProjectProvider
 		sb.append("-d \"");
 		sb.append(targetDir.getAbsolutePath());
 		sb.append("\" ");
-		sb.append("-b ");
+		sb.append("-P ");
 		sb.append("maven ");
 		sb.append("-v ");
 		sb.append(liferayVersion);

@@ -63,7 +63,7 @@ public class LiferayMavenWorkspaceProjectProvider
 		sb.append(workspaceLocation.toOSString());
 		sb.append("\" ");
 		sb.append("init ");
-		sb.append("-b ");
+		sb.append("-P ");
 		sb.append("maven ");
 		sb.append("-v ");
 		sb.append(version.content());
