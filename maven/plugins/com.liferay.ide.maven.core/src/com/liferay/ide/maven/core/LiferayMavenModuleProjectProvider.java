@@ -22,6 +22,7 @@ import com.liferay.ide.project.core.model.ProjectName;
 import com.liferay.ide.project.core.modules.BladeCLI;
 import com.liferay.ide.project.core.modules.NewLiferayModuleProjectOp;
 import com.liferay.ide.project.core.modules.PropertyKey;
+import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
 
 import java.io.File;
 
@@ -77,6 +78,13 @@ public class LiferayMavenModuleProjectProvider
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("create ");
+
+		if ( LiferayWorkspaceUtil.hasWorkspace()) {
+			sb.append("--base \"");
+			sb.append(LiferayWorkspaceUtil.getWorkspaceProject().getLocation().toOSString());
+			sb.append("\" ");
+		}
+
 		sb.append("-d \"");
 		sb.append(targetDir.getAbsolutePath());
 		sb.append("\" ");
