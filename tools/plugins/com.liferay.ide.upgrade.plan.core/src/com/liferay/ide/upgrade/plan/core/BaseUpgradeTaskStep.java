@@ -40,7 +40,6 @@ public abstract class BaseUpgradeTaskStep extends BaseUpgradePlanElement impleme
 
 		_requirement = getStringProperty(properties, "requirement");
 		_taskId = getStringProperty(properties, "taskId");
-		_order = getDoubleProperty(properties, "order");
 		_url = getStringProperty(properties, "url");
 
 		_lookupActions(componentContext);
@@ -78,7 +77,7 @@ public abstract class BaseUpgradeTaskStep extends BaseUpgradePlanElement impleme
 		).flatMap(
 			upgradeTaskStep -> upgradeTaskStep.stream()
 		).filter(
-			upgradeTaskStep -> (upgradeTaskStep.getOrder() < _order) &&
+			upgradeTaskStep -> (upgradeTaskStep.getOrder() < getOrder()) &&
 			 UpgradeTaskStepRequirement.REQUIRED.equals(upgradeTaskStep.getRequirement())
 		).map(
 			upgradeTaskStep -> upgradeTaskStep.getActions()
@@ -98,11 +97,6 @@ public abstract class BaseUpgradeTaskStep extends BaseUpgradePlanElement impleme
 	@Override
 	public List<UpgradeTaskStepAction> getActions() {
 		return Collections.unmodifiableList(_upgradeTaskStepActions);
-	}
-
-	@Override
-	public double getOrder() {
-		return _order;
 	}
 
 	@Override
@@ -137,7 +131,6 @@ public abstract class BaseUpgradeTaskStep extends BaseUpgradePlanElement impleme
 		);
 	}
 
-	private double _order;
 	private String _requirement;
 	private String _taskId;
 	private List<UpgradeTaskStepAction> _upgradeTaskStepActions;
