@@ -28,6 +28,7 @@
                         <name>factory</name>
                         <value>CheckBoxListPropertyEditorPresentation$Factory</value>
                     </hint>
+                    <listener></listener>
                 </property-editor>
                     <property-editor>
                     <visible-when>${Contains(UpgradeTaskCategories,&quot;UpgradeTaskCategory&quot;,&quot;code&quot;)}</visible-when>

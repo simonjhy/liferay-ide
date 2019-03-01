@@ -25,6 +25,7 @@ import org.eclipse.ui.forms.widgets.ImageHyperlink;
 
 /**
  * @author Gregory Amerson
+ * @author Simon Jiang
  */
 public interface UpgradeTaskItem extends Disposable, ISelectionProvider {
 

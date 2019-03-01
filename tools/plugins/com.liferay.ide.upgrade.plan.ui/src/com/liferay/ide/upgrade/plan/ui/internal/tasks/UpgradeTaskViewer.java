@@ -40,6 +40,7 @@ import org.eclipse.ui.forms.widgets.ScrolledForm;
 /**
  * @author Terry Jia
  * @author Gregory Amerson
+ * @author Simon Jiang
  */
 public class UpgradeTaskViewer implements ISelectionProvider {
 
@@ -65,11 +66,23 @@ public class UpgradeTaskViewer implements ISelectionProvider {
 		_disposables.add(() -> _formToolkit.dispose());
 		_disposables.add(() -> _scrolledForm.dispose());
 
-		_updateFromSelection(upgradePlanViewer.getSelection());
+		if (_currentSelection != upgradePlanViewer.getSelection()) {
+			_currentTaskStepAction = null;
+		}
+
+		_currentSelection = upgradePlanViewer.getSelection();
+
+		_updateFromSelection(_currentSelection);
 
 		upgradePlanViewer.addPostSelectionChangedListener(
 			selectionChangedEvent -> {
 				ISelection selection = selectionChangedEvent.getSelection();
+
+				if (_currentSelection != upgradePlanViewer.getSelection()) {
+					_currentTaskStepAction = null;
+				}
+
+				_currentSelection = upgradePlanViewer.getSelection();
 
 				_updateFromSelection(selection);
 			});
@@ -95,9 +108,19 @@ public class UpgradeTaskViewer implements ISelectionProvider {
 		return null;
 	}
 
+	public void refreshSelection() {
+		if (_currentSelection != null) {
+			_updateFromSelection(_currentSelection);
+		}
+	}
+
 	@Override
 	public void removeSelectionChangedListener(ISelectionChangedListener listener) {
 		_listeners.remove(listener);
+	}
+
+	public void setCurrentTaskStepAction(UpgradeTaskStepAction currentTaskStepAction) {
+		_currentTaskStepAction = currentTaskStepAction;
 	}
 
 	@Override
@@ -161,18 +184,28 @@ public class UpgradeTaskViewer implements ISelectionProvider {
 
 	private void _updateTaskStepItems(UpgradeTaskStep upgradeTaskStep) {
 		UpgradeTaskStepIntroItem upgradeTaskStepIntroItem = new UpgradeTaskStepIntroItem(
-			_formToolkit, _scrolledForm, upgradeTaskStep);
+			this, _scrolledForm, upgradeTaskStep, _currentTaskStepAction != null ? false : true);
 
 		upgradeTaskStepIntroItem.addSelectionChangedListener(this::_fireSelectionChanged);
 
 		for (UpgradeTaskStepAction upgradeTaskStepAction : upgradeTaskStep.getActions()) {
+			boolean expanded = false;
+
+			if ((_currentTaskStepAction != null) &&
+				(upgradeTaskStepAction.getOrder() > _currentTaskStepAction.getOrder())) {
+
+				expanded = true;
+			}
+
 			UpgradeTaskStepActionItem upgradeTaskStepActionItem = new UpgradeTaskStepActionItem(
-				_formToolkit, _scrolledForm, upgradeTaskStepAction);
+				this, _scrolledForm, upgradeTaskStepAction, expanded);
 
 			upgradeTaskStepActionItem.addSelectionChangedListener(this::_fireSelectionChanged);
 		}
 	}
 
+	private ISelection _currentSelection;
+	private UpgradeTaskStepAction _currentTaskStepAction;
 	private List<Disposable> _disposables = new ArrayList<>();
 	private FormToolkit _formToolkit;
 	private ListenerList<ISelectionChangedListener> _listeners = new ListenerList<>();
