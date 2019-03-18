@@ -62,7 +62,7 @@ import org.osgi.service.component.annotations.ServiceScope;
 	property = {
 		"description=" + ConvertPluginsSDKProjectsToModulesStepKeys.DESCRIPTION,
 		"id=" + ConvertPluginsSDKProjectsToModulesStepKeys.ID, "imagePath=icons/export.png", "requirement=recommended",
-		"order=4", "taskId=" + MigratePluginsSDKProjectsTaskKeys.ID,
+		"order=6", "taskId=" + MigratePluginsSDKProjectsTaskKeys.ID,
 		"title=" + ConvertPluginsSDKProjectsToModulesStepKeys.TITLE
 	},
 	scope = ServiceScope.PROTOTYPE, service = UpgradeTaskStep.class

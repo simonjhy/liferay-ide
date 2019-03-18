@@ -23,7 +23,7 @@ public class CopyPluginsSDKProjectsToWorkspaceStepKeys {
 		"<p>During any Liferay upgrade, it is a good time to consider which existing plugins you want to continue " +
 		"supporting when building for Liferay 7.x and greater. You may opt to not migrate some plugins to your new " +
 		"workspace.  In this step, you will select which existing Plugins SDK 6.x plugins you wish to copy to your " +
-		"new workspace to continue with the upgrade process (e.g., converting or adapting them to new APIs).";
+		"new workspace to continue with the upgrade process (e.g., converting or adapting them to new APIs).</p>";
 
 	public static final String ID = "move_plugins_sdk_projects_to_workspace";
 
