@@ -231,13 +231,24 @@ public class UpgradePlanViewer implements UpgradeListener, IDoubleClickListener,
 
 		Object parent = _treeContentProvider.getParent(selectedObject);
 
-		if (parent == null) {
-			return;
-		}
-
 		UpgradeStep upgradeStep = Adapters.adapt(selectedObject, UpgradeStep.class);
 
 		double selectedOrder = upgradeStep.getOrder();
+		
+		if (parent == null) {
+			
+			UpgradeStep nextStep = _findNextStep(selectedOrder, _treeViewer.getInput());
+			
+			ISelection newSelection = new StructuredSelection(nextStep);
+
+			_treeViewer.setSelection(newSelection);
+
+			if (_treeContentProvider.hasChildren(nextStep)) {
+				_changeSelection(newSelection);	
+			}
+			
+			return;
+		}
 
 		UpgradeStep nextStep = _findNextStep(selectedOrder, parent);
 
@@ -266,8 +277,8 @@ public class UpgradePlanViewer implements UpgradeListener, IDoubleClickListener,
 			return null;
 		}
 
-		return Stream.of(
-			_treeContentProvider.getChildren(parent)
+		UpgradeStep step = Stream.of(
+			children
 		).map(
 			childObject -> Adapters.adapt(childObject, UpgradeStep.class)
 		).filter(
@@ -276,6 +287,12 @@ public class UpgradePlanViewer implements UpgradeListener, IDoubleClickListener,
 		).orElse(
 			null
 		);
+		
+		if ( step != null && _treeContentProvider.hasChildren(step)) {
+			return _findNextStep(0, step);
+		}
+
+		return step;
 	}
 
 	private ITreeContentProvider _treeContentProvider;

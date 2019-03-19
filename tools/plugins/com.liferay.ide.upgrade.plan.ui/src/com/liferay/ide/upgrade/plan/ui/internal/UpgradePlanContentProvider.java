@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.eclipse.core.runtime.Adapters;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 
 /**
@@ -59,6 +60,10 @@ public class UpgradePlanContentProvider implements ITreeContentProvider, Upgrade
 			).map(
 				this::getStep
 			).toArray();
+		}
+		else if (parentElement instanceof UpgradePlan) {
+			UpgradePlan upgradePlan1 = Adapters.adapt(parentElement, UpgradePlan.class);
+			return upgradePlan1.getRootSteps().toArray();
 		}
 
 		return null;
