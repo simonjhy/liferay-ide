@@ -326,21 +326,24 @@ public class UpgradePlannerService implements UpgradePlanner, UpgradePlanAcessor
 				String type = upgradeProblemMemento.getString("type");
 				String uuid = upgradeProblemMemento.getString("uuid");
 				String version = upgradeProblemMemento.getString("version");
-				int endOffset = upgradeProblemMemento.getInteger("endOffset");
-				int lineNumber = upgradeProblemMemento.getInteger("lineNumber");
 
+				int lineNumber = 0;
+				int endOffset = 0;
 				long markerId = 0;
+				Integer markerType = 0;
+				Integer startOffset = 0;
+				int status = 0;
 
 				try {
+					endOffset = Integer.parseInt(upgradeProblemMemento.getString("endOffset"));
+					lineNumber = Integer.parseInt(upgradeProblemMemento.getString("lineNumber"));
 					markerId = Long.parseLong(upgradeProblemMemento.getString("markerId"));
+					markerType = Integer.parseInt(upgradeProblemMemento.getString("markerType"));
+					startOffset = Integer.parseInt(upgradeProblemMemento.getString("startOffset"));
+					status = Integer.parseInt(upgradeProblemMemento.getString("status"));
 				}
 				catch (NumberFormatException nfe) {
 				}
-
-				Integer markerType = upgradeProblemMemento.getInteger("markerType");
-
-				Integer startOffset = upgradeProblemMemento.getInteger("startOffset");
-				int status = upgradeProblemMemento.getInteger("status");
 
 				IFile[] resources = CoreUtil.findFilesForLocationURI(
 					new File(upgradeProblemMemento.getString("resourceLocation")).toURI());
