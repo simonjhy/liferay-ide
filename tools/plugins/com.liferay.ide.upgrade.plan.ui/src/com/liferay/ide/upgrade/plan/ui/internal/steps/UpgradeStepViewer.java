@@ -161,6 +161,10 @@ public class UpgradeStepViewer implements ISelectionProvider {
 		_scrolledForm.reflow(true);
 	}
 
+	public Control getControl() {
+		return _scrolledForm;
+	}
+	
 	private List<Disposable> _disposables = new ArrayList<>();
 	private FormToolkit _formToolkit;
 	private ListenerList<ISelectionChangedListener> _listeners = new ListenerList<>();
