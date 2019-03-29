@@ -15,6 +15,7 @@
 package com.liferay.ide.gradle.core.parser;
 
 import com.liferay.ide.core.Artifact;
+import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.FileUtil;
 
 import java.io.File;
@@ -83,9 +84,12 @@ public class GradleDependencyUpdater {
 		sb.append(artifact.getGroupId());
 		sb.append("\", name:\"");
 		sb.append(artifact.getArtifactId());
-		sb.append("\", version:\"");
-		sb.append(artifact.getVersion());
-		sb.append("\"");
+
+		if (CoreUtil.isNotNullOrEmpty(artifact.getVersion())) {
+			sb.append("\", version:\"");
+			sb.append(artifact.getVersion());
+			sb.append("\"");
+		}
 
 		return _insertDependency(sb.toString());
 	}

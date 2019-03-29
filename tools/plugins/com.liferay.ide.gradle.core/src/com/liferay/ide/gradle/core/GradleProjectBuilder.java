@@ -21,6 +21,7 @@ import com.liferay.ide.core.util.WorkspaceConstants;
 import com.liferay.ide.gradle.core.parser.GradleDependencyUpdater;
 import com.liferay.ide.project.core.AbstractProjectBuilder;
 import com.liferay.ide.project.core.IWorkspaceProjectBuilder;
+import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
 
 import java.io.IOException;
 
@@ -157,8 +158,14 @@ public class GradleProjectBuilder extends AbstractProjectBuilder implements Arti
 
 			List<Artifact> existDependencies = updater.getDependencies("*");
 
+			boolean hasGradleWorkspace = LiferayWorkspaceUtil.hasGradleWorkspace();
+
 			for (Artifact artifact : dependencies) {
 				if (!existDependencies.contains(artifact)) {
+					if (hasGradleWorkspace) {
+						artifact.setVersion(null);
+					}
+
 					updater.insertDependency(artifact);
 
 					FileUtils.writeLines(FileUtil.getFile(_gradleBuildFile), updater.getGradleFileContents());
