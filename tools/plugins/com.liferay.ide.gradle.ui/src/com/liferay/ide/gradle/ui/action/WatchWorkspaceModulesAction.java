@@ -19,6 +19,7 @@ import com.liferay.ide.core.IWorkspaceProject;
 import com.liferay.ide.core.LiferayCore;
 import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.gradle.core.GradleUtil;
+import com.liferay.ide.gradle.core.LiferayGradleCore;
 import com.liferay.ide.gradle.core.LiferayGradleWorkspaceProject;
 import com.liferay.ide.gradle.ui.LiferayGradleUI;
 import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
@@ -33,7 +34,11 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -124,7 +129,7 @@ public class WatchWorkspaceModulesAction extends SelectionProviderAction {
 						Set<IProject> childProjects = liferayGradleWorkspaceProject.getChildProjects();
 
 						for (IProject childProject : childProjects) {
-							_undeployModuleFromServer(childProject);
+							new StopWatchBundleJob(childProject).schedule();
 						}
 
 						projectsToWatch.clear();
@@ -133,7 +138,7 @@ public class WatchWorkspaceModulesAction extends SelectionProviderAction {
 					}
 					else {
 						projectsToWatch.remove(selectedProject);
-						_undeployModuleFromServer(selectedProject);
+						new StopWatchBundleJob(selectedProject).schedule();
 					}
 				}
 			}
@@ -172,5 +177,35 @@ public class WatchWorkspaceModulesAction extends SelectionProviderAction {
 	}
 
 	private String _action;
+
+	private class StopWatchBundleJob extends Job {
+
+		public StopWatchBundleJob(IProject project) {
+			super("Stop bundle for project " + project.getName());
+
+			_project = project;
+		}
+
+		@Override
+		public boolean belongsTo(Object family) {
+			return family.equals(
+				_project.getName() + ":" + LiferayGradleCore.LIFERAY_WATCH + ":" +
+					LiferayGradleUI.LIFERAY_STANDALONE_WATCH_JOB_FAMILY);
+		}
+
+		@Override
+		protected IStatus run(IProgressMonitor monitor) {
+			_undeployModuleFromServer(_project);
+
+			IDecoratorManager decoratorManager = UIUtil.getDecoratorManager();
+
+			UIUtil.async(() -> decoratorManager.update(LiferayGradleUI.LIFERAY_WATCH_DECORATOR_ID));
+
+			return Status.OK_STATUS;
+		}
+
+		private IProject _project;
+
+	}
 
 }

@@ -139,6 +139,10 @@ public class GogoBundleDeployer {
 	public long getBundleId(String bsn) throws IOException {
 		String result = run("lb -s " + bsn, true);
 
+		if ( CoreUtil.isNullOrEmpty(result)) {
+			return -1;
+		}
+
 		if ("No matching bundles found".equals(result)) {
 			return -1;
 		}
