@@ -76,6 +76,7 @@ public class RemoveDependencyVersionCommand implements UpgradeCommand {
 
 		try {
 			StringBuilder dependencyBuilder = new StringBuilder(updater.wrapDependency(artifact));
+
 			String configurationContent = gradleFileContents.get(artifact.getConfiurationStartLineNumber() - 1);
 
 			int startPos = configurationContent.indexOf(artifact.getConfiguration());
