@@ -101,14 +101,14 @@ public class RemoveDependencyVersionCommand implements UpgradeCommand {
 			List<Artifact> dependencies = gradleDependencyUpdater.getDependencies("*");
 
 			List<Artifact> dependenciesWithoutVersion = dependencies.stream(
-			).filter(
-				targetPlatformArtifacts::contains
 			).map(
 				artifact -> {
 					artifact.setVersion(null);
 
 					return artifact;
 				}
+			).filter(
+				targetPlatformArtifacts::contains
 			).collect(
 				Collectors.toList()
 			);
