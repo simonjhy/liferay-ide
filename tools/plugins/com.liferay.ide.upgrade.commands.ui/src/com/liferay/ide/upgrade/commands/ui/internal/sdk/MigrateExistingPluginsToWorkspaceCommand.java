@@ -141,7 +141,7 @@ public class MigrateExistingPluginsToWorkspaceCommand implements SapphireContent
 					sb.append("\" \"");
 					sb.append(name);
 					sb.append("\"");
-					sb.append(" --remove false");
+					sb.append(" --remove");
 
 					try {
 						BladeCLI.execute(sb.toString());
