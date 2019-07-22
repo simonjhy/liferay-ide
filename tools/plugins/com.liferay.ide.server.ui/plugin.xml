@@ -381,6 +381,12 @@
 			typeIds="com.liferay.ide.server.portal.runtime"
 		>
 		</image>
+		<image
+			icon="icons/liferay_logo_16.png"
+			id="com.liferay.ide.server.portal.docker.runtime.image"
+			typeIds="com.liferay.ide.server.portal.docker.runtime"
+		>
+		</image>
 	</extension>
 	<extension
 		point="org.eclipse.wst.server.ui.wizardFragments"
@@ -409,6 +415,18 @@
 			typeIds="com.liferay.ide.server.portal"
 		>
 		</fragment>
+		<fragment
+			class="com.liferay.ide.server.ui.portal.docker.PortalDockerRuntimeWizard"
+			id="com.liferay.ide.server.portal.docker.runtime.fragment"
+			typeIds="com.liferay.ide.server.portal.docker.runtime"
+		>
+		</fragment>
+		<fragment
+			class="com.liferay.ide.server.ui.portal.docker.PortalDockerServerWizard"
+			id="com.liferay.ide.server.portal.docker.fragment"
+			typeIds="com.liferay.ide.server.portal.docker"
+		>
+		</fragment>		
 	</extension>
 	<extension
 		point="org.eclipse.debug.ui.launchConfigurationTabGroups"
@@ -425,6 +443,12 @@
 			type="com.liferay.ide.server.portal.launch"
 		>
 		</launchConfigurationTabGroup>
+		<launchConfigurationTabGroup
+			class="com.liferay.ide.server.ui.portal.docker.PortalDockerServerLaunchTabGroup"
+			id="com.liferay.ide.server.portal.docker.launch.tab"
+			type="com.liferay.ide.server.portal.docker.launch"
+		>
+		</launchConfigurationTabGroup>
 	</extension>
 	<extension
 		point="org.eclipse.debug.ui.launchConfigurationTypeImages"
@@ -439,6 +463,12 @@
 			configTypeID="com.liferay.ide.server.portal.launch"
 			icon="icons/liferay_logo_16.png"
 			id="com.liferay.ide.server.portal.launch.image"
+		>
+		</launchConfigurationTypeImage>
+		<launchConfigurationTypeImage
+			configTypeID="com.liferay.ide.server.portal.docker.launch"
+			icon="icons/liferay_logo_16.png"
+			id="com.liferay.ide.server.portal.docker.launch.image"
 		>
 		</launchConfigurationTypeImage>
 	</extension>
