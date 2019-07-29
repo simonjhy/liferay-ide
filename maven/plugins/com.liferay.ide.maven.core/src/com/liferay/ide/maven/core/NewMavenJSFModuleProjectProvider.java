@@ -14,17 +14,7 @@
 
 package com.liferay.ide.maven.core;
 
-import com.liferay.ide.core.LiferayCore;
-import com.liferay.ide.core.util.CoreUtil;
-import com.liferay.ide.core.util.FileUtil;
-import com.liferay.ide.core.util.StringUtil;
-import com.liferay.ide.maven.core.aether.AetherUtil;
-import com.liferay.ide.project.core.NewLiferayProjectProvider;
-import com.liferay.ide.project.core.jsf.NewLiferayJSFModuleProjectOp;
-import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
-
 import java.io.File;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -41,7 +31,6 @@ import org.apache.maven.archetype.ArchetypeGenerationRequest;
 import org.apache.maven.archetype.ArchetypeGenerationResult;
 import org.apache.maven.archetype.ArchetypeManager;
 import org.apache.maven.archetype.catalog.Archetype;
-
 import org.eclipse.aether.artifact.Artifact;
 import org.eclipse.aether.repository.RemoteRepository;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -54,12 +43,19 @@ import org.eclipse.m2e.core.internal.MavenPluginActivator;
 import org.eclipse.m2e.core.internal.embedder.MavenImpl;
 import org.eclipse.sapphire.Value;
 import org.eclipse.sapphire.platform.PathBridge;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import org.osgi.framework.Version;
+
+import com.liferay.ide.core.LiferayCore;
+import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.core.util.FileUtil;
+import com.liferay.ide.core.util.StringUtil;
+import com.liferay.ide.maven.core.aether.AetherUtil;
+import com.liferay.ide.project.core.NewLiferayProjectProvider;
+import com.liferay.ide.project.core.jsf.NewLiferayJSFModuleProjectOp;
+import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
 
 /**
  * @author Simon Jiang

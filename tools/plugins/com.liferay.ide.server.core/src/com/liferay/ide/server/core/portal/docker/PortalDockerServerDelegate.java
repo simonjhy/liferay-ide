@@ -4,6 +4,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.wst.server.core.IModule;
+import org.eclipse.wst.server.core.ServerUtil;
 import org.eclipse.wst.server.core.model.ServerDelegate;
 
 public class PortalDockerServerDelegate extends ServerDelegate {
@@ -36,4 +37,15 @@ public class PortalDockerServerDelegate extends ServerDelegate {
 
 	}
 
+	@Override
+	public void setDefaults(IProgressMonitor monitor) {
+//		IServerWorkingCopy serverWorkingCopy = getServerWorkingCopy();
+//		IRuntime runtime = serverWorkingCopy.getRuntime();
+//		
+//		PortalDockerRuntime dockerRuntime = (PortalDockerRuntime)runtime.loadAdapter(PortalDockerRuntime.class, monitor);
+//		String imageRepo = dockerRuntime.getImageRepo();
+//		System.out.println(imageRepo);
+		ServerUtil.setServerDefaultName(getServerWorkingCopy());
+	}
+	
 }

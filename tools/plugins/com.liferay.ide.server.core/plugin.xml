@@ -1531,22 +1531,20 @@
 			supportsRemoteHosts="true"
 		>
 		</serverType>
-		
 		<serverType
-			behaviourClass="com.liferay.ide.server.core.portal.docker.PortalDockerServerBehavior"
-			class="com.liferay.ide.server.core.portal.docker.PortalDockerServerDelegate"
-			description="Liferay Docker"
-			id="com.liferay.ide.server.portal.docker"
-			initialState="stopped"
-			launchConfigId="com.liferay.ide.server.portal.docker.launch"
-			name="Liferay Docker"
-			runtime="true"
-			runtimeTypeId="com.liferay.ide.server.portal.docker.runtime"
-			startBeforePublish="true"
-			startTimeout="900000"
-			stopTimeout="300000"
-			supportsRemoteHosts="true"
-		>
+	        behaviourClass="com.liferay.ide.server.core.portal.docker.PortalDockerServerBehavior"
+	        class="com.liferay.ide.server.core.portal.docker.PortalDockerServerDelegate"
+	        description="Liferay Docker Server"
+	        id="com.liferay.ide.server.portal.docker"
+	        initialState="stopped"
+	        launchConfigId="com.liferay.ide.server.portal.docker.launch"
+	        name="Liferay Docker Server"
+	        runtime="true"
+	        runtimeTypeId="com.liferay.ide.server.portal.docker.runtime"
+	        startBeforePublish="true"
+	        startTimeout="900000"
+	        stopTimeout="300000"
+	        supportsRemoteHosts="true">
 		</serverType>		
 	</extension>
 	<extension

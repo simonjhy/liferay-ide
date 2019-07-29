@@ -14,17 +14,15 @@
 
 package com.liferay.ide.kaleo.core;
 
-import com.liferay.ide.core.remote.RemoteConnection;
-
 import java.net.URL;
-
 import java.util.Locale;
 
 import org.apache.http.client.methods.HttpPost;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.liferay.ide.core.remote.RemoteConnection;
 
 /**
  * @author Gregory Amerson

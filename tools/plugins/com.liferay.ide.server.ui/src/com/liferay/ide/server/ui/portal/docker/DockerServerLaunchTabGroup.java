@@ -3,9 +3,9 @@ package com.liferay.ide.server.ui.portal.docker;
 import org.eclipse.debug.ui.AbstractLaunchConfigurationTabGroup;
 import org.eclipse.debug.ui.ILaunchConfigurationDialog;
 
-public class PortalDockerServerLaunchTabGroup extends AbstractLaunchConfigurationTabGroup {
+public class DockerServerLaunchTabGroup extends AbstractLaunchConfigurationTabGroup {
 
-	public PortalDockerServerLaunchTabGroup() {
+	public DockerServerLaunchTabGroup() {
 		// TODO Auto-generated constructor stub
 	}
 

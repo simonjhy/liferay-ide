@@ -15,7 +15,6 @@
 package com.liferay.ide.server.ui;
 
 import java.net.URL;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,8 +23,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
-
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 
@@ -39,6 +38,10 @@ public class LiferayServerUI extends AbstractUIPlugin {
 	public static final String IMG_WIZ_RUNTIME = "imgWizRuntime";
 
 	public static final String PLUGIN_ID = "com.liferay.ide.server.ui";
+	
+	public static final String UNCHECKED_IMAGE_ID = "unchecked.image";
+	
+	public static final String CHECKED_IMAGE_ID = "checked.image";
 
 	public static IStatus createErrorStatus(Exception ex) {
 		return new Status(IStatus.ERROR, PLUGIN_ID, ex.getMessage(), ex);
@@ -66,6 +69,12 @@ public class LiferayServerUI extends AbstractUIPlugin {
 			return null;
 		}
 	}
+	
+	public static Image getImage(String key) {
+		ImageRegistry imageRegistry = getDefault().getImageRegistry();
+
+		return imageRegistry.get(key);
+	}	
 
 	public static void logError(Exception ex) {
 		ILog log = getDefault().getLog();
@@ -109,6 +118,8 @@ public class LiferayServerUI extends AbstractUIPlugin {
 
 		_registerImage(registry, IMG_WIZ_RUNTIME, "wizban/liferay_wiz.png");
 		_registerImage(registry, IMG_NOTIFICATION, "e16/liferay_logo_16.png");
+		_registerImage(registry, CHECKED_IMAGE_ID, "checked.png");
+		_registerImage(registry, UNCHECKED_IMAGE_ID, "unchecked.png");
 
 		return registry;
 	}
