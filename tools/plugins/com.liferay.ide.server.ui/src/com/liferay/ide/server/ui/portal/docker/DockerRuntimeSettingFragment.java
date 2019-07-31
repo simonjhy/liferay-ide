@@ -25,7 +25,7 @@ import org.osgi.framework.Bundle;
 import com.liferay.ide.server.ui.LiferayServerUI;
 
 /**
- * @author Gregory Amerson
+ * @author Simon Jiang
  */
 public class DockerRuntimeSettingFragment extends WizardFragment {
 

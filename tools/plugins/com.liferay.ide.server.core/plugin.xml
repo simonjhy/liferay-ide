@@ -1533,7 +1533,7 @@
 		</serverType>
 		<serverType
 	        behaviourClass="com.liferay.ide.server.core.portal.docker.PortalDockerServerBehavior"
-	        class="com.liferay.ide.server.core.portal.docker.PortalDockerServerDelegate"
+	        class="com.liferay.ide.server.core.portal.docker.PortalDockerServer"
 	        description="Liferay Docker Server"
 	        id="com.liferay.ide.server.portal.docker"
 	        initialState="stopped"

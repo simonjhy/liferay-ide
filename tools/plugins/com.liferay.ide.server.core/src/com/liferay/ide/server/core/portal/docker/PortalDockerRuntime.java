@@ -32,11 +32,6 @@ public class PortalDockerRuntime extends RuntimeDelegate implements IPortalDocke
 		return getAttribute(PROP_DOCKER_IMAGE_REPO, (String)null);
 	}
 
-	@Override
-	public String getImageHealthCheckUrl() {
-		return getAttribute(PROP_DOCKER_HEALTH_CHECK_URL, (String)null);
-	}
-
 	public void setImageId(String imageId) {
 		setAttribute(PROP_DOCKER_IMAGE_ID, imageId);
 	}
@@ -44,7 +39,6 @@ public class PortalDockerRuntime extends RuntimeDelegate implements IPortalDocke
 	public static final String PROP_DOCKER_IMAGE_REPO = "docker-image-repo";
 	public static final String PROP_DOCKER_IMAGE_ID = "docker-image-id";
 	public static final String PROP_DOCKER_IMAGE_TAG = "docker-image-tag";
-	public static final String PROP_DOCKER_HEALTH_CHECK_URL = "docker-health-check_url";
 
 	public void setImageRepo(String imageRepo) {
 		setAttribute(PROP_DOCKER_IMAGE_REPO, imageRepo);
@@ -52,10 +46,6 @@ public class PortalDockerRuntime extends RuntimeDelegate implements IPortalDocke
 	
 	public void setImageTag(String imageTag) {
 		setAttribute(PROP_DOCKER_IMAGE_TAG, imageTag);
-	}
-	
-	public void setHelathCheckUrl(String helathCheckUrl) {
-		setAttribute(PROP_DOCKER_HEALTH_CHECK_URL, helathCheckUrl);
 	}
 	
 	private String getImageVersion(String imageRepoTag) {

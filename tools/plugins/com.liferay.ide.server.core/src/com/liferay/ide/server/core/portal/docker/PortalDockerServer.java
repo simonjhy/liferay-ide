@@ -7,9 +7,11 @@ import org.eclipse.wst.server.core.IModule;
 import org.eclipse.wst.server.core.ServerUtil;
 import org.eclipse.wst.server.core.model.ServerDelegate;
 
-public class PortalDockerServerDelegate extends ServerDelegate {
+import com.liferay.ide.core.util.Pair;
 
-	public PortalDockerServerDelegate() {
+public class PortalDockerServer extends ServerDelegate implements IPortalDockerServer{
+
+	public PortalDockerServer() {
 		// TODO Auto-generated constructor stub
 	}
 
@@ -48,4 +50,34 @@ public class PortalDockerServerDelegate extends ServerDelegate {
 		ServerUtil.setServerDefaultName(getServerWorkingCopy());
 	}
 	
+	public static final String PROP_DOCKER_CONTAINER_NAME = "docker-container-name";
+	public static final String PROP_DOCKER_CONTAINER_IMAGE_ID = "docker-container-image-id";
+	public static final String PROP_DOCKER_CONTAINER_HEALTH_CHECK_URL = "docker-container-health-check_url";
+
+	public void setName(String name) {
+		setAttribute(PROP_DOCKER_CONTAINER_NAME, name);
+	}
+	
+	@Override
+	public String getName() {
+		return getAttribute(PROP_DOCKER_CONTAINER_NAME, (String)null);
+	}
+
+	public void setImageId(String imageId) {
+		setAttribute(PROP_DOCKER_CONTAINER_IMAGE_ID, imageId);
+	}
+
+	public void setHealthCheckUrl(String healthCheckUrl) {
+		setAttribute(PROP_DOCKER_CONTAINER_HEALTH_CHECK_URL, healthCheckUrl);
+	}	
+	
+	@Override
+	public String getImageId() {
+		return getAttribute(PROP_DOCKER_CONTAINER_IMAGE_ID, (String)null);
+	}
+
+	@Override
+	public String getHealthCheckUrl() {
+		return getAttribute(PROP_DOCKER_CONTAINER_HEALTH_CHECK_URL, (String)null);
+	}
 }

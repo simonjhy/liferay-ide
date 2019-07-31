@@ -5,7 +5,6 @@ import org.eclipse.wst.server.core.model.ServerBehaviourDelegate;
 public class PortalDockerServerBehavior extends ServerBehaviourDelegate {
 
 	public PortalDockerServerBehavior() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

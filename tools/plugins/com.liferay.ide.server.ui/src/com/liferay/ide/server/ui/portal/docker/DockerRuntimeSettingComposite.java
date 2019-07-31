@@ -268,10 +268,16 @@ public class DockerRuntimeSettingComposite extends Composite implements ModifyLi
 		_dockerImageSize = createTextField(Msgs.dockerImageSize);
 	}
 
+	@Override
+	public void dispose () {
+		_dockerImageTagCombo.removeModifyListener(this);
+		super.dispose();
+	}
+	
 	private DockerClient _dockerClient = null;
 
 	private Job initInstalledImages() {
-		Job initInstalledImages = new Job("") {
+		Job initInstalledImages = new Job("Get installed docker images") {
 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {

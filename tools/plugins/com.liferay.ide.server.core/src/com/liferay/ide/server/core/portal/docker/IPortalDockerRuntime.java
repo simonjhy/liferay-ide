@@ -7,6 +7,4 @@ public interface IPortalDockerRuntime{
 	String getImageId();
 	
 	String getImageRepo();
-	
-	String getImageHealthCheckUrl();
 }
