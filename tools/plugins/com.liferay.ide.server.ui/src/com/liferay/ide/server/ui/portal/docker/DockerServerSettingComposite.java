@@ -80,7 +80,7 @@ public class DockerServerSettingComposite extends Composite implements ModifyLis
 			IRuntime runtime = getServer().getRuntime();
 			PortalDockerRuntime dockerRuntime = (PortalDockerRuntime)runtime.loadAdapter(PortalDockerRuntime.class, null);
 			
-			portalDockerServer.setName(_nameField.getText());
+			portalDockerServer.setContainerName(_nameField.getText());
 			portalDockerServer.setImageId(dockerRuntime.getImageId());				
 		}
 	}

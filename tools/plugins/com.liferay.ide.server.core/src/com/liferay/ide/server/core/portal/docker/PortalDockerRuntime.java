@@ -7,15 +7,15 @@ import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.wst.server.core.model.RuntimeDelegate;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.ListImagesCmd;
 import com.github.dockerjava.api.model.Image;
 import com.liferay.ide.server.core.LiferayServerCore;
+import com.liferay.ide.server.core.portal.PortalRuntime;
 import com.liferay.ide.server.util.LiferayDockerClient;
 
-public class PortalDockerRuntime extends RuntimeDelegate implements IPortalDockerRuntime{
+public class PortalDockerRuntime extends PortalRuntime implements IPortalDockerRuntime{
 
 	@Override
 	public String getImageTag() {
