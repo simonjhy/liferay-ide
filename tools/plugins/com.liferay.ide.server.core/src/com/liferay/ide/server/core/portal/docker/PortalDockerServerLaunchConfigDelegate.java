@@ -14,11 +14,6 @@
  */
 package com.liferay.ide.server.core.portal.docker;
 
-import com.liferay.ide.core.util.CoreUtil;
-import com.liferay.ide.server.core.ILiferayServer;
-import com.liferay.ide.server.core.LiferayServerCore;
-import com.liferay.ide.server.util.SocketUtil;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,10 +26,8 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchManager;
-import org.eclipse.debug.core.IStreamListener;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.core.model.IStreamMonitor;
 import org.eclipse.debug.core.sourcelookup.AbstractSourceLookupDirector;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
@@ -46,9 +39,11 @@ import org.eclipse.wst.server.core.IServerListener;
 import org.eclipse.wst.server.core.ServerEvent;
 import org.eclipse.wst.server.core.ServerUtil;
 
+import com.liferay.ide.server.core.ILiferayServer;
+import com.liferay.ide.server.core.LiferayServerCore;
+import com.liferay.ide.server.util.SocketUtil;
+
 /**
- * @author Gregory Amerson
- * @author Charles Wu
  * @author Simon Jiang
  */
 public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchConfigurationDelegate {
@@ -115,10 +110,11 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 			IJavaLaunchConfigurationConstants.ATTR_CONNECT_MAP, new HashMap<String, String>());
 
 		String host = configuration.getAttribute("hostname", server.getHost());
-		String port = configuration.getAttribute("port", "");
+		String port = "8000";
 
 		connectMap.put("hostname", host);
-		connectMap.put("port", configuration.getAttribute("port", ""));
+		connectMap.put("port", port);
+		connectMap.put("timeout", String.valueOf(Integer.MAX_VALUE));
 
 		// check for cancellation
 
@@ -174,13 +170,7 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 			else {
 				launch.addProcess(retvalProcess);
 			}
-
-			if (debug) {
-				IStreamMonitor outputStreamMonitor = streamsProxy.getOutputStreamMonitor();
-
-				outputStreamMonitor.addListener(new StartDebugStreamMonitor(server, config, launch, monitor));
-			}
-
+		
 			return retvalProcess;
 		}
 		catch (Exception e) {
@@ -189,6 +179,8 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 		return null;
 	}
 
+	
+	
 	private void _launchServer(
 			IServer server, ILaunchConfiguration config, String mode, ILaunch launch, IProgressMonitor monitor)
 		throws CoreException {
@@ -249,12 +241,21 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 								job.cancel();
 							}
 						}
+					}else if (((event.getKind() & ServerEvent.SERVER_CHANGE) > 0) &&
+							 (event.getState() == IServer.STATE_STARTED)) {
+						try {
+							startDebugLaunch(server, config, launch, monitor);
+						}
+						catch(Exception e) {
+							LiferayServerCore.logError(e);
+						}
 					}
 				}
 
 			});
 
 		try {
+//			ILaunch launch2 = config.launch(mode, monitor);
 			portalServerBehavior.addProcessListener(launch.getProcesses()[0]);
 		}
 		catch (Exception e) {
@@ -262,36 +263,36 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 		}
 	}
 
-	private class StartDebugStreamMonitor implements IStreamListener {
-
-		public StartDebugStreamMonitor(
-			IServer server, ILaunchConfiguration config, ILaunch launch, IProgressMonitor monitor) {
-
-			_server = server;
-			_config = config;
-			_launch = launch;
-			_prccessMonitor = monitor;
-		}
-
-		@Override
-		public void streamAppended(String text, IStreamMonitor monitor) {
-			if (CoreUtil.isNotNullOrEmpty(text)) {
-				try {
-					startDebugLaunch(_server, _config, _launch, _prccessMonitor);
-				}
-				catch (CoreException ce) {
-					LiferayServerCore.logError(ce);
-				}
-
-				monitor.removeListener(this);
-			}
-		}
-
-		private ILaunchConfiguration _config;
-		private ILaunch _launch;
-		private IProgressMonitor _prccessMonitor;
-		private IServer _server;
-
-	}
+//	private class StartDebugStreamMonitor implements IStreamListener {
+//
+//		public StartDebugStreamMonitor(
+//			IServer server, ILaunchConfiguration config, ILaunch launch, IProgressMonitor monitor) {
+//
+//			_server = server;
+//			_config = config;
+//			_launch = launch;
+//			_prccessMonitor = monitor;
+//		}
+//
+//		@Override
+//		public void streamAppended(String text, IStreamMonitor monitor) {
+//			if (CoreUtil.isNotNullOrEmpty(text)) {
+//				try {
+//					startDebugLaunch(_server, _config, _launch, _prccessMonitor);
+//				}
+//				catch (CoreException ce) {
+//					LiferayServerCore.logError(ce);
+//				}
+//
+//				monitor.removeListener(this);
+//			}
+//		}
+//
+//		private ILaunchConfiguration _config;
+//		private ILaunch _launch;
+//		private IProgressMonitor _prccessMonitor;
+//		private IServer _server;
+//
+//	}
 
 }

@@ -58,7 +58,7 @@ public class PortalDockerServerLogStreamsProxy extends PortalDockerServerStreams
 				sysErr = new PortalDockerServerOutputStreamMonitor();
 			}
 
- 			startMonitoring(portalServer.getContainerId());
+ 			startMonitoring(portalServer);
 		}
 		catch (Exception e) {
 		}

@@ -47,8 +47,6 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 		_serverBehavior = serverBehavior;
 		_streamsProxy = proxy;
 		_launch = launch;
-		_debug = debug;
-		_config = config;
 
  		run(monitor);
 	}
@@ -146,11 +144,8 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 
  						try {
  							DockerClient dockerClient = LiferayDockerClient.getDockerClient();
-
  							StartContainerCmd startContainerCmd = dockerClient.startContainerCmd(_portalServer.getContainerId());
-
  							startContainerCmd.exec();
-
  							fireCreateEvent();
 						}
 						catch (Exception e) {
@@ -161,7 +156,6 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 							mon.done();
 						}
 					}
-
  				});
 		}
 	}
@@ -177,8 +171,6 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 	}
 
  	private Map<String, String> _attributerMap = new HashMap<>();
-	private ILaunchConfiguration _config;
-	private boolean _debug;
 	private Job _job;
 	private String _label;
 	private ILaunch _launch;

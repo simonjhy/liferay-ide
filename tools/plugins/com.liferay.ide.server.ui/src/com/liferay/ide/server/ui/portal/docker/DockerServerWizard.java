@@ -18,7 +18,6 @@ import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.CreateContainerCmd;
 import com.github.dockerjava.api.command.CreateContainerResponse;
 import com.github.dockerjava.api.command.RemoveContainerCmd;
-import com.github.dockerjava.api.model.AccessMode;
 import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.ExposedPort;
 import com.github.dockerjava.api.model.HostConfig;
@@ -66,42 +65,40 @@ public class DockerServerWizard extends WizardFragment {
 			PortalDockerServer dockerServer = (PortalDockerServer)server.loadAdapter(PortalDockerServer.class, null);
 			
 			DockerClient dockerClient = LiferayDockerClient.getDockerClient();
-			Bind bind = new Bind("./", new Volume("/etc/liferay/mount"));
+			
 			IPath liferayServerStateLocation = LiferayServerCore.getDefault().getStateLocation();
-			
-			IPath liferayLogLocation = liferayServerStateLocation.append("containers/" + dockerServer.getContainerName() + "/liferayLogs");
-			IPath tomcatLogLocation = liferayServerStateLocation.append("containers/" + dockerServer.getContainerName() + "/tomcatLogs");
-			
-			Bind bindLiferayLog = new Bind(liferayLogLocation.toOSString(), new Volume("/opt/liferay/logs"), AccessMode.fromBoolean(false));
-			Bind bindTomcatLog = new Bind(tomcatLogLocation.toOSString(), new Volume("/opt/liferay/tomcat/logs"), AccessMode.fromBoolean(false));
+			Bind bind = new Bind(liferayServerStateLocation.append("deploy").toOSString(), new Volume("/etc/liferay/mount"));
 			
 			HostConfig hostConfig = HostConfig.newHostConfig();
 			hostConfig.withBinds(bind);
-			hostConfig.withBinds(bindLiferayLog);
-			hostConfig.withBinds(bindTomcatLog);
 
 			CreateContainerCmd contanerCreateCmd = dockerClient.createContainerCmd(dockerRuntime.getImageRepo());
 			List<PortBinding> portBindings = new ArrayList<PortBinding>();
+
+			portBindings.add(new PortBinding(Binding.bindIpAndPort("0.0.0.0",8000), new ExposedPort(8000, InternetProtocol.TCP)));
 			portBindings.add(new PortBinding(Binding.bindIpAndPort("0.0.0.0",8080), new ExposedPort(8080, InternetProtocol.TCP)));
 			portBindings.add(new PortBinding(Binding.bindIpAndPort("0.0.0.0",11311), new ExposedPort(11311, InternetProtocol.TCP)));
+
+			
 			contanerCreateCmd.withName(dockerServer.getContainerName());
-			contanerCreateCmd.withEnv("LIFERAY_JPDA_ENABLED=true");
+			contanerCreateCmd.withEnv("LIFERAY_JPDA_ENABLED=true", "JPDA_ADDRESS=8000", "JPDA_TRANSPORT=dt_socket");
 			contanerCreateCmd.withImage(dockerRuntime.getImageRepo());
-			contanerCreateCmd.withHostConfig(hostConfig.withPortBindings(portBindings));
+			contanerCreateCmd.withHostConfig(hostConfig.withPortBindings(portBindings)).withExposedPorts(new ExposedPort(8000, InternetProtocol.TCP));
 			CreateContainerResponse createResponse = contanerCreateCmd.exec();
 
 			dockerServer.settContainerId(createResponse.getId());
 
 			ServerCore.addServerLifecycleListener(
 				new ServerLifecycleAdapter() {
-					public void serverRemoved(IServer portalDockerServer) {
-						if ( portalDockerServer.getId().equals(server.getId())) {
-							IRuntime runtime = portalDockerServer.getRuntime();
+					public void serverRemoved(IServer removeServer) {
+						if ( removeServer.getId().equals(server.getId())) {
+							IRuntime runtime = removeServer.getRuntime();
 							
 							PortalDockerRuntime dockerRuntime = (PortalDockerRuntime)runtime.loadAdapter(PortalDockerRuntime.class, null);
 							
 							if (dockerRuntime != null) {
-								RemoveContainerCmd removeContainerCmd = dockerClient.removeContainerCmd(createResponse.getId());
+								PortalDockerServer dockerPortalServer = (PortalDockerServer)removeServer.loadAdapter(PortalDockerServer.class, null);
+								RemoveContainerCmd removeContainerCmd = dockerClient.removeContainerCmd(dockerPortalServer.getContainerId());
 								removeContainerCmd.exec();
 							}						
 						}
