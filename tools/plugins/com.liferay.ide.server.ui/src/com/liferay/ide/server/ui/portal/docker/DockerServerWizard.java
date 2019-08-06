@@ -1,8 +1,12 @@
 package com.liferay.ide.server.ui.portal.docker;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.wst.server.core.IRuntime;
@@ -25,6 +29,10 @@ import com.github.dockerjava.api.model.InternetProtocol;
 import com.github.dockerjava.api.model.PortBinding;
 import com.github.dockerjava.api.model.Ports.Binding;
 import com.github.dockerjava.api.model.Volume;
+import com.liferay.ide.core.IWorkspaceProject;
+import com.liferay.ide.core.LiferayCore;
+import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.server.core.LiferayServerCore;
 import com.liferay.ide.server.core.portal.docker.PortalDockerRuntime;
 import com.liferay.ide.server.core.portal.docker.PortalDockerServer;
@@ -56,6 +64,86 @@ public class DockerServerWizard extends WizardFragment {
 		return true;
 	}
 
+	public static boolean isValidWorkspace(IProject project) {
+		if ((project != null) && (project.getLocation() != null) && isValidWorkspaceLocation(project.getLocation())) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean isValidWorkspaceLocation(IPath path) {
+		if (FileUtil.notExists(path)) {
+			return false;
+		}
+
+		return isValidWorkspaceLocation(path.toOSString());
+	}
+
+	public static boolean isValidWorkspaceLocation(String location) {
+		if (isValidGradleWorkspaceLocation(location)) {
+			return true;
+		}
+
+		return false;
+	}
+	
+	private static final String _BUILD_GRADLE_FILE_NAME = "build.gradle";
+
+	private static final String _GRADLE_PROPERTIES_FILE_NAME = "gradle.properties";
+
+	private static final String _SETTINGS_GRADLE_FILE_NAME = "settings.gradle";
+	private static final Pattern _workspacePluginPattern = Pattern.compile(
+			".*apply.*plugin.*:.*[\'\"]com\\.liferay\\.workspace[\'\"].*", Pattern.MULTILINE | Pattern.DOTALL);
+
+	public static boolean isValidGradleWorkspaceLocation(String location) {
+		File workspaceDir = new File(location);
+
+		File buildGradle = new File(workspaceDir, _BUILD_GRADLE_FILE_NAME);
+		File settingsGradle = new File(workspaceDir, _SETTINGS_GRADLE_FILE_NAME);
+		File gradleProperties = new File(workspaceDir, _GRADLE_PROPERTIES_FILE_NAME);
+
+		if (FileUtil.notExists(buildGradle) || FileUtil.notExists(settingsGradle) ||
+			FileUtil.notExists(gradleProperties)) {
+
+			return false;
+		}
+
+		String settingsContent = FileUtil.readContents(settingsGradle, true);
+
+		if (settingsContent != null) {
+			Matcher matcher = _workspacePluginPattern.matcher(settingsContent);
+
+			if (matcher.matches()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
+	public static IProject getWorkspaceProject() {
+		IProject[] projects = CoreUtil.getAllProjects();
+
+		for (IProject project : projects) {
+			if (isValidWorkspace(project)) {
+				return project;
+			}
+		}
+
+		return null;
+	}
+	
+	public static IWorkspaceProject getLiferayWorkspaceProject() {
+		IProject workspaceProject = getWorkspaceProject();
+
+		if (workspaceProject != null) {
+			return LiferayCore.create(IWorkspaceProject.class, getWorkspaceProject());
+		}
+
+		return null;
+	}
+ 	
 	@Override
 	public void exit() {
 		try {
@@ -66,16 +154,20 @@ public class DockerServerWizard extends WizardFragment {
 			
 			DockerClient dockerClient = LiferayDockerClient.getDockerClient();
 			
-			IPath liferayServerStateLocation = LiferayServerCore.getDefault().getStateLocation();
-			Bind bind = new Bind(liferayServerStateLocation.append("deploy").toOSString(), new Volume("/etc/liferay/mount"));
+//			IPath liferayServerStateLocation = LiferayServerCore.getDefault().getStateLocation();
+			
+			IProject workspaceProject = getWorkspaceProject();
+			Bind bind = new Bind(workspaceProject.getLocation().append("build/docker").toOSString(), new Volume("/etc/liferay/mount"));
 			
 			HostConfig hostConfig = HostConfig.newHostConfig();
 			hostConfig.withBinds(bind);
 
+			
+			
 			CreateContainerCmd contanerCreateCmd = dockerClient.createContainerCmd(dockerRuntime.getImageRepo());
 			List<PortBinding> portBindings = new ArrayList<PortBinding>();
 
-			portBindings.add(new PortBinding(Binding.bindIpAndPort("0.0.0.0",8000), new ExposedPort(8000, InternetProtocol.TCP)));
+			portBindings.add(new PortBinding(Binding.bindIpAndPort("0.0.0.0",8888), new ExposedPort(8000, InternetProtocol.TCP)));
 			portBindings.add(new PortBinding(Binding.bindIpAndPort("0.0.0.0",8080), new ExposedPort(8080, InternetProtocol.TCP)));
 			portBindings.add(new PortBinding(Binding.bindIpAndPort("0.0.0.0",11311), new ExposedPort(11311, InternetProtocol.TCP)));
 

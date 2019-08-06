@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Calendar;
 
 import org.eclipse.debug.core.model.IStreamMonitor;
 
@@ -33,11 +34,18 @@ public class PortalDockerServerStreamsProxy implements IPortalDockerStreamsProxy
 	}
 
  	public boolean isTerminated() {
-		return _done;
+		return isTerminated;
 	}
 
  	public void terminate() {
- 		attachContainerCmd.close();
+ 		try {
+ 			isTerminated = true;
+ 	 		attachContainerCmd.close();		
+ 	 		System.out.println("ILaunch is stopped");
+ 		}
+ 		catch(Exception e) {
+ 			e.printStackTrace();
+ 		}
 	}
 
  	public void write(String input) throws IOException {
@@ -98,9 +106,11 @@ public class PortalDockerServerStreamsProxy implements IPortalDockerStreamsProxy
 				attachContainerCmd.withStdOut(true);
 				attachContainerCmd.withStdErr(true);
 				LiferayAttachCallback liferayAttachCallback = new LiferayAttachCallback(sysOut);
+				isTerminated = false;
 				attachContainerCmd.exec(liferayAttachCallback);
 				
 				try {
+					System.out.println("Server is starting " + Calendar.getInstance().getTime());
 					liferayAttachCallback.awaitCompletion();
 				} catch (InterruptedException e) {
 					LiferayServerCore.logError(e);
@@ -115,7 +125,7 @@ public class PortalDockerServerStreamsProxy implements IPortalDockerStreamsProxy
 	protected PortalDockerServerOutputStreamMonitor sysErr;
 	protected PortalDockerServerOutputStreamMonitor sysOut;
 
-	private boolean _done = false;
+	protected boolean isTerminated = false;
 	private boolean _monitorStopping = false;
 	private Thread _streamThread;
 	private AttachContainerCmd attachContainerCmd;

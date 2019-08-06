@@ -14,24 +14,60 @@
 
 package com.liferay.ide.server.core.portal.docker;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.eclipse.buildship.core.GradleBuild;
+import org.eclipse.buildship.core.GradleCore;
+import org.eclipse.buildship.core.GradleDistribution;
+import org.eclipse.buildship.core.GradleWorkspace;
+import org.eclipse.buildship.core.internal.CorePlugin;
+import org.eclipse.buildship.core.internal.configuration.BuildConfiguration;
+import org.eclipse.buildship.core.internal.configuration.ConfigurationManager;
+import org.eclipse.buildship.core.internal.launch.GradleLaunchConfigurationManager;
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationAttributes;
+import org.eclipse.buildship.core.internal.launch.GradleRunConfigurationDelegate;
+import org.eclipse.buildship.core.internal.util.variable.ExpressionUtils;
+import org.eclipse.buildship.core.internal.workspace.WorkspaceOperations;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.DebugEvent;
 import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
+import org.eclipse.debug.core.ILaunchConfigurationType;
+import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
 import org.eclipse.wst.server.core.IServer;
+import org.gradle.tooling.GradleConnector;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.StartContainerCmd;
+import com.github.dockerjava.api.command.InspectContainerCmd;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.liferay.ide.core.IWorkspaceProject;
+import com.liferay.ide.core.LiferayCore;
+import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.core.util.FileUtil;
+import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.server.core.LiferayServerCore;
 import com.liferay.ide.server.util.LiferayDockerClient;
+import com.liferay.ide.server.util.SocketUtil;
 
  /**
  * @author Simon Jiang
@@ -40,14 +76,17 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 
  	public PortalDockerServerMonitorProcess(
 		IServer server, final PortalDockerServerBehavior serverBehavior, ILaunch launch, boolean debug,
-		IPortalDockerStreamsProxy proxy, ILaunchConfiguration config, IProgressMonitor monitor) {
+		IPortalDockerStreamsProxy proxy, ILaunchConfiguration config, PortalDockerServerLaunchConfigDelegate delegate, IProgressMonitor monitor) {
 
  		_server = server;
 		_portalServer = (PortalDockerServer)server.loadAdapter(PortalDockerServer.class, null);
 		_serverBehavior = serverBehavior;
 		_streamsProxy = proxy;
 		_launch = launch;
-
+		_config = config;
+		_delegate = delegate;
+		_debug = debug;
+		_dockerClient = LiferayDockerClient.getDockerClient();
  		run(monitor);
 	}
 
@@ -104,7 +143,10 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 	}
 
  	public boolean isTerminated() {
-		return _streamsProxy.isTerminated();
+ 		
+ 		InspectContainerCmd inspectContainerCmd = _dockerClient.inspectContainerCmd(_portalServer.getContainerId());
+ 		InspectContainerResponse response = inspectContainerCmd.exec();
+		return /* _streamsProxy.isTerminated() && */ !response.getState().getRunning();
 	}
 
  	public void setAttribute(String key, String value) {
@@ -116,9 +158,12 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 	}
 
  	public void terminate() throws DebugException {
-		if (_server != null) {
-			_serverBehavior.stop(false);
-		}
+ 		try {
+ 			((IPortalDockerStreamsProxy)getStreamsProxy()).terminate();
+ 		}
+ 		catch(Exception e) {
+ 			e.printStackTrace();
+ 		}
 	}
 
  	protected void fireCreateEvent() {
@@ -133,33 +178,285 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 		}
 	}
 
+	@SuppressWarnings("restriction")
+	private static GradleRunConfigurationAttributes _getRunConfigurationAttributes(
+			IProject project, List<String> tasks, List<String> arguments) {
+
+			IPath projecLocation = project.getLocation();
+
+			File rootDir = projecLocation.toFile();
+
+			ConfigurationManager configurationManager = CorePlugin.configurationManager();
+
+			BuildConfiguration buildConfig = configurationManager.loadBuildConfiguration(rootDir);
+
+			String projectDirectoryExpression = null;
+
+			WorkspaceOperations workspaceOperations = CorePlugin.workspaceOperations();
+
+			IProject gradleProject = workspaceOperations.findProjectByLocation(rootDir).orNull();
+
+			if (gradleProject != null) {
+				projectDirectoryExpression = ExpressionUtils.encodeWorkspaceLocation(gradleProject);
+			}
+			else {
+				projectDirectoryExpression = rootDir.getAbsolutePath();
+			}
+
+			File gradleHome = buildConfig.getGradleUserHome();
+
+			String gradleUserHome = gradleHome == null ? "" : gradleHome.getAbsolutePath();
+
+			GradleDistribution gradleDistribution = buildConfig.getGradleDistribution();
+
+			String serializeString = gradleDistribution.toString();
+
+			return new GradleRunConfigurationAttributes(
+				tasks, projectDirectoryExpression, serializeString, gradleUserHome, null, Collections.<String>emptyList(),
+				arguments, true, true, buildConfig.isOverrideWorkspaceSettings(), buildConfig.isOfflineMode(),
+				buildConfig.isBuildScansEnabled());
+		}
+ 	
+	@SuppressWarnings("restriction")
+	public static ILaunch runGradleTask(
+			IProject project, String[] tasks, String[] arguments, String launchName, boolean saveConfig,
+			IProgressMonitor monitor)
+		throws CoreException {
+
+		GradleRunConfigurationAttributes runAttributes = _getRunConfigurationAttributes(
+			project, Arrays.asList(tasks), Arrays.asList(arguments));
+
+		final ILaunchConfigurationWorkingCopy launchConfigurationWC;
+
+		if (launchName == null) {
+			GradleLaunchConfigurationManager launchConfigManager = CorePlugin.gradleLaunchConfigurationManager();
+
+			ILaunchConfiguration launchConfiguration = launchConfigManager.getOrCreateRunConfiguration(runAttributes);
+
+			launchConfigurationWC = launchConfiguration.getWorkingCopy();
+		}
+		else {
+			DebugPlugin debugPlugin = DebugPlugin.getDefault();
+
+			ILaunchManager launchManager = debugPlugin.getLaunchManager();
+
+			ILaunchConfigurationType launchConfigurationType = launchManager.getLaunchConfigurationType(
+				GradleRunConfigurationDelegate.ID);
+
+			launchConfigurationWC = launchConfigurationType.newInstance(null, launchName);
+
+			runAttributes.apply(launchConfigurationWC);
+
+			if (saveConfig) {
+				launchConfigurationWC.doSave();
+			}
+		}
+
+		launchConfigurationWC.setAttribute("org.eclipse.debug.ui.ATTR_CAPTURE_IN_CONSOLE", Boolean.FALSE);
+		launchConfigurationWC.setAttribute("org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND", Boolean.TRUE);
+		launchConfigurationWC.setAttribute("org.eclipse.debug.ui.ATTR_PRIVATE", Boolean.TRUE);
+		ILaunch dockerLaunch = launchConfigurationWC.launch(ILaunchManager.RUN_MODE, monitor);
+		return dockerLaunch;
+	}
+ 	
+ 	
  	protected void run(IProgressMonitor monitor) {
 		if ((_portalServer != null) && (_job == null)) {
-			_createBladeServerJob(
-				new PortalDockerServerRunnable(getLabel()) {
+//			_createBladeServerJob(
+//				new PortalDockerServerRunnable(getLabel()) {
+//
+// 					@Override
+//					public void doit(IProgressMonitor mon) throws Exception {
+//						mon.beginTask("Start server", 10);
+//
+// 						try {
+// 							DockerClient dockerClient = LiferayDockerClient.getDockerClient();
+// 							StartContainerCmd startContainerCmd = dockerClient.startContainerCmd(_portalServer.getContainerId());
+// 							startContainerCmd.exec();
+// 							fireCreateEvent();
+//						}
+//						catch (Exception e) {
+//							fireTerminateEvent();
+//							LiferayServerCore.logError(e);
+//						}
+//					
+//						finally {
+//							mon.done();
+//						}
+//					}
+// 				});
+			
+			
+			GradleWorkspace workspace = GradleCore.getWorkspace();
 
- 					@Override
-					public void doit(IProgressMonitor mon) throws Exception {
-						mon.beginTask("Start server", 10);
+			Optional<GradleBuild> gradleBuildOpt = workspace.getBuild(getWorkspaceProject());
 
- 						try {
- 							DockerClient dockerClient = LiferayDockerClient.getDockerClient();
- 							StartContainerCmd startContainerCmd = dockerClient.startContainerCmd(_portalServer.getContainerId());
- 							startContainerCmd.exec();
- 							fireCreateEvent();
+			GradleBuild gradleBuild = gradleBuildOpt.get();
+
+			try {
+				gradleBuild.withConnection(
+					connection -> {
+						connection.newBuild(
+						).addArguments(
+							new String[0]
+						).forTasks(
+							"startDockerContainer"
+						).withCancellationToken(
+							GradleConnector.newCancellationTokenSource().token()
+						).run();
+
+						return null;
+					},
+					monitor);
+				
+				if (_debug) {
+					Thread checkDebugThread = new Thread("Liferay Portal Docker Server Debug Checking Thread") {
+						public void run() {
+							try {
+								boolean debugPortStarted = false;
+								String host = _config.getAttribute("hostname", _server.getHost());
+								String port = _config.getAttribute("port", "8888");
+								do {
+
+									IStatus canConnect = SocketUtil.canConnect(host, port);
+									try {
+										if (canConnect.isOK()) {
+											_delegate.startDebugLaunch(_server, _config, _launch, monitor);
+
+											IDebugTarget[] debugTargets = _launch.getDebugTargets();
+
+											if ( ListUtil.isNotEmpty(debugTargets)) {
+												debugPortStarted = true;
+											}
+										}
+										sleep(500);
+									}
+									catch(Exception e) {
+										e.printStackTrace();
+									}
+								}while(!debugPortStarted);							
+							}
+							catch(Exception e) {
+								e.printStackTrace();
+							}
 						}
-						catch (Exception e) {
-							fireTerminateEvent();
-							LiferayServerCore.logError(e);
+					};
+					checkDebugThread.setPriority(1);
+					checkDebugThread.setDaemon(false);
+					checkDebugThread.start();	
+
+					try {
+						checkDebugThread.join(Integer.MAX_VALUE);
+						if (checkDebugThread.isAlive()) {
+							checkDebugThread.interrupt();
+							throw new TimeoutException();
 						}
-						finally {
-							mon.done();
-						}
-					}
- 				});
+					} catch (InterruptedException e) {
+					}	
+				}
+			}
+			catch (Exception e) {
+				LiferayServerCore.logError(e);
+			}	
+//			try {
+//				runGradleTask(getWorkspaceProject(),new String[] {"startDockerContainer"},new String[0],"startContainer",false,monitor);
+//			}
+//			catch(Exception e) {
+//				e.printStackTrace();
+//			}
+//				try {
+//				DockerClient dockerClient = LiferayDockerClient.getDockerClient();
+//				StartContainerCmd startContainerCmd = dockerClient.startContainerCmd(_portalServer.getContainerId());
+//				startContainerCmd.exec();
+//				fireCreateEvent();
+//		}
+//		catch (Exception e) {
+//			fireTerminateEvent();
+//			LiferayServerCore.logError(e);
+//		}
 		}
 	}
 
+	public static boolean isValidWorkspace(IProject project) {
+		if ((project != null) && (project.getLocation() != null) && isValidWorkspaceLocation(project.getLocation())) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static boolean isValidWorkspaceLocation(IPath path) {
+		if (FileUtil.notExists(path)) {
+			return false;
+		}
+
+		return isValidWorkspaceLocation(path.toOSString());
+	}
+
+	public static boolean isValidWorkspaceLocation(String location) {
+		if (isValidGradleWorkspaceLocation(location)) {
+			return true;
+		}
+
+		return false;
+	}
+	
+	private static final String _BUILD_GRADLE_FILE_NAME = "build.gradle";
+
+	private static final String _GRADLE_PROPERTIES_FILE_NAME = "gradle.properties";
+
+	private static final String _SETTINGS_GRADLE_FILE_NAME = "settings.gradle";
+	private static final Pattern _workspacePluginPattern = Pattern.compile(
+			".*apply.*plugin.*:.*[\'\"]com\\.liferay\\.workspace[\'\"].*", Pattern.MULTILINE | Pattern.DOTALL);
+
+	public static boolean isValidGradleWorkspaceLocation(String location) {
+		File workspaceDir = new File(location);
+
+		File buildGradle = new File(workspaceDir, _BUILD_GRADLE_FILE_NAME);
+		File settingsGradle = new File(workspaceDir, _SETTINGS_GRADLE_FILE_NAME);
+		File gradleProperties = new File(workspaceDir, _GRADLE_PROPERTIES_FILE_NAME);
+
+		if (FileUtil.notExists(buildGradle) || FileUtil.notExists(settingsGradle) ||
+			FileUtil.notExists(gradleProperties)) {
+
+			return false;
+		}
+
+		String settingsContent = FileUtil.readContents(settingsGradle, true);
+
+		if (settingsContent != null) {
+			Matcher matcher = _workspacePluginPattern.matcher(settingsContent);
+
+			if (matcher.matches()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+	
+	public static IProject getWorkspaceProject() {
+		IProject[] projects = CoreUtil.getAllProjects();
+
+		for (IProject project : projects) {
+			if (isValidWorkspace(project)) {
+				return project;
+			}
+		}
+
+		return null;
+	}
+	
+	public static IWorkspaceProject getLiferayWorkspaceProject() {
+		IProject workspaceProject = getWorkspaceProject();
+
+		if (workspaceProject != null) {
+			return LiferayCore.create(IWorkspaceProject.class, getWorkspaceProject());
+		}
+
+		return null;
+	}
+ 	
  	private Job _createBladeServerJob(PortalDockerServerRunnable runable) {
 		Job job = runable.asJob();
 
@@ -170,12 +467,16 @@ public class PortalDockerServerMonitorProcess implements IProcess {
  		return job;
 	}
 
+ 	private DockerClient _dockerClient; 
+ 	private PortalDockerServerLaunchConfigDelegate _delegate;
+ 	private ILaunchConfiguration _config;
  	private Map<String, String> _attributerMap = new HashMap<>();
 	private Job _job;
 	private String _label;
 	private ILaunch _launch;
 	private PortalDockerServer _portalServer;
 	private IServer _server;
+	private boolean _debug;
 	private PortalDockerServerBehavior _serverBehavior;
 	private IPortalDockerStreamsProxy _streamsProxy;
 

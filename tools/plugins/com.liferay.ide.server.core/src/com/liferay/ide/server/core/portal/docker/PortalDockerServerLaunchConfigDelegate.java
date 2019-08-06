@@ -14,6 +14,7 @@
  */
 package com.liferay.ide.server.core.portal.docker;
 
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.core.ILaunch;
@@ -29,6 +31,7 @@ import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.sourcelookup.AbstractSourceLookupDirector;
+import org.eclipse.jdt.internal.launching.LaunchingPlugin;
 import org.eclipse.jdt.launching.AbstractJavaLaunchConfigurationDelegate;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
 import org.eclipse.jdt.launching.IVMConnector;
@@ -46,6 +49,7 @@ import com.liferay.ide.server.util.SocketUtil;
 /**
  * @author Simon Jiang
  */
+@SuppressWarnings("restriction")
 public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchConfigurationDelegate {
 
 	public static final String ID = "com.liferay.ide.server.portal.launch";
@@ -79,7 +83,7 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 		}
 	}
 
-	protected void startDebugLaunch(
+	public void startDebugLaunch(
 			IServer server, ILaunchConfiguration configuration, ILaunch launch, IProgressMonitor monitor)
 		throws CoreException {
 
@@ -110,21 +114,26 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 			IJavaLaunchConfigurationConstants.ATTR_CONNECT_MAP, new HashMap<String, String>());
 
 		String host = configuration.getAttribute("hostname", server.getHost());
-		String port = "8000";
+		String port = configuration.getAttribute("port", "8888");
 
 		connectMap.put("hostname", host);
 		connectMap.put("port", port);
-		connectMap.put("timeout", String.valueOf(Integer.MAX_VALUE));
+        int connectTimeout = Platform.getPreferencesService().getInt(
+        		LaunchingPlugin.ID_PLUGIN,
+        		JavaRuntime.PREF_CONNECT_TIMEOUT,
+        		JavaRuntime.DEF_CONNECT_TIMEOUT,
+        		null);
+        connectMap.put("timeout", Integer.toString(connectTimeout));  //$NON-NLS-1$
 
 		// check for cancellation
 
 		if (monitor.isCanceled()) {
 			return;
 		}
-
+		System.out.println("Start to connect debug " + Calendar.getInstance().getTime());
 		if (!launch.isTerminated()) {
 			IStatus canConnect = SocketUtil.canConnect(host, port);
-
+			
 			if (canConnect.isOK()) {
 				connector.connect(connectMap, monitor, launch);
 			}
@@ -163,7 +172,7 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 
 			if (retvalProcess == null) {
 				retvalProcess = new PortalDockerServerMonitorProcess(
-					server, poratlServerBehaviour, launch, debug, streamsProxy, config, monitor);
+					server, poratlServerBehaviour, launch, debug, streamsProxy, config, this,  monitor);
 
 				launch.addProcess(retvalProcess);
 			}
@@ -197,6 +206,15 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 		if (portalServerBehavior.getProcess() == null) {
 			portalServerBehavior.setProcess(streamProxyProcess);
 		}
+
+//		if ( ILaunchManager.DEBUG_MODE.equals(mode) ) {
+//			try {
+//				startDebugLaunch(server, config, launch, monitor);
+//			}
+//			catch(Exception e) {
+//				LiferayServerCore.logError(e);
+//			}
+//		}
 
 		portalServerBehavior.launchServer(launch, mode, monitor);
 
@@ -241,21 +259,11 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 								job.cancel();
 							}
 						}
-					}else if (((event.getKind() & ServerEvent.SERVER_CHANGE) > 0) &&
-							 (event.getState() == IServer.STATE_STARTED)) {
-						try {
-							startDebugLaunch(server, config, launch, monitor);
-						}
-						catch(Exception e) {
-							LiferayServerCore.logError(e);
-						}
 					}
 				}
-
 			});
 
 		try {
-//			ILaunch launch2 = config.launch(mode, monitor);
 			portalServerBehavior.addProcessListener(launch.getProcesses()[0]);
 		}
 		catch (Exception e) {

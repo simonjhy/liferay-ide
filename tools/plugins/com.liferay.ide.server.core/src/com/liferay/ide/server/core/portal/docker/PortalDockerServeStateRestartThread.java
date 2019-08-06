@@ -97,7 +97,7 @@ public class PortalDockerServeStateRestartThread {
  				if ((currentTime - _startedTime) > _timeout) {
 					try {
 						_behaviour.stop(true);
-						((IPortalDockerStreamsProxy)_mointorProcess.getStreamsProxy()).terminate();
+						_mointorProcess.terminate();
 						_behaviour.triggerCleanupEvent(_mointorProcess);
 						_stop = true;
 					}

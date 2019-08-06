@@ -88,7 +88,7 @@ public class PortalDockerServerStateStopThread {
  				if ((currentTime - _startedTime) > _timeout) {
 					try {
 						_server.stop(true);
-						((IPortalDockerStreamsProxy)_mointorProcess.getStreamsProxy()).terminate();
+						_mointorProcess.terminate();
 						_behaviour.triggerCleanupEvent(_mointorProcess);
 						_stop = true;
 					}
@@ -102,7 +102,7 @@ public class PortalDockerServerStateStopThread {
 
  				if (_server.getServerState() == IServer.STATE_STOPPED) {
 					Thread.sleep(200);
-					((IPortalDockerStreamsProxy)_mointorProcess.getStreamsProxy()).terminate();
+					_mointorProcess.terminate();
 					_behaviour.triggerCleanupEvent(_mointorProcess);
 					_stop = true;
 				}

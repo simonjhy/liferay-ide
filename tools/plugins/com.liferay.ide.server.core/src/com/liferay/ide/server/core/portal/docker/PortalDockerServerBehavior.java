@@ -36,8 +36,6 @@ import com.liferay.ide.server.core.ILiferayServerBehavior;
 import com.liferay.ide.server.core.LiferayServerCore;
 import com.liferay.ide.server.core.gogo.GogoBundleDeployer;
 import com.liferay.ide.server.core.portal.PortalBundle;
-import com.liferay.ide.server.core.portal.PortalRuntime;
-import com.liferay.ide.server.core.portal.PortalServer;
 import com.liferay.ide.server.util.LiferayDockerClient;
 import com.liferay.ide.server.util.ServerUtil;
 
@@ -130,6 +128,7 @@ public class PortalDockerServerBehavior extends ServerBehaviourDelegate implemen
 		setProcess(null);
 
 		if (_processListener != null) {
+			
 			DebugPlugin debugPlugin = DebugPlugin.getDefault();
 
 			debugPlugin.removeDebugEventListener(_processListener);
@@ -140,6 +139,26 @@ public class PortalDockerServerBehavior extends ServerBehaviourDelegate implemen
 		setServerState(IServer.STATE_STOPPED);
 
 		_watchProjects.clear();
+		
+
+//		try {
+//			ILaunch launch = getServer().getLaunch();
+//
+//			if (launch != null) {
+//				IDebugTarget debugTarget = launch.getDebugTarget();
+//				
+//				if ( debugTarget != null) {
+//					debugTarget.terminate();
+//					debugTarget.disconnect();	
+//				}
+//
+//				launch.terminate();
+//			}				
+//		}
+//		catch(Exception e) {
+//			e.printStackTrace();
+//		}
+	
 	}
 
 	public GogoBundleDeployer createBundleDeployer() throws Exception {
@@ -168,27 +187,27 @@ public class PortalDockerServerBehavior extends ServerBehaviourDelegate implemen
 		return _info;
 	}
 
-	public PortalRuntime getPortalRuntime() {
-		PortalRuntime retval = null;
+	public PortalDockerRuntime getPortalRuntime() {
+		PortalDockerRuntime retval = null;
 
 		IServer s = getServer();
 
 		IRuntime runtime = s.getRuntime();
 
 		if (runtime != null) {
-			retval = (PortalRuntime)runtime.loadAdapter(PortalRuntime.class, null);
+			retval = (PortalDockerRuntime)runtime.loadAdapter(PortalDockerRuntime.class, null);
 		}
 
 		return retval;
 	}
 
-	public PortalServer getPortalServer() {
-		PortalServer retval = null;
+	public PortalDockerServer getPortalServer() {
+		PortalDockerServer retval = null;
 
 		IServer s = getServer();
 
 		if (s != null) {
-			retval = (PortalServer)s.loadAdapter(PortalServer.class, null);
+			retval = (PortalDockerServer)s.loadAdapter(PortalDockerServer.class, null);
 		}
 
 		return retval;
@@ -332,10 +351,10 @@ public class PortalDockerServerBehavior extends ServerBehaviourDelegate implemen
 
 		super.setupLaunchConfiguration(workingCopy, monitor);
 
-		int port = SocketUtil.findFreePort();
+//		int port = SocketUtil.findFreePort();
 
 		workingCopy.setAttribute("hostname", getServer().getHost());
-		workingCopy.setAttribute("port", String.valueOf(port));
+		workingCopy.setAttribute("port", "8888");
 	}
 
 	@Override
@@ -397,10 +416,8 @@ public class PortalDockerServerBehavior extends ServerBehaviourDelegate implemen
 
 			final ILaunch launch = getServer().getLaunch();
 
-			if (launch == null) {
+			if (launch != null) {
 				terminate();
-
-				return;
 			}
 
 			_executStopCommand();
@@ -479,9 +496,6 @@ public class PortalDockerServerBehavior extends ServerBehaviourDelegate implemen
 
 			if (launch != null) {
 				launch.terminate();
-
-				// cleanup();
-
 			}
 		}
 		catch (Exception e) {
