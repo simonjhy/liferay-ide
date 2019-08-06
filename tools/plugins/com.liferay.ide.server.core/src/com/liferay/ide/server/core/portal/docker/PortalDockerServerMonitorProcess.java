@@ -60,6 +60,7 @@ import org.gradle.tooling.GradleConnector;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.InspectContainerCmd;
 import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.command.StartContainerCmd;
 import com.liferay.ide.core.IWorkspaceProject;
 import com.liferay.ide.core.LiferayCore;
 import com.liferay.ide.core.util.CoreUtil;
@@ -287,93 +288,94 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 // 				});
 			
 			
-			GradleWorkspace workspace = GradleCore.getWorkspace();
-
-			Optional<GradleBuild> gradleBuildOpt = workspace.getBuild(getWorkspaceProject());
-
-			GradleBuild gradleBuild = gradleBuildOpt.get();
-
-			try {
-				gradleBuild.withConnection(
-					connection -> {
-						connection.newBuild(
-						).addArguments(
-							new String[0]
-						).forTasks(
-							"startDockerContainer"
-						).withCancellationToken(
-							GradleConnector.newCancellationTokenSource().token()
-						).run();
-
-						return null;
-					},
-					monitor);
-				
-				if (_debug) {
-					Thread checkDebugThread = new Thread("Liferay Portal Docker Server Debug Checking Thread") {
-						public void run() {
-							try {
-								boolean debugPortStarted = false;
-								String host = _config.getAttribute("hostname", _server.getHost());
-								String port = _config.getAttribute("port", "8888");
-								do {
-
-									IStatus canConnect = SocketUtil.canConnect(host, port);
-									try {
-										if (canConnect.isOK()) {
-											_delegate.startDebugLaunch(_server, _config, _launch, monitor);
-
-											IDebugTarget[] debugTargets = _launch.getDebugTargets();
-
-											if ( ListUtil.isNotEmpty(debugTargets)) {
-												debugPortStarted = true;
-											}
-										}
-										sleep(500);
-									}
-									catch(Exception e) {
-										e.printStackTrace();
-									}
-								}while(!debugPortStarted);							
-							}
-							catch(Exception e) {
-								e.printStackTrace();
-							}
-						}
-					};
-					checkDebugThread.setPriority(1);
-					checkDebugThread.setDaemon(false);
-					checkDebugThread.start();	
-
-					try {
-						checkDebugThread.join(Integer.MAX_VALUE);
-						if (checkDebugThread.isAlive()) {
-							checkDebugThread.interrupt();
-							throw new TimeoutException();
-						}
-					} catch (InterruptedException e) {
-					}	
-				}
-			}
-			catch (Exception e) {
-				LiferayServerCore.logError(e);
-			}	
+//			GradleWorkspace workspace = GradleCore.getWorkspace();
+//
+//			Optional<GradleBuild> gradleBuildOpt = workspace.getBuild(getWorkspaceProject());
+//
+//			GradleBuild gradleBuild = gradleBuildOpt.get();
+//
+//			try {
+//				gradleBuild.withConnection(
+//					connection -> {
+//						connection.newBuild(
+//						).addArguments(
+//							new String[0]
+//						).forTasks(
+//							"startDockerContainer"
+//						).withCancellationToken(
+//							GradleConnector.newCancellationTokenSource().token()
+//						).run();
+//
+//						return null;
+//					},
+//					monitor);
+//			}
+//			catch (Exception e) {
+//				LiferayServerCore.logError(e);
+//			}	
 //			try {
 //				runGradleTask(getWorkspaceProject(),new String[] {"startDockerContainer"},new String[0],"startContainer",false,monitor);
 //			}
 //			catch(Exception e) {
 //				e.printStackTrace();
 //			}
-//				try {
-//				DockerClient dockerClient = LiferayDockerClient.getDockerClient();
-//				StartContainerCmd startContainerCmd = dockerClient.startContainerCmd(_portalServer.getContainerId());
-//				startContainerCmd.exec();
-//				fireCreateEvent();
-//		}
-//		catch (Exception e) {
-//			fireTerminateEvent();
-//			LiferayServerCore.logError(e);
-//		}
+				try {
+				DockerClient dockerClient = LiferayDockerClient.getDockerClient();
+				StartContainerCmd startContainerCmd = dockerClient.startContainerCmd(_portalServer.getContainerId());
+				startContainerCmd.exec();
+				fireCreateEvent();
+		}
+		catch (Exception e) {
+			fireTerminateEvent();
+			LiferayServerCore.logError(e);
+		}
+			
+			if (_debug) {
+				Thread checkDebugThread = new Thread("Liferay Portal Docker Server Debug Checking Thread") {
+					public void run() {
+						try {
+							boolean debugPortStarted = false;
+							String host = _config.getAttribute("hostname", _server.getHost());
+							String port = _config.getAttribute("port", "8888");
+							do {
+
+								IStatus canConnect = SocketUtil.canConnect(host, port);
+								try {
+									if (canConnect.isOK()) {
+										_delegate.startDebugLaunch(_server, _config, _launch, monitor);
+
+										IDebugTarget[] debugTargets = _launch.getDebugTargets();
+
+										if ( ListUtil.isNotEmpty(debugTargets)) {
+											debugPortStarted = true;
+										}
+									}
+									sleep(500);
+								}
+								catch(Exception e) {
+									e.printStackTrace();
+								}
+							}while(!debugPortStarted);							
+						}
+						catch(Exception e) {
+							e.printStackTrace();
+						}
+					}
+				};
+				checkDebugThread.setPriority(1);
+				checkDebugThread.setDaemon(false);
+				checkDebugThread.start();	
+
+				try {
+					checkDebugThread.join(Integer.MAX_VALUE);
+					if (checkDebugThread.isAlive()) {
+						checkDebugThread.interrupt();
+						throw new TimeoutException();
+					}
+				} catch (TimeoutException e) {					
+				} catch (InterruptedException e) {
+				}	
+			}
 		}
 	}
 
