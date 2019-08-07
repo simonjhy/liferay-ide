@@ -833,4 +833,11 @@
 			</enablement>
 		</decorator>
 	</extension>
+ <extension
+       point="org.eclipse.wst.server.ui.deleteServerDialogExtension">
+    <deleteServerDialogExtension
+          class="com.liferay.ide.server.ui.portal.docker.DcokerDeleteServerExtension"
+          id="com.liferay.ide.server.ui.dockerDeleteServerExtension">
+    </deleteServerDialogExtension>
+ </extension>
 </plugin>

@@ -65,7 +65,6 @@ public class PortalDockerServerBehavior extends PortalServerBehavior implements 
 					}
 				}
 			}
-
 		};
 
 		DebugPlugin debugPlugin = DebugPlugin.getDefault();
@@ -349,8 +348,6 @@ public class PortalDockerServerBehavior extends PortalServerBehavior implements 
 		throws CoreException {
 
 		super.setupLaunchConfiguration(workingCopy, monitor);
-
-//		int port = SocketUtil.findFreePort();
 
 		workingCopy.setAttribute("hostname", getServer().getHost());
 		workingCopy.setAttribute("port", "8888");

@@ -15,12 +15,20 @@
  package com.liferay.ide.server.core.portal.docker;
 
  import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 
+import org.eclipse.debug.core.DebugException;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.wst.server.core.IServer;
+
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.InspectContainerCmd;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.model.HealthCheck;
+import com.liferay.ide.server.core.LiferayServerCore;
+import com.liferay.ide.server.util.LiferayDockerClient;
 
  /**
  * @author Simon Jiang
@@ -53,9 +61,29 @@ public class PortalDockerServerStateStartThread {
 		}
 
  		try {
-			_liferayHomeUrl = new URL("http://localhost:8080");
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
+ 			DockerClient dockerClient = LiferayDockerClient.getDockerClient();
+ 			PortalDockerServer portalServer = behaviour.getPortalServer();
+ 			InspectContainerCmd inspectContainerCmd = dockerClient.inspectContainerCmd(portalServer.getContainerId());
+ 			InspectContainerResponse containerSetting = inspectContainerCmd.exec();
+ 			HealthCheck healthcheck = containerSetting.getConfig().getHealthcheck();
+ 			List<String> healthCheckCommands = healthcheck.getTest();
+ 			
+ 			for( String commandContent : healthCheckCommands) {
+ 				if ( commandContent.contains("http")) {
+ 					_liferayHomeUrl =  new URL(commandContent.substring(commandContent.indexOf("\"")+1, commandContent.lastIndexOf("\"")));
+ 					break;
+ 				}
+ 			}
+		} catch (Exception e) {
+			try {
+				_server.stop(true);
+				_mointorProcess.terminate();
+				_behaviour.triggerCleanupEvent(_mointorProcess);				
+			}
+			catch(DebugException de) {
+				LiferayServerCore.logError(de);
+			}
+			LiferayServerCore.logError(e);
 		}
 
  		Thread t = new Thread("Liferay Blade Server Start Thread") {
@@ -99,7 +127,7 @@ public class PortalDockerServerStateStartThread {
  				if ((currentTime - _startedTime) > _timeout) {
 					try {
 						_server.stop(true);
-						((IPortalDockerStreamsProxy)_mointorProcess.getStreamsProxy()).terminate();
+						_mointorProcess.terminate();
 						_behaviour.triggerCleanupEvent(_mointorProcess);
 					}
 					catch (Exception e) {

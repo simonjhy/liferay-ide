@@ -33,7 +33,6 @@ import com.liferay.ide.core.IWorkspaceProject;
 import com.liferay.ide.core.LiferayCore;
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.FileUtil;
-import com.liferay.ide.server.core.LiferayServerCore;
 import com.liferay.ide.server.core.portal.docker.PortalDockerRuntime;
 import com.liferay.ide.server.core.portal.docker.PortalDockerServer;
 import com.liferay.ide.server.util.LiferayDockerClient;
@@ -161,14 +160,13 @@ public class DockerServerWizard extends WizardFragment {
 			
 			HostConfig hostConfig = HostConfig.newHostConfig();
 			hostConfig.withBinds(bind);
-			
+
 			CreateContainerCmd contanerCreateCmd = dockerClient.createContainerCmd(dockerRuntime.getImageRepo());
 			List<PortBinding> portBindings = new ArrayList<PortBinding>();
 
 			portBindings.add(new PortBinding(Binding.bindIpAndPort("0.0.0.0",8888), new ExposedPort(8000, InternetProtocol.TCP)));
 			portBindings.add(new PortBinding(Binding.bindIpAndPort("0.0.0.0",8080), new ExposedPort(8080, InternetProtocol.TCP)));
 			portBindings.add(new PortBinding(Binding.bindIpAndPort("0.0.0.0",11311), new ExposedPort(11311, InternetProtocol.TCP)));
-
 			
 			contanerCreateCmd.withName(dockerServer.getContainerName());
 			contanerCreateCmd.withEnv("LIFERAY_JPDA_ENABLED=true", "JPDA_ADDRESS=8000", "JPDA_TRANSPORT=dt_socket");
