@@ -21,12 +21,10 @@ import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.sourcelookup.AbstractSourceLookupDirector;
 import org.eclipse.jdt.launching.IJavaLaunchConfigurationConstants;
-import org.eclipse.jdt.launching.SocketUtil;
 import org.eclipse.wst.server.core.IModule;
 import org.eclipse.wst.server.core.IRuntime;
 import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.IServer.IOperationListener;
-import org.eclipse.wst.server.core.model.ServerBehaviourDelegate;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.StopContainerCmd;
@@ -36,10 +34,11 @@ import com.liferay.ide.server.core.ILiferayServerBehavior;
 import com.liferay.ide.server.core.LiferayServerCore;
 import com.liferay.ide.server.core.gogo.GogoBundleDeployer;
 import com.liferay.ide.server.core.portal.PortalBundle;
+import com.liferay.ide.server.core.portal.PortalServerBehavior;
 import com.liferay.ide.server.util.LiferayDockerClient;
 import com.liferay.ide.server.util.ServerUtil;
 
-public class PortalDockerServerBehavior extends ServerBehaviourDelegate implements ILiferayServerBehavior, IJavaLaunchConfigurationConstants{
+public class PortalDockerServerBehavior extends PortalServerBehavior implements ILiferayServerBehavior, IJavaLaunchConfigurationConstants{
 
 	public static final String ATTR_STOP = "stop-server";
 

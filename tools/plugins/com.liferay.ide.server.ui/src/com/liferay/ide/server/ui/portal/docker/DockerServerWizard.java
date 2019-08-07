@@ -161,8 +161,6 @@ public class DockerServerWizard extends WizardFragment {
 			
 			HostConfig hostConfig = HostConfig.newHostConfig();
 			hostConfig.withBinds(bind);
-
-			
 			
 			CreateContainerCmd contanerCreateCmd = dockerClient.createContainerCmd(dockerRuntime.getImageRepo());
 			List<PortBinding> portBindings = new ArrayList<PortBinding>();
@@ -183,17 +181,15 @@ public class DockerServerWizard extends WizardFragment {
 			ServerCore.addServerLifecycleListener(
 				new ServerLifecycleAdapter() {
 					public void serverRemoved(IServer removeServer) {
-						if ( removeServer.getId().equals(server.getId())) {
-							IRuntime runtime = removeServer.getRuntime();
-							
-							PortalDockerRuntime dockerRuntime = (PortalDockerRuntime)runtime.loadAdapter(PortalDockerRuntime.class, null);
-							
-							if (dockerRuntime != null) {
-								PortalDockerServer dockerPortalServer = (PortalDockerServer)removeServer.loadAdapter(PortalDockerServer.class, null);
-								RemoveContainerCmd removeContainerCmd = dockerClient.removeContainerCmd(dockerPortalServer.getContainerId());
-								removeContainerCmd.exec();
-							}						
-						}
+						IRuntime runtime = removeServer.getRuntime();
+						
+						PortalDockerRuntime dockerRuntime = (PortalDockerRuntime)runtime.loadAdapter(PortalDockerRuntime.class, null);
+
+						if (dockerRuntime != null) {
+							PortalDockerServer dockerPortalServer = (PortalDockerServer)removeServer.loadAdapter(PortalDockerServer.class, null);
+							RemoveContainerCmd removeContainerCmd = dockerClient.removeContainerCmd(dockerPortalServer.getContainerId());
+							removeContainerCmd.exec();
+						}			
 					}
 				});		
 		}
