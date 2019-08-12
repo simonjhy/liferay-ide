@@ -31,6 +31,10 @@ public class DcokerDeleteServerExtension extends DeleteServerDialogExtension {
 		for(IServer server:servers) {
 			IRuntime runtime = server.getRuntime();
 			
+			if (runtime == null) {
+				return false;
+			}
+			
 			PortalDockerRuntime dockerRuntime = (PortalDockerRuntime)runtime.loadAdapter(PortalDockerRuntime.class, null);
 			
 			if ( dockerRuntime != null) {

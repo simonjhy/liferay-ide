@@ -467,7 +467,7 @@ public class PortalDockerServerBehavior extends PortalServerBehavior implements 
 		setServerPublishState(IServer.PUBLISH_STATE_UNKNOWN);
 	}
 
-	protected void setProcess(IProcess newProcess) {
+	protected void setProcess(IProcess newProcess){
 		if ((_process != null) && !_process.isTerminated()) {
 			try {
 				_process.terminate();

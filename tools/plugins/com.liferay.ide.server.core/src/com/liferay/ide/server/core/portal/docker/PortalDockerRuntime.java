@@ -17,6 +17,8 @@ import com.liferay.ide.server.util.LiferayDockerClient;
 
 public class PortalDockerRuntime extends PortalRuntime implements IPortalDockerRuntime{
 
+	public static final String ID = "com.liferay.ide.server.portal.docker.runtime";
+	
 	@Override
 	public String getImageTag() {
 		return getAttribute(PROP_DOCKER_IMAGE_TAG, (String)null);

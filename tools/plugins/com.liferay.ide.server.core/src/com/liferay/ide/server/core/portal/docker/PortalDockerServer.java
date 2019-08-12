@@ -10,6 +10,8 @@ import com.liferay.ide.server.core.portal.PortalServerDelegate;
 
 public class PortalDockerServer extends PortalServerDelegate implements IPortalDockerServer{
 
+	public static String ID = "com.liferay.ide.server.portal.docker";
+
 	public PortalDockerServer() {
 		// TODO Auto-generated constructor stub
 	}

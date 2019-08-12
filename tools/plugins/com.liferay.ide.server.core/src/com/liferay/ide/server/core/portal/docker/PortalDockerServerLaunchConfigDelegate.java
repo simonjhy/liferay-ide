@@ -16,6 +16,7 @@ package com.liferay.ide.server.core.portal.docker;
 
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
@@ -42,8 +43,14 @@ import org.eclipse.wst.server.core.IServerListener;
 import org.eclipse.wst.server.core.ServerEvent;
 import org.eclipse.wst.server.core.ServerUtil;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.ListContainersCmd;
+import com.github.dockerjava.api.model.Container;
+import com.google.common.collect.Lists;
+import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.server.core.ILiferayServer;
 import com.liferay.ide.server.core.LiferayServerCore;
+import com.liferay.ide.server.util.LiferayDockerClient;
 import com.liferay.ide.server.util.SocketUtil;
 
 /**
@@ -77,6 +84,22 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 
 			if (status.getSeverity() == IStatus.ERROR) {
 				throw new CoreException(status);
+			}
+
+			PortalDockerServer portalDockerServer = (PortalDockerServer)server.loadAdapter(PortalDockerServer.class, monitor);
+
+			if (portalDockerServer == null) {
+				throw new CoreException(LiferayServerCore.createErrorStatus("Server portal server is invalid."));
+			}
+			
+			DockerClient dockerClient = LiferayDockerClient.getDockerClient();
+			ListContainersCmd listContainersCmd = dockerClient.listContainersCmd();
+			listContainersCmd.withShowAll(true);
+			listContainersCmd.withNameFilter(Lists.newArrayList(portalDockerServer.getContainerName()));
+			List<Container> containers = listContainersCmd.exec();
+			
+			if (ListUtil.isEmpty(containers)) {
+				throw new CoreException(LiferayServerCore.createErrorStatus("The container of Portal server is invalid."));
 			}
 
 			_launchServer(server, config, mode, launch, monitor);

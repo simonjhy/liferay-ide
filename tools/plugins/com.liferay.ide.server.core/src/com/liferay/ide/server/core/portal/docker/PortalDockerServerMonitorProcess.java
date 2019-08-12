@@ -15,11 +15,13 @@
 package com.liferay.ide.server.core.portal.docker;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
@@ -36,9 +38,13 @@ import org.eclipse.debug.core.model.IStreamsProxy;
 import org.eclipse.wst.server.core.IServer;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CommitCmd;
+import com.github.dockerjava.api.command.ExecCreateCmd;
+import com.github.dockerjava.api.command.ExecCreateCmdResponse;
 import com.github.dockerjava.api.command.InspectContainerCmd;
 import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.StartContainerCmd;
+import com.google.common.collect.Lists;
 import com.liferay.ide.core.IWorkspaceProject;
 import com.liferay.ide.core.LiferayCore;
 import com.liferay.ide.core.util.CoreUtil;
@@ -121,7 +127,6 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 	}
 
 	public boolean isTerminated() {
-
 		InspectContainerCmd inspectContainerCmd = _dockerClient.inspectContainerCmd(_portalServer.getContainerId());
 		InspectContainerResponse response = inspectContainerCmd.exec();
 		return /* _streamsProxy.isTerminated() && */ !response.getState().getRunning();
@@ -293,9 +298,62 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 //			catch(Exception e) {
 //				e.printStackTrace();
 //			}
+
+			if (_debug) {
+				InspectContainerCmd inspectContainerCmd = _dockerClient.inspectContainerCmd(_portalServer.getContainerId());
+				InspectContainerResponse inspectContainerCmdResponse = inspectContainerCmd.exec();
+				String[] containerEnv = inspectContainerCmdResponse.getConfig().getEnv();
+				
+				boolean enableDebug = Stream.of(containerEnv).filter(env -> env.contains("LIFERAY_JPDA_ENABLED=true")).findAny().isPresent();
+				
+				if (enableDebug == true) {
+					Thread checkDebugThread = new Thread("Liferay Portal Docker Server Debug Checking Thread") {
+						public void run() {
+							try {
+								boolean debugPortStarted = false;
+								String host = _config.getAttribute("hostname", _server.getHost());
+								String port = _config.getAttribute("port", "8888");
+								do {
+
+									IStatus canConnect = SocketUtil.canConnect(host, port);
+									try {
+										if (canConnect.isOK()) {
+											_delegate.startDebugLaunch(_server, _config, _launch, monitor);
+
+											IDebugTarget[] debugTargets = _launch.getDebugTargets();
+
+											if (ListUtil.isNotEmpty(debugTargets)) {
+												debugPortStarted = true;
+											}
+										}
+										sleep(500);
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+								} while (!debugPortStarted);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					};
+					checkDebugThread.setPriority(1);
+					checkDebugThread.setDaemon(false);
+					checkDebugThread.start();
+
+					try {
+						checkDebugThread.join(Integer.MAX_VALUE);
+						if (checkDebugThread.isAlive()) {
+							checkDebugThread.interrupt();
+							throw new TimeoutException();
+						}
+					} catch (TimeoutException e) {
+					} catch (InterruptedException e) {
+					}				
+				}
+			}
+
 			try {
-				DockerClient dockerClient = LiferayDockerClient.getDockerClient();
-				StartContainerCmd startContainerCmd = dockerClient.startContainerCmd(_portalServer.getContainerId());
+				StartContainerCmd startContainerCmd = _dockerClient.startContainerCmd(_portalServer.getContainerId());
 				startContainerCmd.exec();
 				fireCreateEvent();
 			} catch (Exception e) {
@@ -303,50 +361,6 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 				LiferayServerCore.logError(e);
 			}
 
-			if (_debug) {
-				Thread checkDebugThread = new Thread("Liferay Portal Docker Server Debug Checking Thread") {
-					public void run() {
-						try {
-							boolean debugPortStarted = false;
-							String host = _config.getAttribute("hostname", _server.getHost());
-							String port = _config.getAttribute("port", "8888");
-							do {
-
-								IStatus canConnect = SocketUtil.canConnect(host, port);
-								try {
-									if (canConnect.isOK()) {
-										_delegate.startDebugLaunch(_server, _config, _launch, monitor);
-
-										IDebugTarget[] debugTargets = _launch.getDebugTargets();
-
-										if (ListUtil.isNotEmpty(debugTargets)) {
-											debugPortStarted = true;
-										}
-									}
-									sleep(500);
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							} while (!debugPortStarted);
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-				};
-				checkDebugThread.setPriority(1);
-				checkDebugThread.setDaemon(false);
-				checkDebugThread.start();
-
-				try {
-					checkDebugThread.join(Integer.MAX_VALUE);
-					if (checkDebugThread.isAlive()) {
-						checkDebugThread.interrupt();
-						throw new TimeoutException();
-					}
-				} catch (TimeoutException e) {
-				} catch (InterruptedException e) {
-				}
-			}
 		}
 	}
 

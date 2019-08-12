@@ -138,7 +138,7 @@ public abstract class GradleTaskAction extends AbstractObjectAction {
 	protected abstract String getGradleTaskName();
 
 	protected List<String> getGradleTasks() {
-		GradleProject gradleProject = _getGradleProjectModel();
+		GradleProject gradleProject = getGradleProjectModel();
 
 		if (gradleProject == null) {
 			return Collections.emptyList();
@@ -146,7 +146,7 @@ public abstract class GradleTaskAction extends AbstractObjectAction {
 
 		List<GradleTask> gradleTasks = new ArrayList<>();
 
-		_fetchModelTasks(gradleProject, getGradleTaskName(), gradleTasks);
+		fetchModelTasks(gradleProject, getGradleTaskName(), gradleTasks);
 
 		Stream<GradleTask> gradleTaskStream = gradleTasks.stream();
 
@@ -160,7 +160,7 @@ public abstract class GradleTaskAction extends AbstractObjectAction {
 	protected IFile gradleBuildFile = null;
 	protected IProject project = null;
 
-	private void _fetchModelTasks(GradleProject gradleProject, String taskName, List<GradleTask> tasks) {
+	protected void fetchModelTasks(GradleProject gradleProject, String taskName, List<GradleTask> tasks) {
 		boolean parentHasTask = false;
 
 		if (gradleProject == null) {
@@ -185,14 +185,14 @@ public abstract class GradleTaskAction extends AbstractObjectAction {
 			DomainObjectSet<? extends GradleProject> childGradleProjects = gradleProject.getChildren();
 
 			for (GradleProject childGradleProject : childGradleProjects) {
-				_fetchModelTasks(childGradleProject, taskName, tasks);
+				fetchModelTasks(childGradleProject, taskName, tasks);
 			}
 		}
 
 		return;
 	}
 
-	private GradleProject _getGradleProjectModel() {
+	protected GradleProject getGradleProjectModel() {
 		if (project == null) {
 			return null;
 		}

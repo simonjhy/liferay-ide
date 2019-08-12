@@ -38,6 +38,14 @@
 					name="init-bundle"
 				>
 				</groupMarker>
+				<groupMarker
+					name="build-image"
+				>
+				</groupMarker>	
+				<groupMarker
+					name="init-docker-bundle"
+				>
+				</groupMarker>			
 			</menu>
 		</objectContribution>
 		<objectContribution
@@ -90,6 +98,24 @@
 				menubarPath="liferayPopupMenuCategory/merge-lang"
 			>
 			</action>
+			<action
+				class="com.liferay.ide.gradle.action.CreateDockerImageTaskAction"
+				enablesFor="1"
+				icon="icons/e16/liferay_logo_16.png"
+				id="com.liferay.ide.gradle.popup.action.createDockerImage"
+				label="Build Docker Image"
+				menubarPath="liferayPopupMenuCategory/build-image"
+			>
+			</action>
+			<action
+				class="com.liferay.ide.gradle.action.InitDockerBundleTaskAction"
+				enablesFor="1"
+				icon="icons/e16/liferay_logo_16.png"
+				id="com.liferay.ide.gradle.popup.action.initDockerBundle"
+				label="Init Portal Docker Bundle"
+				menubarPath="liferayPopupMenuCategory/init-docker-bundle"
+			>
+			</action>					
 			<enablement>
 				<adapt type="org.eclipse.core.resources.IResource">
 					<or>

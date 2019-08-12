@@ -19,7 +19,8 @@ Require-Bundle: com.liferay.ide.core,
  org.eclipse.sapphire.platform;bundle-version="[9,10)",
  org.eclipse.wst.common.frameworks,
  org.eclipse.wst.sse.core,
- org.eclipse.wst.xml.core
+ org.eclipse.wst.xml.core,
+ org.apache.commons.compress;bundle-version="1.18.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: com.liferay.ide.service.core,
