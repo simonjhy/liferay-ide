@@ -14,6 +14,23 @@
  */
 package com.liferay.ide.server.core.portal.docker;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CommitCmd;
+import com.github.dockerjava.api.command.ListContainersCmd;
+import com.github.dockerjava.api.model.Container;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.ExposedPorts;
+import com.github.dockerjava.api.model.InternetProtocol;
+import com.github.dockerjava.api.model.PortBinding;
+import com.github.dockerjava.api.model.Ports.Binding;
+import com.google.common.collect.Lists;
+import com.liferay.ide.core.util.ListUtil;
+import com.liferay.ide.server.core.ILiferayServer;
+import com.liferay.ide.server.core.LiferayServerCore;
+import com.liferay.ide.server.util.LiferayDockerClient;
+import com.liferay.ide.server.util.SocketUtil;
+
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -42,16 +59,6 @@ import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.IServerListener;
 import org.eclipse.wst.server.core.ServerEvent;
 import org.eclipse.wst.server.core.ServerUtil;
-
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.ListContainersCmd;
-import com.github.dockerjava.api.model.Container;
-import com.google.common.collect.Lists;
-import com.liferay.ide.core.util.ListUtil;
-import com.liferay.ide.server.core.ILiferayServer;
-import com.liferay.ide.server.core.LiferayServerCore;
-import com.liferay.ide.server.util.LiferayDockerClient;
-import com.liferay.ide.server.util.SocketUtil;
 
 /**
  * @author Simon Jiang
@@ -92,17 +99,22 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 				throw new CoreException(LiferayServerCore.createErrorStatus("Server portal server is invalid."));
 			}
 			
-			DockerClient dockerClient = LiferayDockerClient.getDockerClient();
-			ListContainersCmd listContainersCmd = dockerClient.listContainersCmd();
-			listContainersCmd.withShowAll(true);
-			listContainersCmd.withNameFilter(Lists.newArrayList(portalDockerServer.getContainerName()));
-			List<Container> containers = listContainersCmd.exec();
-			
-			if (ListUtil.isEmpty(containers)) {
-				throw new CoreException(LiferayServerCore.createErrorStatus("The container of Portal server is invalid."));
+			try(DockerClient dockerClient = LiferayDockerClient.getDockerClient()){
+				ListContainersCmd listContainersCmd = dockerClient.listContainersCmd();
+				listContainersCmd.withShowAll(true);
+				listContainersCmd.withNameFilter(Lists.newArrayList(portalDockerServer.getContainerName()));
+				listContainersCmd.withIdFilter(Lists.newArrayList(portalDockerServer.getContainerId()));
+				List<Container> containers = listContainersCmd.exec();
+				
+				if (ListUtil.isEmpty(containers)) {
+					throw new CoreException(LiferayServerCore.createErrorStatus("The container of Portal server is invalid."));
+				}
+				
+				_launchServer(server, config, mode, launch, monitor);				
 			}
-
-			_launchServer(server, config, mode, launch, monitor);
+			catch(Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -230,15 +242,6 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 			portalServerBehavior.setProcess(streamProxyProcess);
 		}
 
-//		if ( ILaunchManager.DEBUG_MODE.equals(mode) ) {
-//			try {
-//				startDebugLaunch(server, config, launch, monitor);
-//			}
-//			catch(Exception e) {
-//				LiferayServerCore.logError(e);
-//			}
-//		}
-
 		portalServerBehavior.launchServer(launch, mode, monitor);
 
 		server.addServerListener(
@@ -293,37 +296,4 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 			portalServerBehavior.cleanup();
 		}
 	}
-
-//	private class StartDebugStreamMonitor implements IStreamListener {
-//
-//		public StartDebugStreamMonitor(
-//			IServer server, ILaunchConfiguration config, ILaunch launch, IProgressMonitor monitor) {
-//
-//			_server = server;
-//			_config = config;
-//			_launch = launch;
-//			_prccessMonitor = monitor;
-//		}
-//
-//		@Override
-//		public void streamAppended(String text, IStreamMonitor monitor) {
-//			if (CoreUtil.isNotNullOrEmpty(text)) {
-//				try {
-//					startDebugLaunch(_server, _config, _launch, _prccessMonitor);
-//				}
-//				catch (CoreException ce) {
-//					LiferayServerCore.logError(ce);
-//				}
-//
-//				monitor.removeListener(this);
-//			}
-//		}
-//
-//		private ILaunchConfiguration _config;
-//		private ILaunch _launch;
-//		private IProgressMonitor _prccessMonitor;
-//		private IServer _server;
-//
-//	}
-
 }

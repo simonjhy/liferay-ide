@@ -24,6 +24,7 @@ import com.liferay.ide.gradle.core.GradleUtil;
 import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
 import com.liferay.ide.project.core.util.ProjectUtil;
 import com.liferay.ide.server.core.portal.PortalRuntime;
+import com.liferay.ide.server.core.portal.docker.PortalDockerRuntime;
 import com.liferay.ide.ui.navigator.AbstractNavigatorContentProvider;
 
 import java.util.Set;
@@ -32,6 +33,7 @@ import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.wst.server.core.IRuntime;
 import org.eclipse.wst.server.core.IServer;
 
@@ -91,24 +93,34 @@ public class LiferayWorkspaceServerContentProvider extends AbstractNavigatorCont
 				return;
 			}
 
-			PortalRuntime portalRuntime = (PortalRuntime)runtime.loadAdapter(PortalRuntime.class, null);
-
-			if ((portalRuntime == null) || (portalRuntime.getLiferayHome() == null)) {
-				return;
-			}
-
-			IPath liferayHome = portalRuntime.getLiferayHome();
-
 			IProject project = LiferayWorkspaceUtil.getWorkspaceProject();
 
-			if (LiferayWorkspaceUtil.isValidGradleWorkspaceProject(project)) {
-				IPath projectLocation = project.getLocation();
+			boolean projectInsideWorkspace = false;
+			
+			PortalRuntime portalRuntime = (PortalRuntime)runtime.loadAdapter(PortalRuntime.class, null);
 
+			if ( portalRuntime instanceof PortalDockerRuntime) {
+				PortalDockerRuntime dockerRuntime = (PortalDockerRuntime)portalRuntime;
+				Path bindWorkspaceProjectPath = new Path(dockerRuntime.getBindWorkspaceProject());
+				
+				if (bindWorkspaceProjectPath.equals(project.getLocation())) {
+					projectInsideWorkspace = true;
+				}
+			}
+			else if ((portalRuntime == null) || (portalRuntime.getLiferayHome() == null)) {
+				return;
+			}
+			else {
+				IPath liferayHome = portalRuntime.getLiferayHome();
+				IPath projectLocation = project.getLocation();
+				projectInsideWorkspace = projectLocation.isPrefixOf(liferayHome);
+			}
+
+			if (LiferayWorkspaceUtil.isValidGradleWorkspaceProject(project)) {
 				IWorkspaceProject workspaceProject = LiferayCore.create(IWorkspaceProject.class, project);
 
-				if ((project != null) && projectLocation.isPrefixOf(liferayHome) &&
-					ListUtil.isNotEmpty(workspaceProject.getChildProjects())) {
-
+				if ((project != null) && projectInsideWorkspace == true && 
+						ListUtil.isNotEmpty(workspaceProject.getChildProjects())) {
 					currentChildren.add(project);
 				}
 			}

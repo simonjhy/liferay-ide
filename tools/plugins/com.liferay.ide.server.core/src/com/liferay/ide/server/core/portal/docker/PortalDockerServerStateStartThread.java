@@ -86,7 +86,7 @@ public class PortalDockerServerStateStartThread {
 			LiferayServerCore.logError(e);
 		}
 
- 		Thread t = new Thread("Liferay Blade Server Start Thread") {
+ 		Thread t = new Thread("Liferay Portal Docker Server Start Thread") {
 
  			public void run() {
 				_startedTime = System.currentTimeMillis();

@@ -14,6 +14,18 @@
 
 package com.liferay.ide.gradle.action;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.BuildImageCmd;
+import com.github.dockerjava.api.model.BuildResponseItem;
+import com.github.dockerjava.api.model.Image;
+import com.github.dockerjava.api.model.ResponseItem.ProgressDetail;
+import com.github.dockerjava.core.command.BuildImageResultCallback;
+import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.core.util.ListUtil;
+import com.liferay.ide.gradle.ui.LiferayGradleUI;
+import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
+import com.liferay.ide.server.util.LiferayDockerClient;
+
 import java.io.Closeable;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -41,7 +53,6 @@ import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.nio.reactor.ConnectingIOReactor;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.http.util.EntityUtils;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -54,18 +65,6 @@ import org.gradle.tooling.model.GradleTask;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.BuildImageCmd;
-import com.github.dockerjava.api.model.BuildResponseItem;
-import com.github.dockerjava.api.model.ResponseItem.ProgressDetail;
-import com.github.dockerjava.core.command.BuildImageResultCallback;
-import com.liferay.ide.core.util.CoreUtil;
-import com.liferay.ide.core.util.ListUtil;
-import com.liferay.ide.gradle.core.GradleUtil;
-import com.liferay.ide.gradle.ui.LiferayGradleUI;
-import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
-import com.liferay.ide.server.util.LiferayDockerClient;
 
 /**
  * @author Terry Jia
@@ -297,48 +296,52 @@ public class CreateDockerImageTaskAction extends GradleTaskAction {
 					retVal.append(body);
 
 					LiferayDockerImage[] images = _extractLiferayDockerResponse(retVal.toString());
+					String dockerRepoTag = LiferayWorkspaceUtil.getGradleProperty(project.getLocation().toOSString(), "liferay.workspace.docker.image.liferay", null);
+					String[] tags = dockerRepoTag.split(":");
 					
-					Stream.of(images).filter(image -> {
-						return image.getName().equals("7.1.1-ga2");	
-					}).findAny().ifPresent( image -> {
-						System.out.println(image.getName());
-						Job buildDockerJob = new Job("Build Docker Image Job") {
+					for(LiferayDockerImage image : images) {
+						if (image.getName().equals(tags[1])) {
+							System.out.println(image.getName());
+							Job buildDockerJob = new Job("Build Docker Image Job") {
 
-							private BuildImageResultCallback _buildImageResultCallback;
-							private BuildImageCmd _buildImageCmd;
-							@Override
-							protected IStatus run(IProgressMonitor monitor) {
-								try {
-									DockerClient dockerClient = LiferayDockerClient.getDockerClient();
-									_buildImageCmd = dockerClient.buildImageCmd(project.getLocation().append("build/docker").append("Dockerfile").toFile());
-									_buildImageCmd.withTag("liferay/portal:7.1.1-ga2-" + project.getName());
-									_buildImageCmd.withNoCache(true);
-									_buildImageCmd.withPull(true);
-									_buildImageCmd.withQuiet(false);
-									_buildImageResultCallback = new LiferayBuildImageCallback(monitor, image);
-									_buildImageCmd.exec(_buildImageResultCallback);
-									_buildImageResultCallback.awaitCompletion();						
+								private BuildImageResultCallback _buildImageResultCallback;
+								private BuildImageCmd _buildImageCmd;
+								@Override
+								protected IStatus run(IProgressMonitor monitor) {
+									try {
+										DockerClient dockerClient = LiferayDockerClient.getDockerClient();
+										_buildImageCmd = dockerClient.buildImageCmd();
+										_buildImageCmd.withDockerfile(project.getLocation().append("build/docker").append("Dockerfile").toFile());
+										_buildImageCmd.withRemove(true);
+										_buildImageCmd
+												.withTag("liferay/portal:" + tags[1] /* + "-" + project.getName() */);
+										_buildImageCmd.withNoCache(true);
+										_buildImageCmd.withPull(true);
+										_buildImageResultCallback = new LiferayBuildImageCallback(monitor, image);
+										_buildImageCmd.exec(_buildImageResultCallback);
+										_buildImageResultCallback.awaitCompletion();						
+									}
+									catch(Exception e) {
+										e.printStackTrace();
+									}
+									return Status.OK_STATUS;
 								}
-								catch(Exception e) {
-									e.printStackTrace();
+								
+								@Override
+								protected void canceling() {
+									try {
+										_buildImageCmd.close();
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
 								}
-								return Status.OK_STATUS;
-							}
-							
-							@Override
-							protected void canceling() {
-								try {
-									_buildImageCmd.close();
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							}
 
-							
-						};
-						buildDockerJob.setUser(true);
-						buildDockerJob.schedule();	
-					});;
+								
+							};
+							buildDockerJob.setUser(true);
+							buildDockerJob.schedule();		
+						}
+					}
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -352,6 +355,11 @@ public class CreateDockerImageTaskAction extends GradleTaskAction {
 	}
 	
 	@Override
+	protected void afterAction() {
+	}
+	
+	
+	@Override
 	public void run(IAction action) {
 		if (fSelection instanceof IStructuredSelection) {
 			final List<String> gradleTasks = getGradleTasks();
@@ -359,14 +367,27 @@ public class CreateDockerImageTaskAction extends GradleTaskAction {
 			if (ListUtil.isEmpty(gradleTasks)) {
 				return;
 			}
-			
-			_defaultAsyncClient = createDefaultAsyncClient();
-			_defaultAsyncClient.start();
-			HttpGet httpGet = new HttpGet("https://registry.hub.docker.com/v2/repositories/liferay/portal/tags/");
-			_defaultAsyncClient.execute(httpGet, new DockerRemoteResponseCallback());
-			
+//			_defaultAsyncClient = createDefaultAsyncClient();
+//			_defaultAsyncClient.start();
+//			HttpGet httpGet = new HttpGet("https://registry.hub.docker.com/v2/repositories/liferay/portal/tags/");
+//			_defaultAsyncClient.execute(httpGet, new DockerRemoteResponseCallback());
 
-			
+			try {
+				DockerClient dockerClient = LiferayDockerClient.getDockerClient();
+				BuildImageCmd buildImageCmd = dockerClient.buildImageCmd();
+				buildImageCmd.withDockerfile(project.getLocation().append("build/docker").append("Dockerfile").toFile());
+				buildImageCmd.withRemove(true);
+				buildImageCmd
+						.withTag("liferay/portal:7.2.0-ga1" + "-" + project.getName());
+				buildImageCmd.withNoCache(true);
+				buildImageCmd.withPull(true);
+				BuildImageResultCallback buildImageResultCallback = new BuildImageResultCallback();
+				buildImageCmd.exec(buildImageResultCallback);
+				buildImageResultCallback.awaitCompletion();					
+			}
+			catch(Exception e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -398,6 +419,7 @@ public class CreateDockerImageTaskAction extends GradleTaskAction {
 	    		return;
 	    	}
 	    	if (item.getStatus().equals("Downloading")) {
+	    		System.out.println(item.getStatus());
 	    		ProgressDetail progressDetail = item.getProgressDetail();
 		    	if ( progressDetail != null ) {
 		    		
@@ -431,9 +453,6 @@ public class CreateDockerImageTaskAction extends GradleTaskAction {
 	       _monitor.done();
 	    }
 	}
-	protected void afterAction() {
-
-	}
 
 	protected List<String> getGradleTasks() {
 		GradleProject gradleProject = getGradleProjectModel();
@@ -444,7 +463,7 @@ public class CreateDockerImageTaskAction extends GradleTaskAction {
 
 		List<GradleTask> gradleTasks = new ArrayList<>();
 
-		fetchModelTasks(gradleProject, "createDockerfile", gradleTasks);
+		fetchModelTasks(gradleProject, "pullDockerImage", gradleTasks);
 
 		Stream<GradleTask> gradleTaskStream = gradleTasks.stream();
 
@@ -457,12 +476,11 @@ public class CreateDockerImageTaskAction extends GradleTaskAction {
 	
 	@Override
 	protected void beforeAction() {
-		List<String> preTasks = new ArrayList<String>();
-		try {
-			GradleUtil.runGradleTask(project,"createDockerFile", null);
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			GradleUtil.runGradleTask(project,"createDockerFile", null);
+//		} catch (CoreException e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override

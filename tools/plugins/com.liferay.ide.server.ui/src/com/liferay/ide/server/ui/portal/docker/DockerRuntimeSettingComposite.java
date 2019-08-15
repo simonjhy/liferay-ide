@@ -286,6 +286,7 @@ public class DockerRuntimeSettingComposite extends Composite implements ModifyLi
 
 					ListImagesCmd listImagesCmd = _dockerClient.listImagesCmd();
 					listImagesCmd.withShowAll(true);
+					listImagesCmd.withDanglingFilter(false);
 					_installedDockerImages = new CopyOnWriteArrayList<>(listImagesCmd.exec());
 					
 					_installedDockerImages.sort(new LiferayDockerImageComparator());

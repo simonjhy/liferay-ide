@@ -45,7 +45,7 @@ public class PortalDockerServerStateStopThread {
 			_timeout = serverStopTimeout * 1000;
 		}
 
- 		Thread t = new Thread("Liferay Blade Server Stop Thread") {
+ 		Thread t = new Thread("Liferay Portal Docker Server Stop Thread") {
 
  			public void run() {
 				_startedTime = System.currentTimeMillis();

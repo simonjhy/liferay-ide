@@ -14,9 +14,29 @@
 
 package com.liferay.ide.server.core.portal.docker;
 
+import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.CommitCmd;
+import com.github.dockerjava.api.command.InspectContainerCmd;
+import com.github.dockerjava.api.command.InspectContainerResponse;
+import com.github.dockerjava.api.command.StartContainerCmd;
+import com.github.dockerjava.api.model.ExposedPort;
+import com.github.dockerjava.api.model.ExposedPorts;
+import com.github.dockerjava.api.model.InternetProtocol;
+import com.github.dockerjava.api.model.PortBinding;
+import com.github.dockerjava.api.model.Ports.Binding;
+import com.liferay.ide.core.IWorkspaceProject;
+import com.liferay.ide.core.LiferayCore;
+import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.core.util.FileUtil;
+import com.liferay.ide.core.util.ListUtil;
+import com.liferay.ide.server.core.LiferayServerCore;
+import com.liferay.ide.server.util.LiferayDockerClient;
+import com.liferay.ide.server.util.SocketUtil;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
@@ -36,23 +56,6 @@ import org.eclipse.debug.core.model.IDebugTarget;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.debug.core.model.IStreamsProxy;
 import org.eclipse.wst.server.core.IServer;
-
-import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.CommitCmd;
-import com.github.dockerjava.api.command.ExecCreateCmd;
-import com.github.dockerjava.api.command.ExecCreateCmdResponse;
-import com.github.dockerjava.api.command.InspectContainerCmd;
-import com.github.dockerjava.api.command.InspectContainerResponse;
-import com.github.dockerjava.api.command.StartContainerCmd;
-import com.google.common.collect.Lists;
-import com.liferay.ide.core.IWorkspaceProject;
-import com.liferay.ide.core.LiferayCore;
-import com.liferay.ide.core.util.CoreUtil;
-import com.liferay.ide.core.util.FileUtil;
-import com.liferay.ide.core.util.ListUtil;
-import com.liferay.ide.server.core.LiferayServerCore;
-import com.liferay.ide.server.util.LiferayDockerClient;
-import com.liferay.ide.server.util.SocketUtil;
 
 /**
  * @author Simon Jiang
@@ -298,6 +301,14 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 //			catch(Exception e) {
 //				e.printStackTrace();
 //			}
+			try {
+				StartContainerCmd startContainerCmd = _dockerClient.startContainerCmd(_portalServer.getContainerId());
+				startContainerCmd.exec();
+				fireCreateEvent();
+			} catch (Exception e) {
+				fireTerminateEvent();
+				LiferayServerCore.logError(e);
+			}
 
 			if (_debug) {
 				InspectContainerCmd inspectContainerCmd = _dockerClient.inspectContainerCmd(_portalServer.getContainerId());
@@ -314,14 +325,14 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 								String host = _config.getAttribute("hostname", _server.getHost());
 								String port = _config.getAttribute("port", "8888");
 								do {
-
+	
 									IStatus canConnect = SocketUtil.canConnect(host, port);
 									try {
 										if (canConnect.isOK()) {
 											_delegate.startDebugLaunch(_server, _config, _launch, monitor);
-
+	
 											IDebugTarget[] debugTargets = _launch.getDebugTargets();
-
+	
 											if (ListUtil.isNotEmpty(debugTargets)) {
 												debugPortStarted = true;
 											}
@@ -337,9 +348,9 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 						}
 					};
 					checkDebugThread.setPriority(1);
-					checkDebugThread.setDaemon(false);
+					checkDebugThread.setDaemon(true);
 					checkDebugThread.start();
-
+	
 					try {
 						checkDebugThread.join(Integer.MAX_VALUE);
 						if (checkDebugThread.isAlive()) {
@@ -351,16 +362,6 @@ public class PortalDockerServerMonitorProcess implements IProcess {
 					}				
 				}
 			}
-
-			try {
-				StartContainerCmd startContainerCmd = _dockerClient.startContainerCmd(_portalServer.getContainerId());
-				startContainerCmd.exec();
-				fireCreateEvent();
-			} catch (Exception e) {
-				fireTerminateEvent();
-				LiferayServerCore.logError(e);
-			}
-
 		}
 	}
 

@@ -41,7 +41,17 @@ public class PortalDockerRuntime extends PortalRuntime implements IPortalDockerR
 	public static final String PROP_DOCKER_IMAGE_REPO = "docker-image-repo";
 	public static final String PROP_DOCKER_IMAGE_ID = "docker-image-id";
 	public static final String PROP_DOCKER_IMAGE_TAG = "docker-image-tag";
+	public static final String PROP_DOCKER_IMAGE_BIND_WORKSPACEPROJECT = "docker-image-bind-workspaceprojecr";
 
+	public void setBindWorkspaceProject(String projejctLocation) {
+		setAttribute(PROP_DOCKER_IMAGE_BIND_WORKSPACEPROJECT, projejctLocation);
+	}
+	
+	@Override
+	public String getBindWorkspaceProject() {
+		return getAttribute(PROP_DOCKER_IMAGE_BIND_WORKSPACEPROJECT, (String)null);
+	}	
+	
 	public void setImageRepo(String imageRepo) {
 		setAttribute(PROP_DOCKER_IMAGE_REPO, imageRepo);
 	}

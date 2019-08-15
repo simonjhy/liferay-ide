@@ -54,7 +54,7 @@ public class PortalDockerServeStateRestartThread {
 			_timeout = serverStopTimeout * 1000;
 		}
 
- 		Thread t = new Thread("Liferay Blade Server Restart Thread") {
+ 		Thread t = new Thread("Liferay Portal Docker Server Restart Thread") {
 
  			public void run() {
 				_startedTime = System.currentTimeMillis();
@@ -133,7 +133,7 @@ public class PortalDockerServeStateRestartThread {
 
  						};
 
- 						restartJob.setName("Liferay Blade Server RestartJob");
+ 						restartJob.setName("Liferay Portal Docker Server RestartJob");
 						restartJob.setUser(true);
 						restartJob.schedule();
 					}
