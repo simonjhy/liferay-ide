@@ -305,7 +305,6 @@ public class CreateDockerImageTaskAction extends GradleTaskAction {
 					
 					for(LiferayDockerImage image : images) {
 						if (image.getName().equals(tags[1])) {
-							System.out.println(image.getName());
 							Job buildDockerJob = new Job("Build Docker Image Job") {
 
 								private BuildImageResultCallback _buildImageResultCallback;
@@ -473,7 +472,6 @@ public class CreateDockerImageTaskAction extends GradleTaskAction {
 	    		return;
 	    	}
 	    	if (item.getStatus().equals("Downloading")) {
-	    		System.out.println(item.getStatus());
 	    		ProgressDetail progressDetail = item.getProgressDetail();
 		    	if ( progressDetail != null ) {
 		    		

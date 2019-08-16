@@ -42,12 +42,6 @@ public class PortalDockerServer extends PortalServerDelegate implements IPortalD
 
 	@Override
 	public void setDefaults(IProgressMonitor monitor) {
-//		IServerWorkingCopy serverWorkingCopy = getServerWorkingCopy();
-//		IRuntime runtime = serverWorkingCopy.getRuntime();
-//		
-//		PortalDockerRuntime dockerRuntime = (PortalDockerRuntime)runtime.loadAdapter(PortalDockerRuntime.class, monitor);
-//		String imageRepo = dockerRuntime.getImageRepo();
-//		System.out.println(imageRepo);
 		ServerUtil.setServerDefaultName(getServerWorkingCopy());
 	}
 	

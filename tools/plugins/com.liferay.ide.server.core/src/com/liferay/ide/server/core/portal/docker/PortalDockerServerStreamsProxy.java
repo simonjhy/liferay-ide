@@ -41,7 +41,6 @@ public class PortalDockerServerStreamsProxy implements IPortalDockerStreamsProxy
  		try {
  			isTerminated = true;
  	 		attachContainerCmd.close();		
- 	 		System.out.println("ILaunch is stopped");
  		}
  		catch(Exception e) {
  			e.printStackTrace();
@@ -110,7 +109,6 @@ public class PortalDockerServerStreamsProxy implements IPortalDockerStreamsProxy
 				attachContainerCmd.exec(liferayAttachCallback);
 				
 				try {
-					System.out.println("Server is starting " + Calendar.getInstance().getTime());
 					liferayAttachCallback.awaitCompletion();
 				} catch (InterruptedException e) {
 					LiferayServerCore.logError(e);

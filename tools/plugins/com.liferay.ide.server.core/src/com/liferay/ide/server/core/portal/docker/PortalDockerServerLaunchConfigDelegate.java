@@ -158,7 +158,6 @@ public class PortalDockerServerLaunchConfigDelegate extends AbstractJavaLaunchCo
 		if (monitor.isCanceled()) {
 			return;
 		}
-		System.out.println("Start to connect debug " + Calendar.getInstance().getTime());
 		if (!launch.isTerminated()) {
 			IStatus canConnect = SocketUtil.canConnect(host, port);
 			
