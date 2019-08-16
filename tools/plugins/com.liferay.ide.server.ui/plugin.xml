@@ -336,13 +336,13 @@
 			objectClass="org.eclipse.wst.server.core.IServer"
 		>
 			<visibility>
-				<and>
+				<or>
 					<objectState
 						name="serverType"
-						value="com.liferay.ide.server.portal"
+						value="com.liferay.ide.server.portal.*"
 					>
 					</objectState>
-				</and>
+				</or>
 			</visibility>
 			<action
 				class="com.liferay.ide.server.ui.action.OpenGogoShellAction"
