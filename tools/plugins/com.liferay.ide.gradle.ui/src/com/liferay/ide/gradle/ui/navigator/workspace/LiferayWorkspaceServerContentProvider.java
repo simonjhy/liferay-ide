@@ -101,10 +101,13 @@ public class LiferayWorkspaceServerContentProvider extends AbstractNavigatorCont
 
 			if ( portalRuntime instanceof PortalDockerRuntime) {
 				PortalDockerRuntime dockerRuntime = (PortalDockerRuntime)portalRuntime;
-				Path bindWorkspaceProjectPath = new Path(dockerRuntime.getBindWorkspaceProject());
 				
-				if (bindWorkspaceProjectPath.equals(project.getLocation())) {
-					projectInsideWorkspace = true;
+				if (dockerRuntime.getBindWorkspaceProject() != null) {
+					Path bindWorkspaceProjectPath = new Path(dockerRuntime.getBindWorkspaceProject());
+					
+					if (bindWorkspaceProjectPath.equals(project.getLocation())) {
+						projectInsideWorkspace = true;
+					}
 				}
 			}
 			else if ((portalRuntime == null) || (portalRuntime.getLiferayHome() == null)) {

@@ -72,12 +72,15 @@ public class WatchWorkspaceModulesAction extends SelectionProviderAction {
 		ISelectionProvider selectionProvider = getSelectionProvider();
 
 		ISelection selection = selectionProvider.getSelection();
+		IServer server = null;
 
-		if ("watch".equals(_action) && (selection instanceof TreeSelection)) {
+		if (selection instanceof TreeSelection) {
 			TreePath treePath = ((TreeSelection)selection).getPaths()[0];
 
-			IServer server = (IServer)treePath.getFirstSegment();
-
+			server = (IServer)treePath.getFirstSegment();
+		}
+		
+		if ("watch".equals(_action)) {
 			if (server.getServerState() == IServer.STATE_STOPPED) {
 				MessageDialog dialog = new MessageDialog(
 					UIUtil.getActiveShell(), "Watch Task.", null,
@@ -145,7 +148,7 @@ public class WatchWorkspaceModulesAction extends SelectionProviderAction {
 			projectsToWatch.addAll(selectionProjects);
 		}
 
-		workspaceProject.watch(projectsToWatch);
+		workspaceProject.watch(projectsToWatch, server);
 
 		IDecoratorManager decoratorManager = UIUtil.getDecoratorManager();
 

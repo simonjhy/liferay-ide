@@ -15,14 +15,8 @@
 package com.liferay.ide.server.core.portal.docker;
 
 import com.github.dockerjava.api.DockerClient;
-import com.github.dockerjava.api.command.CommitCmd;
 import com.github.dockerjava.api.command.ListContainersCmd;
 import com.github.dockerjava.api.model.Container;
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.ExposedPorts;
-import com.github.dockerjava.api.model.InternetProtocol;
-import com.github.dockerjava.api.model.PortBinding;
-import com.github.dockerjava.api.model.Ports.Binding;
 import com.google.common.collect.Lists;
 import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.server.core.ILiferayServer;
@@ -30,7 +24,6 @@ import com.liferay.ide.server.core.LiferayServerCore;
 import com.liferay.ide.server.util.LiferayDockerClient;
 import com.liferay.ide.server.util.SocketUtil;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;

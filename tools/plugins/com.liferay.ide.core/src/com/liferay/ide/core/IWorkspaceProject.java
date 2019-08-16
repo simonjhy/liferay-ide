@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.wst.server.core.IServer;
 
 /**
  * @author Gregory Amerson
@@ -35,7 +36,7 @@ public interface IWorkspaceProject extends ILiferayProject {
 
 	public boolean isWatchable();
 
-	public void watch(Set<IProject> childProjects);
+	public void watch(Set<IProject> childProjects, IServer server);
 
 	public Set<IProject> watching();
 

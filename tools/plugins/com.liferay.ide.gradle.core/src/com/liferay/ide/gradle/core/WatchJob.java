@@ -25,8 +25,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.wst.server.core.IServer;
 import org.eclipse.wst.server.core.ServerCore;
-
 import org.gradle.tooling.CancellationTokenSource;
 import org.gradle.tooling.GradleConnector;
 
@@ -35,13 +35,14 @@ import org.gradle.tooling.GradleConnector;
  */
 public class WatchJob extends Job {
 
-	public WatchJob(IProject project, List<String> tasks, String jobFamily) {
+	public WatchJob(IProject project, List<String> tasks, String jobFamily, IServer server) {
 		super(project.getName() + ":" + LiferayGradleCore.LIFERAY_WATCH);
 
 		_project = project;
 		_tasks = tasks;
 		_jobFamily = jobFamily;
 		_cancelToken = GradleConnector.newCancellationTokenSource();
+		_server = server;
 	}
 
 	@Override
@@ -87,9 +88,14 @@ public class WatchJob extends Job {
 		return Status.OK_STATUS;
 	}
 
+	public IServer getServer() {
+		return _server;
+	}
+	
 	private CancellationTokenSource _cancelToken;
 	private String _jobFamily;
 	private IProject _project;
 	private List<String> _tasks;
+	private IServer _server;
 
 }

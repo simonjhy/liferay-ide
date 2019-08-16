@@ -34,6 +34,7 @@ import org.eclipse.ltk.core.refactoring.RefactoringStatus;
 import org.eclipse.ltk.core.refactoring.participants.CheckConditionsContext;
 import org.eclipse.ltk.core.refactoring.participants.DeleteArguments;
 import org.eclipse.ltk.core.refactoring.participants.DeleteParticipant;
+import org.eclipse.wst.server.core.IServer;
 
 /**
  * @author Simon Jiang
@@ -109,7 +110,7 @@ public class LiferayGradleModuleProjectDeleteParticipant extends DeleteParticipa
 			}
 
 			if (ListUtil.isNotEmpty(_projectsToWatch)) {
-				liferayWorkspaceProject.watch(_projectsToWatch);
+				liferayWorkspaceProject.watch(_projectsToWatch, _server);
 			}
 
 			return null;
@@ -160,6 +161,11 @@ public class LiferayGradleModuleProjectDeleteParticipant extends DeleteParticipa
 			if (ListUtil.isNotEmpty(jobs)) {
 				Job job = jobs[0];
 
+				if ( job instanceof WatchJob) {
+					WatchJob watchJob = (WatchJob)job;
+					_server = watchJob.getServer();
+				}
+				
 				job.cancel();
 
 				try {
@@ -224,5 +230,6 @@ public class LiferayGradleModuleProjectDeleteParticipant extends DeleteParticipa
 
 	private IProject _deleteProject;
 	private Set<IProject> _projectsToWatch;
+	private IServer _server;
 
 }

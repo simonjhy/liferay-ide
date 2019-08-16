@@ -81,7 +81,6 @@ public class LiferayDockerClient {
 			contanerCreateCmd.withEnv("LIFERAY_JPDA_ENABLED=true", "JPDA_ADDRESS=8000", "JPDA_TRANSPORT=dt_socket");
 			contanerCreateCmd.withImage(dockerRuntime.getImageRepo());
 			contanerCreateCmd.withHostConfig(hostConfig.withPortBindings(portBindings)).withExposedPorts(new ExposedPort(8000, InternetProtocol.TCP));
-			
 			CreateContainerResponse createResponse = contanerCreateCmd.exec();
 
 			dockerServer.settContainerId(createResponse.getId());

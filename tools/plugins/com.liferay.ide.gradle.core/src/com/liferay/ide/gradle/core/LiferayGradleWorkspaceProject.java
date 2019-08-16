@@ -29,11 +29,11 @@ import com.liferay.ide.core.workspace.ProjectChangedEvent;
 import com.liferay.ide.project.core.LiferayWorkspaceProject;
 import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
 import com.liferay.ide.server.core.ILiferayServer;
+import com.liferay.ide.server.core.portal.docker.PortalDockerServer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -53,6 +53,7 @@ import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
+import org.eclipse.wst.server.core.IServer;
 
 /**
  * @author Andy Wu
@@ -217,7 +218,7 @@ public class LiferayGradleWorkspaceProject extends LiferayWorkspaceProject imple
 	}
 
 	@Override
-	public void watch(Set<IProject> childProjects) {
+	public void watch(Set<IProject> childProjects, IServer server) {
 		boolean runOnRoot = false;
 		Set<IProject> runOnProjects = childProjects;
 
@@ -241,7 +242,7 @@ public class LiferayGradleWorkspaceProject extends LiferayWorkspaceProject imple
 			}
 		}
 
-		_executeTask(runOnRoot, runOnProjects);
+		_executeTask(runOnRoot, runOnProjects, server);
 	}
 
 	@Override
@@ -271,20 +272,43 @@ public class LiferayGradleWorkspaceProject extends LiferayWorkspaceProject imple
 		return taskPath;
 	}
 
-	private void _executeTask(boolean runOnRoot, Set<IProject> childProjects) {
+	private void _executeTask(boolean runOnRoot, Set<IProject> childProjects, IServer server) {
 		final List<String> tasks = new ArrayList<>();
 
+		PortalDockerServer dockerServer = (PortalDockerServer)server.loadAdapter(PortalDockerServer.class, null);
+		
+		boolean isDockerServer = false;
+
+		if ( dockerServer != null) {
+			isDockerServer = true;
+		}
+		
 		if (runOnRoot) {
-			tasks.add("watch");
+			if ( isDockerServer ) {
+				tasks.add("dockerDeploy");
+			}
+			else {
+				tasks.add("watch");
+			}
 		}
 		else {
 			for (IProject project : childProjects) {
 				String taskName = "watch";
+				
+				if ( isDockerServer ) {
+					taskName = "dockerDeploy";
+				}
 
 				IBundleProject bundleProject = LiferayCore.create(IBundleProject.class, project);
 
 				if (!isWatchable() || ((bundleProject != null) && "war".equals(bundleProject.getBundleShape()))) {
-					taskName = "deploy";
+					if ( isDockerServer ) {
+						taskName = "dockerDeploy";
+					}
+					else {
+						taskName = "deploy";	
+					}
+					
 				}
 
 				tasks.add(_convertToModuleTaskPath(project.getLocation(), taskName));
@@ -309,7 +333,7 @@ public class LiferayGradleWorkspaceProject extends LiferayWorkspaceProject imple
 			}
 		}
 
-		Job job = new WatchJob(getProject(), tasks, LiferayGradleCore.LIFERAY_WORKSPACE_WATCH_JOB_FAMILY);
+		Job job = new WatchJob(getProject(), tasks, LiferayGradleCore.LIFERAY_WORKSPACE_WATCH_JOB_FAMILY, server);
 
 		job.addJobChangeListener(
 			new JobChangeAdapter() {

@@ -37,6 +37,7 @@ import java.util.stream.Stream;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.wst.server.core.IServer;
 
 /**
  * @author Simon Jiang
@@ -121,7 +122,7 @@ public abstract class LiferayWorkspaceProject extends BaseLiferayProject impleme
 	}
 
 	@Override
-	public void watch(Set<IProject> childProjects) {
+	public void watch(Set<IProject> childProjects, IServer server) {
 	}
 
 	@Override

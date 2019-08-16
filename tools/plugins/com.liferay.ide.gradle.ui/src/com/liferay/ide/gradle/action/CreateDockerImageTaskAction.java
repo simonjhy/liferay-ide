@@ -17,7 +17,6 @@ package com.liferay.ide.gradle.action;
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.BuildImageCmd;
 import com.github.dockerjava.api.model.BuildResponseItem;
-import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.api.model.ResponseItem.ProgressDetail;
 import com.github.dockerjava.core.command.BuildImageResultCallback;
 import com.liferay.ide.core.util.CoreUtil;
@@ -38,6 +37,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.commons.compress.utils.Sets;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -56,6 +56,8 @@ import org.apache.http.util.EntityUtils;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
@@ -65,6 +67,8 @@ import org.gradle.tooling.model.GradleTask;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Terry Jia
@@ -372,25 +376,75 @@ public class CreateDockerImageTaskAction extends GradleTaskAction {
 //			HttpGet httpGet = new HttpGet("https://registry.hub.docker.com/v2/repositories/liferay/portal/tags/");
 //			_defaultAsyncClient.execute(httpGet, new DockerRemoteResponseCallback());
 
-			try {
-				DockerClient dockerClient = LiferayDockerClient.getDockerClient();
-				BuildImageCmd buildImageCmd = dockerClient.buildImageCmd();
-				buildImageCmd.withDockerfile(project.getLocation().append("build/docker").append("Dockerfile").toFile());
-				buildImageCmd.withRemove(true);
-				buildImageCmd
-						.withTag("liferay/portal:7.2.0-ga1" + "-" + project.getName());
-				buildImageCmd.withNoCache(true);
-				buildImageCmd.withPull(true);
-				BuildImageResultCallback buildImageResultCallback = new BuildImageResultCallback();
-				buildImageCmd.exec(buildImageResultCallback);
-				buildImageResultCallback.awaitCompletion();					
-			}
-			catch(Exception e) {
-				e.printStackTrace();
-			}
+			
+				
+			Job dockerJob = _createBladeServerJob(new PortalDockerServerRunnable("Build Docker Image") {
+
+				@Override
+				public void doit(IProgressMonitor mon) throws Exception {
+					try {
+						DockerClient dockerClient = LiferayDockerClient.getDockerClient();
+						BuildImageCmd buildImageCmd = dockerClient.buildImageCmd();
+						buildImageCmd.withDockerfile(project.getLocation().append("build/docker").append("Dockerfile").toFile());
+						buildImageCmd.withRemove(true);
+						buildImageCmd.withForcerm(true);
+						buildImageCmd.withTags(Sets.newHashSet("liferay/portal:7.2.0-ga1" + "-" + project.getName()));
+						buildImageCmd.withNoCache(false);
+						buildImageCmd.withPull(true);
+						buildImageCmd.withQuiet(false);
+						LiferayBuildImageCallbackTest buildImageResultCallback = new LiferayBuildImageCallbackTest(mon);
+						buildImageCmd.exec(buildImageResultCallback);
+						buildImageResultCallback.awaitCompletion();	
+					}catch(Exception e) {
+						e.printStackTrace();
+					}
+				}
+			});
+			dockerJob.schedule();
 		}
 	}
 	
+ 	private Job _createBladeServerJob(PortalDockerServerRunnable runable) {
+		Job job = runable.asJob();
+
+ 		job.setPriority(Job.LONG);
+		job.setRule(null);
+		job.schedule();
+
+ 		return job;
+	}
+	
+	private class LiferayBuildImageCallbackTest extends BuildImageResultCallback{
+		private IProgressMonitor _monitor;
+		private final Logger LOGGER = LoggerFactory.getLogger(LiferayBuildImageCallbackTest.class);
+		public LiferayBuildImageCallbackTest(IProgressMonitor monitor) {
+			_monitor =   monitor;
+		}
+		
+	    @Override
+	    public void onStart(Closeable stream) {
+	    	super.onStart(stream);
+	    	
+	    }
+	    
+	    private int total = 10;
+	    public void onNext(BuildResponseItem item) {
+	    	if (item.getStream()!=null && CoreUtil.isNotNullOrEmpty(item.getStream()) && !item.getStream().equals("null")) {
+		    	SubMonitor convert = SubMonitor.convert(_monitor, item.getStream(), 100);
+		    	convert.setTaskName(item.getStream());
+		    	convert.worked(total);
+		    	total = total +10;	
+	    	}
+
+	    }
+		
+	    @Override
+	    public void onComplete() {
+	       super.onComplete();
+	       _monitor.done();
+	    }
+	}
+ 	
 	private class LiferayBuildImageCallback extends BuildImageResultCallback{
 		private ConcurrentMap<String, Long> responseMap;
 		private NumberFormat _nf;
