@@ -39,7 +39,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 
 import java.util.ArrayList;
@@ -252,7 +251,7 @@ public class LiferayTomcatUtil {
 		Properties properties = new Properties();
 
 		if (FileUtil.exists(configInfoFile)) {
-			try (InputStream fileInput = Files.newInputStream(configInfoFile.toPath())) {
+			try (InputStream fileInput = FileUtil.newInputStream(configInfoFile.toPath())) {
 				properties.load(fileInput);
 
 				String configInfo = (String)properties.get(portalDirKey);
@@ -380,7 +379,7 @@ public class LiferayTomcatUtil {
 		Context context = null;
 
 		if (FileUtil.exists(contextFile)) {
-			try (InputStream fis = Files.newInputStream(contextFile.toPath())) {
+			try (InputStream fis = FileUtil.newInputStream(contextFile.toPath())) {
 				Factory factory = new Factory();
 
 				factory.setPackageName("org.eclipse.jst.server.tomcat.core.internal.xml.server40");
@@ -477,7 +476,7 @@ public class LiferayTomcatUtil {
 
 				Properties properties = new Properties();
 
-				try (InputStream fileInput = Files.newInputStream(versionInfoFile.toPath())) {
+				try (InputStream fileInput = FileUtil.newInputStream(versionInfoFile.toPath())) {
 					properties.load(fileInput);
 				}
 				catch (NoSuchFileException nsfe) {
@@ -491,7 +490,7 @@ public class LiferayTomcatUtil {
 
 				properties.put(portalDirKey, configInfo);
 
-				try (OutputStream fileOutput = Files.newOutputStream(versionInfoFile.toPath())) {
+				try (OutputStream fileOutput = FileUtil.newOutputStream(versionInfoFile.toPath())) {
 					properties.store(fileOutput, StringPool.EMPTY);
 				}
 				catch (Exception e) {
@@ -717,7 +716,7 @@ public class LiferayTomcatUtil {
 
 		File file = idePropertiesPath.toFile();
 
-		try (OutputStream outputStream = Files.newOutputStream(file.toPath())) {
+		try (OutputStream outputStream = FileUtil.newOutputStream(file.toPath())) {
 			props.store(outputStream, null);
 		}
 		catch (Exception e) {
@@ -760,16 +759,13 @@ public class LiferayTomcatUtil {
 		if (FileUtil.exists(externalPropertiesFile)) {
 			ExternalPropertiesConfiguration props = new ExternalPropertiesConfiguration();
 
-			try (InputStream newInputStream = Files.newInputStream(externalPropertiesFile.toPath())) {
+			try (InputStream newInputStream = FileUtil.newInputStream(externalPropertiesFile.toPath());
+				OutputStream outputStream = FileUtil.newOutputStream(externalPropertiesFile.toPath())) {
+
 				props.load(newInputStream);
 				props.setProperty("include-and-override", portalIdePropFile.getAbsolutePath());
 				props.setHeader("# Last modified by Liferay IDE " + new Date());
-
-				try (OutputStream outputStream = Files.newOutputStream(externalPropertiesFile.toPath())) {
-					props.save(outputStream);
-				}
-				catch (Exception e) {
-				}
+				props.save(outputStream);
 
 				retval = externalPropertiesFile;
 			}

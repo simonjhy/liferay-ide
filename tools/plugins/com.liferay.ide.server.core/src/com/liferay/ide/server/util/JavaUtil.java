@@ -22,8 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.nio.file.Files;
-
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
@@ -107,7 +105,7 @@ public class JavaUtil {
 
 	public static String getManifestProperty(File manifestFile, String propertyName) {
 		try {
-			String contents = CoreUtil.readStreamToString(Files.newInputStream(manifestFile.toPath()));
+			String contents = CoreUtil.readStreamToString(FileUtil.newInputStream(manifestFile.toPath()));
 
 			if (contents != null) {
 				try (InputStream input = new ByteArrayInputStream(contents.getBytes())) {

@@ -31,8 +31,6 @@ import com.liferay.ide.server.util.ServerUtil;
 import java.io.File;
 import java.io.InputStream;
 
-import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -271,7 +269,7 @@ public class PluginPackageResourceListener implements IResourceChangeListener, I
 
 					File file = tldFileToCopy.toFile();
 
-					try (InputStream inputStream = Files.newInputStream(file.toPath())) {
+					try (InputStream inputStream = FileUtil.newInputStream(file.toPath())) {
 						newTldFile.create(inputStream, true, null);
 					}
 					catch (Exception e) {

@@ -40,8 +40,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
-import java.nio.file.Files;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -284,7 +282,7 @@ public class HookXmlEditor extends SapphireEditorForXml implements SapphireConte
 									if (FileUtil.exists(portalJsp)) {
 										File portalJspFile = portalJsp.toFile();
 
-										try (InputStream jspInputStream = Files.newInputStream(
+										try (InputStream jspInputStream = FileUtil.newInputStream(
 												portalJspFile.toPath())) {
 
 											customJspFile.create(jspInputStream, true, null);

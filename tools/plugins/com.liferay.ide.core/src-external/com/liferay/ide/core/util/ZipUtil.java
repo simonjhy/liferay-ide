@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.nio.file.Files;
-
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -214,7 +212,9 @@ public final class ZipUtil {
 
 				_mkdir(dir);
 
-				try (InputStream in = zip.getInputStream(entry); OutputStream out = Files.newOutputStream(f.toPath())) {
+				try (InputStream in = zip.getInputStream(entry);
+					OutputStream out = FileUtil.newOutputStream(f.toPath())) {
+
 					byte[] bytes = new byte[1024];
 
 					int count = in.read(bytes);
@@ -247,7 +247,7 @@ public final class ZipUtil {
 			_delete(target);
 		}
 
-		try (OutputStream output = Files.newOutputStream(target.toPath());
+		try (OutputStream output = FileUtil.newOutputStream(target.toPath());
 			ZipOutputStream zip = new ZipOutputStream(output)) {
 
 			_zipDir(target, zip, dir, filenameFilter, "");
@@ -348,7 +348,7 @@ public final class ZipUtil {
 
 		zip.putNextEntry(ze);
 
-		try (InputStream in = Files.newInputStream(file.toPath())) {
+		try (InputStream in = FileUtil.newInputStream(file.toPath())) {
 			int bufsize = 8 * 1024;
 
 			long flength = file.length();

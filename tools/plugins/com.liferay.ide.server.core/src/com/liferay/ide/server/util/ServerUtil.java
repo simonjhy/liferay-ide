@@ -41,8 +41,6 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.nio.file.Files;
-
 import java.text.MessageFormat;
 
 import java.util.ArrayList;
@@ -396,7 +394,7 @@ public class ServerUtil {
 	public static String getFragemtHostName(File bundleFile) {
 		String fragmentHostName = null;
 
-		try (InputStream input = Files.newInputStream(bundleFile.toPath());
+		try (InputStream input = FileUtil.newInputStream(bundleFile.toPath());
 			JarInputStream jarStream = new JarInputStream(input)) {
 
 			Manifest manifest = jarStream.getManifest();

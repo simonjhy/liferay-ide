@@ -22,8 +22,6 @@ import java.io.InputStream;
 
 import java.lang.reflect.InvocationTargetException;
 
-import java.nio.file.Files;
-
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
 import org.eclipse.compare.CompareUI;
@@ -146,7 +144,7 @@ public abstract class AbstractCompareFileHandler extends AbstractHandler {
 		@Override
 		public InputStream getContents() throws CoreException {
 			try {
-				return Files.newInputStream(_file.toPath());
+				return FileUtil.newInputStream(_file.toPath());
 			}
 			catch (Exception e) {
 			}

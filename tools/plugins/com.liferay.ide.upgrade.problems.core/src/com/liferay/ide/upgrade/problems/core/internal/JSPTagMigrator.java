@@ -14,6 +14,7 @@
 
 package com.liferay.ide.upgrade.problems.core.internal;
 
+import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.upgrade.plan.core.UpgradeProblem;
 import com.liferay.ide.upgrade.problems.core.AutoFileMigrateException;
@@ -25,7 +26,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
@@ -116,7 +116,7 @@ public abstract class JSPTagMigrator extends AbstractFileMigrator<JSPFile> imple
 			try {
 				IModelManager modelManager = StructuredModelManager.getModelManager();
 
-				try (InputStream input = Files.newInputStream(Paths.get(file.toURI()), StandardOpenOption.READ)) {
+				try (InputStream input = FileUtil.newInputStream(Paths.get(file.toURI()))) {
 					domModel = (IDOMModel)modelManager.getModelForEdit(file.getAbsolutePath(), input, null);
 				}
 
@@ -200,7 +200,7 @@ public abstract class JSPTagMigrator extends AbstractFileMigrator<JSPFile> imple
 				}
 
 				if (corrected > 0) {
-					try (OutputStream output = Files.newOutputStream(
+					try (OutputStream output = FileUtil.newOutputStream(
 							Paths.get(file.toURI()), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING,
 							StandardOpenOption.DSYNC)) {
 

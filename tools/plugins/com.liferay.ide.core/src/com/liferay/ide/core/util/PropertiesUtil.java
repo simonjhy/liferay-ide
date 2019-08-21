@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -554,7 +552,7 @@ public class PropertiesUtil {
 		Properties properties = new Properties();
 
 		if (FileUtil.exists(file)) {
-			try (InputStream stream = Files.newInputStream(file.toPath())) {
+			try (InputStream stream = FileUtil.newInputStream(file.toPath())) {
 				properties.load(stream);
 			}
 			catch (IOException ioe) {
@@ -573,7 +571,7 @@ public class PropertiesUtil {
 	}
 
 	public static void saveProperties(Properties props, File resultFile) {
-		try (OutputStream fos = Files.newOutputStream(resultFile.toPath())) {
+		try (OutputStream fos = FileUtil.newOutputStream(resultFile.toPath())) {
 			props.store(fos, "");
 		}
 		catch (Exception e) {

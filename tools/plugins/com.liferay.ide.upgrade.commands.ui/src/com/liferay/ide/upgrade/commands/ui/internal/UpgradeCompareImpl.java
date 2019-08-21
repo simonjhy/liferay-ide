@@ -14,14 +14,13 @@
 
 package com.liferay.ide.upgrade.commands.ui.internal;
 
+import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.upgrade.plan.core.UpgradeCompare;
 
 import java.io.File;
 import java.io.InputStream;
 
 import java.lang.reflect.InvocationTargetException;
-
-import java.nio.file.Files;
 
 import org.eclipse.compare.CompareConfiguration;
 import org.eclipse.compare.CompareEditorInput;
@@ -87,7 +86,7 @@ public class UpgradeCompareImpl implements UpgradeCompare {
 		@Override
 		public InputStream getContents() throws CoreException {
 			try {
-				return Files.newInputStream(_file.toPath());
+				return FileUtil.newInputStream(_file.toPath());
 			}
 			catch (Exception e) {
 			}

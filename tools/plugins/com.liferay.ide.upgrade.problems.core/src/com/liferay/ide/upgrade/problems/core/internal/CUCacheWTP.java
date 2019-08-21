@@ -15,6 +15,7 @@
 package com.liferay.ide.upgrade.problems.core.internal;
 
 import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.upgrade.problems.core.CUCache;
 import com.liferay.ide.upgrade.problems.core.FileMigration;
 
@@ -23,9 +24,7 @@ import java.io.InputStream;
 
 import java.lang.ref.WeakReference;
 
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -122,7 +121,7 @@ public class CUCacheWTP implements CUCache<JSPTranslationPrime> {
 		try {
 			IModelManager modelManager = StructuredModelManager.getModelManager();
 
-			try (InputStream input = Files.newInputStream(Paths.get(file.toURI()), StandardOpenOption.READ)) {
+			try (InputStream input = FileUtil.newInputStream(Paths.get(file.toURI()))) {
 				jspModel = (IDOMModel)modelManager.getModelForRead(file.getAbsolutePath(), input, null);
 			}
 

@@ -22,8 +22,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.nio.file.Files;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -157,7 +155,7 @@ public class SDKCorePlugin extends Plugin {
 
 			if (sdkGlobalFile.exists()) {
 				try {
-					try (InputStream newInputStream = Files.newInputStream(sdkGlobalFile.toPath())) {
+					try (InputStream newInputStream = FileUtil.newInputStream(sdkGlobalFile.toPath())) {
 						IMemento existingMemento = XMLMemento.loadMemento(newInputStream);
 
 						if (existingMemento != null) {
@@ -207,7 +205,7 @@ public class SDKCorePlugin extends Plugin {
 				_addSDKToMemento(sdk, memento);
 			}
 
-			try (OutputStream fos = Files.newOutputStream(sdkGlobalFile.toPath())) {
+			try (OutputStream fos = FileUtil.newOutputStream(sdkGlobalFile.toPath())) {
 				sdkMementos.save(fos);
 			}
 		}

@@ -29,8 +29,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 
-import java.nio.file.Files;
-
 import java.util.List;
 import java.util.Set;
 
@@ -145,7 +143,7 @@ public class JSFPortletFramework
 					if (webproject != null) {
 						IFolder defaultDocroot = webproject.getDefaultDocrootFolder();
 
-						try (InputStream newInputStream = Files.newInputStream(originalWebXmlFile.toPath())) {
+						try (InputStream newInputStream = FileUtil.newInputStream(originalWebXmlFile.toPath())) {
 							IFile webFile = defaultDocroot.getFile("WEB-INF/web.xml");
 
 							webFile.setContents(newInputStream, IResource.FORCE, null);

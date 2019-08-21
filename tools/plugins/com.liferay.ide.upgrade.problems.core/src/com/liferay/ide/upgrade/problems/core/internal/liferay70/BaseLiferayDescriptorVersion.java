@@ -14,6 +14,7 @@
 
 package com.liferay.ide.upgrade.problems.core.internal.liferay70;
 
+import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.upgrade.plan.core.UpgradeProblem;
 import com.liferay.ide.upgrade.problems.core.AutoFileMigrateException;
 import com.liferay.ide.upgrade.problems.core.AutoFileMigrator;
@@ -25,7 +26,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
@@ -62,7 +62,7 @@ public abstract class BaseLiferayDescriptorVersion extends XMLFileMigrator imple
 		try {
 			IModelManager modelManager = StructuredModelManager.getModelManager();
 
-			try (InputStream input = Files.newInputStream(Paths.get(file.toURI()), StandardOpenOption.READ)) {
+			try (InputStream input = FileUtil.newInputStream(Paths.get(file.toURI()))) {
 				domModel = (IDOMModel)modelManager.getModelForEdit(file.getAbsolutePath(), input, null);
 			}
 
@@ -87,7 +87,7 @@ public abstract class BaseLiferayDescriptorVersion extends XMLFileMigrator imple
 			}
 
 			if (problemsCorrected > 0) {
-				try (OutputStream output = Files.newOutputStream(
+				try (OutputStream output = FileUtil.newOutputStream(
 						Paths.get(file.toURI()), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING,
 						StandardOpenOption.DSYNC)) {
 

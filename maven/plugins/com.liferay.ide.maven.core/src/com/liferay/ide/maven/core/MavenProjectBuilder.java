@@ -29,8 +29,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.OutputStream;
 
-import java.nio.file.Files;
-
 import java.util.Arrays;
 import java.util.List;
 
@@ -442,7 +440,7 @@ public class MavenProjectBuilder extends AbstractProjectBuilder implements IWork
 				}
 			}
 
-			try (OutputStream out = Files.newOutputStream(pomFile.toPath())) {
+			try (OutputStream out = FileUtil.newOutputStream(pomFile.toPath())) {
 				maven.writeModel(model, out);
 				out.flush();
 

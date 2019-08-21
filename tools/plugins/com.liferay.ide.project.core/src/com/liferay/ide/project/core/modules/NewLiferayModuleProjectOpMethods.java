@@ -25,8 +25,6 @@ import com.liferay.ide.project.core.ProjectCore;
 import java.io.File;
 import java.io.OutputStream;
 
-import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -178,7 +176,7 @@ public class NewLiferayModuleProjectOpMethods {
 								}
 							}
 
-							try (OutputStream fos = Files.newOutputStream(dest.toPath())) {
+							try (OutputStream fos = FileUtil.newOutputStream(dest.toPath())) {
 								TextEdit edits = rewrite.rewriteAST(document, null);
 
 								edits.apply(document);

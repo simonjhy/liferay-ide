@@ -14,6 +14,7 @@
 
 package com.liferay.ide.upgrade.problems.core.internal.liferay70;
 
+import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.upgrade.plan.core.UpgradeProblem;
 import com.liferay.ide.upgrade.problems.core.AutoFileMigrateException;
 import com.liferay.ide.upgrade.problems.core.AutoFileMigrator;
@@ -26,7 +27,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 
 import java.util.ArrayList;
@@ -65,7 +65,7 @@ public class DeprecatedLayoutTemplateTags extends XMLFileMigrator implements Aut
 		try {
 			IModelManager modelManager = StructuredModelManager.getModelManager();
 
-			try (InputStream input = Files.newInputStream(file.toPath(), StandardOpenOption.READ)) {
+			try (InputStream input = FileUtil.newInputStream(file.toPath())) {
 				domModel = (IDOMModel)modelManager.getModelForEdit(file.getAbsolutePath(), input, null);
 			}
 
@@ -96,7 +96,7 @@ public class DeprecatedLayoutTemplateTags extends XMLFileMigrator implements Aut
 			}
 
 			if (problemsCorrected > 0) {
-				try (OutputStream output = Files.newOutputStream(
+				try (OutputStream output = FileUtil.newOutputStream(
 						file.toPath(), StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING,
 						StandardOpenOption.DSYNC)) {
 

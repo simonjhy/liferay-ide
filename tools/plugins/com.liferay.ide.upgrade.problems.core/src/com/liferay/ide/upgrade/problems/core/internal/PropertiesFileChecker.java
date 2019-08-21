@@ -15,6 +15,7 @@
 package com.liferay.ide.upgrade.problems.core.internal;
 
 import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.upgrade.problems.core.FileSearchResult;
 
 import java.io.File;
@@ -22,8 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-
-import java.nio.file.Files;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +39,7 @@ public class PropertiesFileChecker {
 	public PropertiesFileChecker(File file) {
 		_file = file;
 
-		try (InputStream inputStream = Files.newInputStream(file.toPath())) {
+		try (InputStream inputStream = FileUtil.newInputStream(file.toPath())) {
 			_keyInfos = _parse(inputStream);
 		}
 		catch (Exception e) {

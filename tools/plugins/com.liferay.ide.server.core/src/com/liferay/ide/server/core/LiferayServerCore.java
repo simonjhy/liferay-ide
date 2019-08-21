@@ -37,8 +37,6 @@ import java.lang.reflect.Method;
 
 import java.net.URL;
 
-import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -705,7 +703,7 @@ public class LiferayServerCore extends Plugin {
 
 				if (FileUtil.exists(runtimesGlobalFile)) {
 					try {
-						try (InputStream newInputStream = Files.newInputStream(runtimesGlobalFile.toPath())) {
+						try (InputStream newInputStream = FileUtil.newInputStream(runtimesGlobalFile.toPath())) {
 							IMemento existingMemento = XMLMemento.loadMemento(newInputStream);
 
 							if (existingMemento != null) {
@@ -757,7 +755,7 @@ public class LiferayServerCore extends Plugin {
 					}
 				}
 
-				try (OutputStream fos = Files.newOutputStream(runtimesGlobalFile.toPath())) {
+				try (OutputStream fos = FileUtil.newOutputStream(runtimesGlobalFile.toPath())) {
 					runtimeMementos.save(fos);
 				}
 			}
@@ -789,7 +787,7 @@ public class LiferayServerCore extends Plugin {
 
 					if (FileUtil.exists(globalServersFile)) {
 						try {
-							try (InputStream newInputStream = Files.newInputStream(globalServersFile.toPath())) {
+							try (InputStream newInputStream = FileUtil.newInputStream(globalServersFile.toPath())) {
 								IMemento existingMemento = XMLMemento.loadMemento(newInputStream);
 
 								if (existingMemento != null) {
@@ -837,7 +835,7 @@ public class LiferayServerCore extends Plugin {
 					}
 
 					if (!mementos.isEmpty()) {
-						try (OutputStream fos = Files.newOutputStream(globalServersFile.toPath())) {
+						try (OutputStream fos = FileUtil.newOutputStream(globalServersFile.toPath())) {
 							serverMementos.save(fos);
 						}
 					}

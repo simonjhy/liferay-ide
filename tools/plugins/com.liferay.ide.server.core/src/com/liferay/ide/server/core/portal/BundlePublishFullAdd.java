@@ -28,7 +28,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.eclipse.core.resources.IProject;
@@ -138,7 +137,7 @@ public class BundlePublishFullAdd extends BundlePublishOperation {
 		if (FileUtil.exists(autoDeployPath)) {
 			File outputFile = output.toFile();
 
-			try (InputStream inputStream = Files.newInputStream(outputFile.toPath())) {
+			try (InputStream inputStream = FileUtil.newInputStream(outputFile.toPath())) {
 				IPath path = autoDeployPath.append(output.lastSegment());
 
 				FileUtil.writeFileFromStream(path.toFile(), inputStream);

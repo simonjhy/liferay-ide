@@ -76,7 +76,7 @@ public class FileHelper {
 	public int writeFile(File file, String contents) throws IOException {
 		int retval = -1;
 
-		try (OutputStream stream = Files.newOutputStream(file.toPath());
+		try (OutputStream stream = FileUtil.newOutputStream(file.toPath());
 			BufferedOutputStream out = new BufferedOutputStream(stream);
 			ByteArrayInputStream byteInputStream = new ByteArrayInputStream(contents.getBytes());
 			BufferedInputStream bin = new BufferedInputStream(byteInputStream)) {

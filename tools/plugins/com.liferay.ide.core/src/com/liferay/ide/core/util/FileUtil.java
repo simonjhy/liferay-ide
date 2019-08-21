@@ -36,6 +36,8 @@ import java.net.URI;
 import java.net.URL;
 
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -100,9 +102,7 @@ public class FileUtil {
 
 		byte[] buf = new byte[4096];
 
-		try (OutputStream out = Files.newOutputStream(dest.toPath());
-			InputStream in = Files.newInputStream(src.toPath())) {
-
+		try (OutputStream out = newOutputStream(dest.toPath()); InputStream in = newInputStream(src.toPath())) {
 			int avail = in.read(buf);
 
 			while (avail > 0) {
@@ -127,7 +127,7 @@ public class FileUtil {
 	public static void copyFileToIFolder(File file, IFolder folder, IProgressMonitor monitor) throws CoreException {
 		IFile iFile = folder.getFile(file.getName());
 
-		try (InputStream input = Files.newInputStream(file.toPath())) {
+		try (InputStream input = newInputStream(file.toPath())) {
 			if (exists(iFile)) {
 				iFile.setContents(input, true, true, monitor);
 			}
@@ -778,6 +778,18 @@ public class FileUtil {
 		return projectName.equals(s);
 	}
 
+	public static InputStream newInputStream(java.nio.file.Path filePath) throws IOException {
+		return Files.newInputStream(filePath, StandardOpenOption.READ);
+	}
+
+	public static InputStream newInputStream(java.nio.file.Path filePath, OpenOption... options) throws IOException {
+		return Files.newInputStream(filePath, options);
+	}
+
+	public static OutputStream newOutputStream(java.nio.file.Path filePath, OpenOption... options) throws IOException {
+		return Files.newOutputStream(filePath, options);
+	}
+
 	public static boolean notExists(File file) {
 		if ((file == null) || !file.exists()) {
 			return true;
@@ -1051,13 +1063,13 @@ public class FileUtil {
 			return false;
 		}
 
-		String searchContents = CoreUtil.readStreamToString(Files.newInputStream(file.toPath()));
+		String searchContents = CoreUtil.readStreamToString(newInputStream(file.toPath()));
 
 		String replaceContents = searchContents.replaceAll(search, replace);
 
 		boolean replaced = !searchContents.equals(replaceContents);
 
-		try (OutputStream out = Files.newOutputStream(file.toPath())) {
+		try (OutputStream out = newOutputStream(file.toPath())) {
 			CoreUtil.writeStreamFromString(replaceContents, out);
 		}
 
@@ -1194,7 +1206,7 @@ public class FileUtil {
 
 			byte[] buffer = new byte[1024];
 
-			try (OutputStream out = Files.newOutputStream(f.toPath())) {
+			try (OutputStream out = newOutputStream(f.toPath())) {
 				for (int count; (count = contents.read(buffer)) != -1;) {
 					out.write(buffer, 0, count);
 				}
@@ -1222,7 +1234,7 @@ public class FileUtil {
 		byte[] buffer = new byte[1024];
 		int bytesTotal = 0;
 
-		try (OutputStream outputStream = Files.newOutputStream(tempFile.toPath());
+		try (OutputStream outputStream = newOutputStream(tempFile.toPath());
 			BufferedOutputStream out = new BufferedOutputStream(outputStream);
 			BufferedInputStream bin = new BufferedInputStream(in)) {
 

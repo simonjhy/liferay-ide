@@ -25,8 +25,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-import java.nio.file.Files;
-
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
@@ -148,7 +146,7 @@ public class ServiceWrapperCommand {
 				}
 				else if (FileUtil.nameEndsWith(lib, "api.jar") || "portal-kernel.jar".equals(lib.getName())) {
 					try (JarFile jar = new JarFile(lib);
-						JarInputStream jarinput = new JarInputStream(Files.newInputStream(lib.toPath()))) {
+						JarInputStream jarinput = new JarInputStream(FileUtil.newInputStream(lib.toPath()))) {
 
 						Enumeration<JarEntry> enu = jar.entries();
 

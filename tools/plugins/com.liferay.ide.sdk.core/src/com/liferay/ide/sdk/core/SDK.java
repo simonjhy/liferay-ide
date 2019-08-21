@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -120,8 +118,8 @@ public class SDK {
 
 		Properties p = new Properties();
 
-		try (InputStream in = Files.newInputStream(buildFile.toPath());
-			OutputStream out = Files.newOutputStream(buildFile.toPath())) {
+		try (InputStream in = FileUtil.newInputStream(buildFile.toPath());
+			OutputStream out = FileUtil.newOutputStream(buildFile.toPath())) {
 
 			p.load(in);
 			p.put("app.server.parent.dir", appServerPropertiesMap.get("app.server.parent.dir"));
@@ -1083,7 +1081,7 @@ public class SDK {
 	private Properties _getProperties(File file) {
 		Properties properties = new Properties();
 
-		try (InputStream propertiesInput = Files.newInputStream(file.toPath())) {
+		try (InputStream propertiesInput = FileUtil.newInputStream(file.toPath())) {
 			properties.load(propertiesInput);
 		}
 		catch (Exception e) {

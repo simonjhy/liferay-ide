@@ -24,8 +24,6 @@ import java.io.InputStream;
 
 import java.net.URL;
 
-import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -355,7 +353,7 @@ public class SDKUtil {
 
 		File propertiesFile = FileUtil.getFile(sdkPath.append("build.properties"));
 
-		try (InputStream in = Files.newInputStream(propertiesFile.toPath())) {
+		try (InputStream in = FileUtil.newInputStream(propertiesFile.toPath())) {
 			properties.load(in);
 		}
 		catch (Exception e) {

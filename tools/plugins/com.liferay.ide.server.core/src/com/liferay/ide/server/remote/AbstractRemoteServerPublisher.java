@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.nio.file.Files;
-
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -69,7 +67,7 @@ public abstract class AbstractRemoteServerPublisher implements IRemoteServerPubl
 
 		warParent.mkdirs();
 
-		try (OutputStream outputStream = Files.newOutputStream(warfile.toPath());
+		try (OutputStream outputStream = FileUtil.newOutputStream(warfile.toPath());
 			ZipOutputStream zip = new ZipOutputStream(outputStream)) {
 
 			Map<ZipEntry, String> deleteEntries = new HashMap<>();

@@ -24,8 +24,6 @@ import com.liferay.ide.server.util.LiferayPublishHelper;
 import java.io.File;
 import java.io.InputStream;
 
-import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -139,7 +137,7 @@ public class LiferayTomcatServerBehavior extends TomcatServerBehaviour implement
 
 		File serverXmlFile = serverXml.toFile();
 
-		try (InputStream newInputStream = Files.newInputStream(serverXmlFile.toPath())) {
+		try (InputStream newInputStream = FileUtil.newInputStream(serverXmlFile.toPath())) {
 			Factory factory = new Factory();
 
 			factory.setPackageName("org.eclipse.jst.server.tomcat.core.internal.xml.server40");

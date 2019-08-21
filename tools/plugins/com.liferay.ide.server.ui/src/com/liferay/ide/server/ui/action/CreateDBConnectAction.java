@@ -31,8 +31,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLDecoder;
 
-import java.nio.file.Files;
-
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 
@@ -200,7 +198,7 @@ public class CreateDBConnectAction extends AbstractServerRunningAction {
 
 		try {
 			if (FileUtil.exists(bundleExtFile)) {
-				try (InputStream extInputStream = Files.newInputStream(bundleExtFile.toPath())) {
+				try (InputStream extInputStream = FileUtil.newInputStream(bundleExtFile.toPath())) {
 					pluginPackageProperties.load(extInputStream);
 				}
 
@@ -214,7 +212,7 @@ public class CreateDBConnectAction extends AbstractServerRunningAction {
 					if (FileUtil.exists(setupWizardFile)) {
 						File file = setupWizardPath.toFile();
 
-						try (InputStream setupInputStream = Files.newInputStream(file.toPath())) {
+						try (InputStream setupInputStream = FileUtil.newInputStream(file.toPath())) {
 							pluginPackageProperties.load(setupInputStream);
 						}
 					}
@@ -228,7 +226,7 @@ public class CreateDBConnectAction extends AbstractServerRunningAction {
 				if (FileUtil.exists(setupWizardFile)) {
 					File file = setupWizardPath.toFile();
 
-					try (InputStream setupInputStream = Files.newInputStream(file.toPath())) {
+					try (InputStream setupInputStream = FileUtil.newInputStream(file.toPath())) {
 						pluginPackageProperties.load(setupInputStream);
 					}
 				}

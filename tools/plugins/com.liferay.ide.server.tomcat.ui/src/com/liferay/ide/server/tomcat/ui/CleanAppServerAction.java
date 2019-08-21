@@ -14,6 +14,7 @@
 
 package com.liferay.ide.server.tomcat.ui;
 
+import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.core.util.StringPool;
 import com.liferay.ide.project.ui.ProjectUI;
 import com.liferay.ide.sdk.core.SDK;
@@ -26,7 +27,6 @@ import com.liferay.ide.ui.action.AbstractObjectAction;
 
 import java.io.InputStream;
 
-import java.nio.file.Files;
 import java.nio.file.Paths;
 
 import java.util.List;
@@ -191,7 +191,7 @@ public class CleanAppServerAction extends AbstractObjectAction {
 		else {
 			String rootEntryName = null;
 
-			try (InputStream input = Files.newInputStream(Paths.get(bundleZipLocation));
+			try (InputStream input = FileUtil.newInputStream(Paths.get(bundleZipLocation));
 				ZipInputStream zis = new ZipInputStream(input)) {
 
 				ZipEntry rootEntry = zis.getNextEntry();

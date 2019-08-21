@@ -33,8 +33,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
-import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -153,7 +151,7 @@ public class AddHookOperation extends AbstractDataModelOperation implements INew
 			if (FileUtil.exists(originalPortalJspPath)) {
 				File file = originalPortalJspPath.toFile();
 
-				try (InputStream fis = Files.newInputStream(file.toPath())) {
+				try (InputStream fis = FileUtil.newInputStream(file.toPath())) {
 					if (newJspFile.exists()) {
 						newJspFile.setContents(fis, IResource.FORCE, null);
 					}

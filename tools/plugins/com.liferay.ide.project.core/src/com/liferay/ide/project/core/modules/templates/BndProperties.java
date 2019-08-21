@@ -15,6 +15,7 @@
 package com.liferay.ide.project.core.modules.templates;
 
 import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.core.util.FileUtil;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -33,7 +34,6 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
-import java.nio.file.Files;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -129,7 +129,7 @@ public class BndProperties extends Properties {
 	}
 
 	public void load(File bndFile) throws IOException {
-		try (InputStream in = Files.newInputStream(bndFile.toPath())) {
+		try (InputStream in = FileUtil.newInputStream(bndFile.toPath())) {
 			load(in);
 		}
 		catch (Exception e) {

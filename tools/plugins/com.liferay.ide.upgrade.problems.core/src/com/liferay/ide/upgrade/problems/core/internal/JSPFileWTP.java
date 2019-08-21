@@ -14,6 +14,7 @@
 
 package com.liferay.ide.upgrade.problems.core.internal;
 
+import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.upgrade.problems.core.CUCache;
 import com.liferay.ide.upgrade.problems.core.FileSearchResult;
@@ -23,9 +24,7 @@ import com.liferay.ide.upgrade.problems.core.JavaFile;
 import java.io.File;
 import java.io.InputStream;
 
-import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -208,7 +207,7 @@ public class JSPFileWTP extends JavaFileJDT implements JSPFile {
 
 			IModelManager modelManager = StructuredModelManager.getModelManager();
 
-			try (InputStream input = Files.newInputStream(Paths.get(jspFile.toURI()), StandardOpenOption.READ)) {
+			try (InputStream input = FileUtil.newInputStream(Paths.get(jspFile.toURI()))) {
 				jspModel = (IDOMModel)modelManager.getModelForRead(jspFile.getAbsolutePath(), input, null);
 			}
 
@@ -250,7 +249,7 @@ public class JSPFileWTP extends JavaFileJDT implements JSPFile {
 
 			IModelManager modelManager = StructuredModelManager.getModelManager();
 
-			try (InputStream input = Files.newInputStream(Paths.get(jspFile.toURI()), StandardOpenOption.READ)) {
+			try (InputStream input = FileUtil.newInputStream(Paths.get(jspFile.toURI()))) {
 				jspModel = (IDOMModel)modelManager.getModelForRead(jspFile.getAbsolutePath(), input, null);
 			}
 
@@ -281,7 +280,7 @@ public class JSPFileWTP extends JavaFileJDT implements JSPFile {
 
 			IModelManager modelManager = StructuredModelManager.getModelManager();
 
-			try (InputStream input = Files.newInputStream(Paths.get(jspFile.toURI()), StandardOpenOption.READ)) {
+			try (InputStream input = FileUtil.newInputStream(Paths.get(jspFile.toURI()))) {
 				jspModel = (IDOMModel)modelManager.getModelForRead(jspFile.getAbsolutePath(), input, null);
 			}
 

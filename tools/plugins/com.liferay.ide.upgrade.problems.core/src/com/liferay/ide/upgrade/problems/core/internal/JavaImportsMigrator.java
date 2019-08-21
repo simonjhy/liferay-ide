@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -108,7 +106,7 @@ public abstract class JavaImportsMigrator extends AbstractFileMigrator<JavaFile>
 		if (ListUtil.isNotEmpty(importsToRewrite)) {
 			List<Artifact> needToAddDependencies = new ArrayList<>();
 
-			try (InputStream inputStream = Files.newInputStream(file.toPath())) {
+			try (InputStream inputStream = FileUtil.newInputStream(file.toPath())) {
 				String[] lines = _readLines(inputStream);
 
 				String[] editedLines = new String[lines.length];

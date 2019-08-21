@@ -23,8 +23,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -91,7 +89,7 @@ public class LayeredModulePathFactory {
 			return Collections.emptyList();
 		}
 
-		InputStream is = Files.newInputStream(file.toPath());
+		InputStream is = FileUtil.newInputStream(file.toPath());
 
 		try {
 			return readRefs(is);
@@ -236,7 +234,7 @@ public class LayeredModulePathFactory {
 
 		Reader reader = null;
 
-		try (InputStream inputStream = Files.newInputStream(layersList.toPath())) {
+		try (InputStream inputStream = FileUtil.newInputStream(layersList.toPath())) {
 			reader = new InputStreamReader(inputStream, "UTF-8");
 
 			Properties props = new Properties();

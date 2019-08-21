@@ -29,8 +29,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import java.nio.file.Files;
-
 import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
@@ -236,7 +234,7 @@ public abstract class AbstractPortalBundle implements PortalBundle {
 		Properties properties = new Properties();
 
 		if (FileUtil.exists(configInfoFile)) {
-			try (InputStream fileInput = Files.newInputStream(configInfoFile.toPath())) {
+			try (InputStream fileInput = FileUtil.newInputStream(configInfoFile.toPath())) {
 				properties.load(fileInput);
 
 				String configInfo = (String)properties.get(portalDirKey);
@@ -359,13 +357,13 @@ public abstract class AbstractPortalBundle implements PortalBundle {
 
 				Properties properties = new Properties();
 
-				try (InputStream fileInput = Files.newInputStream(versionInfoFile.toPath())) {
+				try (InputStream fileInput = FileUtil.newInputStream(versionInfoFile.toPath())) {
 					properties.load(fileInput);
 				}
 				catch (Exception e) {
 				}
 
-				try (OutputStream fileOutput = Files.newOutputStream(versionInfoFile.toPath())) {
+				try (OutputStream fileOutput = FileUtil.newOutputStream(versionInfoFile.toPath())) {
 					properties.put(portalDirKey, configInfo);
 					properties.store(fileOutput, StringPool.EMPTY);
 				}

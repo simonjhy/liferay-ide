@@ -112,7 +112,7 @@ public class WatchTaskAction extends AbstractObjectAction {
 							for (Path bndPath : bndPaths) {
 								Properties properties = new Properties();
 
-								try (InputStream in = Files.newInputStream(bndPath)) {
+								try (InputStream in = FileUtil.newInputStream(bndPath)) {
 									properties.load(in);
 
 									String bsn = properties.getProperty("Bundle-SymbolicName");

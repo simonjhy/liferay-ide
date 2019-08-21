@@ -41,8 +41,6 @@ import java.io.Writer;
 
 import java.net.URL;
 
-import java.nio.file.Files;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -292,7 +290,7 @@ public abstract class AbstractLiferayComponentTemplate
 
 		initBndProperties(bndFile, bndProperty);
 
-		try (OutputStream out = Files.newOutputStream(bndFile.toPath())) {
+		try (OutputStream out = FileUtil.newOutputStream(bndFile.toPath())) {
 			setBndProperties(bndProperty);
 
 			bndProperty.store(out, null);
@@ -317,7 +315,7 @@ public abstract class AbstractLiferayComponentTemplate
 	protected void doSourceCodeOperation(IFile srcFile) throws CoreException {
 		File file = FileUtil.getFile(srcFile);
 
-		try (OutputStream fos = Files.newOutputStream(file.toPath()); Writer out = new OutputStreamWriter(fos)) {
+		try (OutputStream fos = FileUtil.newOutputStream(file.toPath()); Writer out = new OutputStreamWriter(fos)) {
 			Template temp = cfg.getTemplate(getTemplateFile());
 
 			Map<String, Object> root = getTemplateMap();
