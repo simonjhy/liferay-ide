@@ -43,11 +43,8 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.nio.file.Files;
-
 import java.text.MessageFormat;
-
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -68,7 +65,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -90,6 +86,7 @@ import org.eclipse.jdt.internal.launching.StandardVMType;
 import org.eclipse.jdt.launching.IVMInstall;
 import org.eclipse.jdt.launching.IVMInstallType;
 import org.eclipse.jdt.launching.JavaRuntime;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.wst.common.componentcore.ComponentCore;
 import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.project.facet.core.IFacetedProject;
@@ -106,10 +103,8 @@ import org.eclipse.wst.server.core.IServerType;
 import org.eclipse.wst.server.core.IServerWorkingCopy;
 import org.eclipse.wst.server.core.ServerCore;
 import org.eclipse.wst.server.core.internal.ServerPlugin;
-
 import org.osgi.framework.Constants;
 import org.osgi.framework.Version;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -201,8 +196,7 @@ public class ServerUtil {
 
 		IRuntimeWorkingCopy runtimeWC = portalRuntimeType.createRuntime(null, monitor);
 
-		serverRuntimeName = _setRuntimeName(runtimeWC, serverRuntimeName, -1);
-
+		runtimeWC.setName(serverRuntimeName);
 		runtimeWC.setLocation(location);
 
 		runtimeWC.save(true, monitor);
@@ -1182,6 +1176,28 @@ public class ServerUtil {
 		return true;
 	}
 
+	public static void setRuntimeName(IRuntimeWorkingCopy runtime, int suffix, String projectName) {
+		if (runtime == null) {
+			return;
+		}
+
+		IRuntimeType runtimeType = runtime.getRuntimeType();
+
+		String runtimeName = runtimeType.getName() + " " + projectName;
+
+		if (suffix == -1) {
+			runtimeName = NLS.bind(Msgs.defaultRuntimeName, runtimeName);
+		}
+		else {
+			runtimeName = NLS.bind(
+				Msgs.defaultRuntimeNameWithSuffix, new String[] {runtimeName, String.valueOf(suffix)});
+		}
+
+		runtimeName = _verifyRuntimeName(runtime, runtimeName, suffix);
+
+		runtime.setName(runtimeName);
+	}
+
 	public static void setupPortalDevelopModeConfiguration(PortalRuntime portalRuntime, PortalServer portalServer) {
 		boolean customLaunchSettings = portalServer.getCustomLaunchSettings();
 
@@ -1306,29 +1322,10 @@ public class ServerUtil {
 
 	private static String _formateRuntimeName(String runtimeName, int suffix) {
 		if (suffix != -1) {
-			return MessageFormat.format("{0}({1})", runtimeName, String.valueOf(suffix));
+			return NLS.bind(Msgs.defaultRuntimeNameWithSuffix, new String[] {runtimeName, String.valueOf(suffix)});
 		}
 
-		return MessageFormat.format("{0}", runtimeName);
-	}
-
-	private static String _setRuntimeName(IRuntimeWorkingCopy runtime, String runtimeName, int suffix) {
-		if (runtime == null) {
-			return null;
-		}
-
-		if (suffix == -1) {
-			runtimeName = MessageFormat.format("{0}", runtimeName);
-		}
-		else {
-			runtimeName = MessageFormat.format("{0}({1})", runtimeName, String.valueOf(suffix));
-		}
-
-		runtimeName = _verifyRuntimeName(runtime, runtimeName, suffix);
-
-		runtime.setName(runtimeName);
-
-		return runtimeName;
+		return NLS.bind(Msgs.defaultRuntimeName, new String[] {runtimeName});
 	}
 
 	private static String _verifyRuntimeName(IRuntimeWorkingCopy runtime, String runtimeName, int suffix) {
@@ -1360,4 +1357,14 @@ public class ServerUtil {
 		return name;
 	}
 
+	private static class Msgs extends NLS {
+
+		public static String defaultRuntimeName;
+		public static String defaultRuntimeNameWithSuffix;
+
+		static {
+			initializeMessages(ServerUtil.class.getName(), Msgs.class);
+		}
+
+	}
 }
