@@ -18,13 +18,6 @@ package com.liferay.ide.project.core.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import com.liferay.ide.core.util.ZipUtil;
-import com.liferay.ide.project.core.ProjectRecord;
-import com.liferay.ide.project.core.util.ProjectImportUtil;
-import com.liferay.ide.project.core.util.ProjectUtil;
-import com.liferay.ide.sdk.core.SDKManager;
-import com.liferay.ide.server.util.ServerUtil;
-
 import java.io.File;
 import java.net.URL;
 
@@ -35,10 +28,16 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.wst.server.core.IRuntime;
 import org.eclipse.wst.server.core.ServerCore;
 import org.junit.AfterClass;
+
+import com.liferay.ide.core.util.CoreUtil;
+import com.liferay.ide.core.util.ZipUtil;
+import com.liferay.ide.project.core.ProjectRecord;
+import com.liferay.ide.project.core.util.ProjectUtil;
 
 /**
  * @author Kuo Zhang
@@ -70,8 +69,7 @@ public class XmlTestsBase extends ProjectCoreBase
     @Override
     protected IProject importProject( String path, String bundleId, String projectName ) throws Exception
     {
-        final IPath sdkLocation = SDKManager.getInstance().getDefaultSDK().getLocation();
-        final IPath projectFolder = sdkLocation.append( path );
+    	IPath projectFolder = CoreUtil.getWorkspaceRoot().getLocation();
 
         final URL projectZipUrl =
             Platform.getBundle( bundleId ).getEntry( "projects/" + projectName + ".zip" );
@@ -89,8 +87,7 @@ public class XmlTestsBase extends ProjectCoreBase
         final IRuntime runtime = ServerCore.findRuntime( getRuntimeVersion() );
         assertNotNull( runtime );
 
-        final IProject project = ProjectImportUtil.importProject(
-            projectRecord, ServerUtil.getFacetRuntime( runtime ), sdkLocation.toOSString(),new NullProgressMonitor() );
+        final IProject project = CoreUtil.openProject(projectRecord.getProjectName(), projectRecord.getProjectLocation(), new NullProgressMonitor() );
 
         assertNotNull( project );
 
