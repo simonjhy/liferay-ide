@@ -27,7 +27,6 @@ import com.google.common.collect.Lists;
 import com.liferay.blade.gradle.tooling.ProjectInfo;
 import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.gradle.core.LiferayGradleCore;
-import com.liferay.ide.project.core.ProjectCore;
 import com.liferay.ide.project.core.util.LiferayWorkspaceUtil;
 import com.liferay.ide.server.core.portal.docker.PortalDockerRuntime;
 import com.liferay.ide.server.core.portal.docker.PortalDockerServer;
@@ -36,7 +35,6 @@ import com.liferay.ide.server.util.ServerUtil;
 
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
@@ -53,6 +51,20 @@ import org.eclipse.wst.server.core.ServerCore;
  */
 public class InitDockerBundleTaskAction extends GradleTaskAction {
 
+	public void run(IAction action) {
+		_projectInfo = LiferayGradleCore.getToolingModel(ProjectInfo.class, project);
+
+		if ((_projectInfo != null) && (_projectInfo.getDockerImageId() != null) &&
+			(_projectInfo.getDockerContainerId() != null)) {
+
+			super.run(action);
+		}
+		else {
+			LiferayGradleCore.log(
+				LiferayGradleCore.createErrorStatus("Please check liferay gradle workspace plugin setting."));
+		}
+	}
+
 	@Override
 	public void selectionChanged(IAction action, ISelection selection) {
 		super.selectionChanged(action, selection);
@@ -61,12 +73,12 @@ public class InitDockerBundleTaskAction extends GradleTaskAction {
 	}
 
 	protected void afterAction() {
-		_addPortalRuntimeAndServer(project, null);
+		_addPortalRuntimeAndServer(null);
 	}
 
 	@Override
 	protected void beforeAction() {
-		_deleteWorkspaceDockerServerAndRuntime(project);
+		_deleteWorkspaceDockerServerAndRuntime();
 	}
 
 	@Override
@@ -74,9 +86,7 @@ public class InitDockerBundleTaskAction extends GradleTaskAction {
 		return "createDockerContainer";
 	}
 
-	private void _addPortalRuntimeAndServer(IProject project, IProgressMonitor monitor) {
-		_projectInfo = LiferayGradleCore.getToolingModel(ProjectInfo.class, project);
-
+	private void _addPortalRuntimeAndServer(IProgressMonitor monitor) {
 		try (DockerClient dockerClient = LiferayDockerClient.getDockerClient()) {
 			ListImagesCmd listImagesCmd = dockerClient.listImagesCmd();
 
@@ -131,13 +141,11 @@ public class InitDockerBundleTaskAction extends GradleTaskAction {
 			}
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			LiferayGradleCore.logError("Failed to add server and runtime", e);
 		}
 	}
 
-	private void _deleteWorkspaceDockerServerAndRuntime(IProject project) {
-		_projectInfo = LiferayGradleCore.getToolingModel(ProjectInfo.class, project);
-
+	private void _deleteWorkspaceDockerServerAndRuntime() {
 		String dockerContainerName = _projectInfo.getDockerContainerId();
 
 		try (DockerClient dockerClient = LiferayDockerClient.getDockerClient()) {
@@ -193,7 +201,7 @@ public class InitDockerBundleTaskAction extends GradleTaskAction {
 			}
 		}
 		catch (Exception e) {
-			ProjectCore.logError("Failed to delete server and runtime", e);
+			LiferayGradleCore.logError("Failed to delete server and runtime", e);
 		}
 	}
 
