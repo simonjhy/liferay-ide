@@ -49,12 +49,9 @@ import org.eclipse.wst.validation.internal.operations.ValidatorManager;
 import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.JobUtil;
 import com.liferay.ide.core.util.ZipUtil;
-import com.liferay.ide.project.core.ProjectCore;
 import com.liferay.ide.project.core.ProjectRecord;
-import com.liferay.ide.project.core.util.ProjectImportUtil;
 import com.liferay.ide.project.core.util.ProjectUtil;
 import com.liferay.ide.server.core.tests.ServerCoreBase;
-import com.liferay.ide.server.util.ServerUtil;
 
 /**
  * @author Gregory Amerson
@@ -93,7 +90,7 @@ public class ProjectCoreBase extends ServerCoreBase
         }
     }
 
-    protected IProject importProject( String path, String bundleId, String projectName ) throws Exception
+    protected IProject importProject(String bundleId, String projectName ) throws Exception
     {
     	IPath projectFolder = CoreUtil.getWorkspaceRoot().getLocation();
 
@@ -207,26 +204,28 @@ public class ProjectCoreBase extends ServerCoreBase
         return customLocationBase;
     }
 
-    protected IPath getIvyCacheZip()
-    {
-        return getLiferayBundlesPath().append( "ivy-cache-7.0.zip" );
-    }
-
-    protected IPath getLiferayPluginsSdkDir()
-    {
-        return ProjectCore.getDefault().getStateLocation().append( "liferay-plugins-sdk-6.2" );
-    }
-
     protected IPath getLiferayPluginsSDKZip()
     {
-        return getLiferayBundlesPath().append( "liferay-plugins-sdk-6.2-ce-ga6-20171101150212422.zip" );
+        return getLiferayBundlesPath().append( "liferay-ce-portal-tomcat-7.1.0-ga1-20180703012531655.zip" );
     }
 
     protected String getLiferayPluginsSdkZipFolder()
     {
-        return "liferay-plugins-sdk-6.2/";
+        return "liferay-ce-portal-7.1.0-ga1/";
     }
 
+    protected IProject getProject(String projectName ) throws Exception
+    {
+        IProject project = CoreUtil.getWorkspaceRoot().getProject( projectName );
+
+        if( project != null && project.exists() )
+        {
+            return project;
+        }
+
+        return importProject( getBundleId(), projectName );
+    }    
+    
     protected File getProjectZip( String bundleId, String projectName ) throws IOException
     {
         final URL projectZipUrl =

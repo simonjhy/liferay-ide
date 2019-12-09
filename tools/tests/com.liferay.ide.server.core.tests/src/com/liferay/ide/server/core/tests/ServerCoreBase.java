@@ -186,22 +186,22 @@ public abstract class ServerCoreBase extends BaseTests
 
     protected IPath getLiferayRuntimeDir()
     {
-        return ProjectCore.getDefault().getStateLocation().append( "liferay-portal-6.2-ce-ga6/tomcat-7.0.62" );
+        return ProjectCore.getDefault().getStateLocation().append( "liferay-ce-portal-7.1.0-ga1/tomcat-9.0.6" );
     }
 
     protected IPath getLiferayRuntimeZip()
     {
-        return getLiferayBundlesPath().append( "liferay-portal-tomcat-6.2-ce-ga6-20160112152609836.zip" );
+        return getLiferayBundlesPath().append( "liferay-ce-portal-tomcat-7.1.0-ga1-20180703012531655.zip" );
     }
 
     protected String getRuntimeId()
     {
-        return "com.liferay.ide.server.62.tomcat.runtime.70";
+        return "com.liferay.ide.server.portal.runtime";
     }
 
     public String getRuntimeVersion()
     {
-        return "6.2.5";
+        return "7.1.0";
     }
 
     public IServer getServer() throws Exception

@@ -19,4 +19,5 @@ Require-Bundle: com.liferay.ide.core,
  org.junit
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Export-Package: com.liferay.ide.server.core.tests
+Export-Package: com.liferay.ide.server.core.tests,
+ com.liferay.ide.server.core.tests.files

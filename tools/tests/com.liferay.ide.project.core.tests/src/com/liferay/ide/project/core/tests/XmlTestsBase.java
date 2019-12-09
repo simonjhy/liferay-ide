@@ -28,7 +28,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.wst.server.core.IRuntime;
 import org.eclipse.wst.server.core.ServerCore;
@@ -67,7 +66,7 @@ public class XmlTestsBase extends ProjectCoreBase
     }
 
     @Override
-    protected IProject importProject( String path, String bundleId, String projectName ) throws Exception
+    protected IProject importProject( String bundleId, String projectName ) throws Exception
     {
     	IPath projectFolder = CoreUtil.getWorkspaceRoot().getLocation();
 

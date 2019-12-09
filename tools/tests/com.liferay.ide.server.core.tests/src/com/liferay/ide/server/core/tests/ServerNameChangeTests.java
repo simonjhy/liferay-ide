@@ -30,6 +30,7 @@ import org.eclipse.wst.server.core.IServerWorkingCopy;
 import org.eclipse.wst.server.core.ServerCore;
 import org.eclipse.wst.server.core.internal.ServerWorkingCopy;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.liferay.ide.core.util.ZipUtil;
@@ -219,8 +220,6 @@ public class ServerNameChangeTests extends ServerCoreBase
 
         setupRuntime( getLiferayTomcatRuntimeZip(), getLiferayTomcatRuntimeDir(), getTomcatRuntimeName(), getLiferayTomcatUnzipRuntimeDir(),getRuntimeId() );
         setupRuntime( getLiferayWildflyRuntimeZip(), getLiferayWildflyRuntimeDir(), getWildflyRuntimeName(), getLiferayWildflyUnzipRuntimeDir(), getRuntimeId() );
-        setup62Runtime( getLiferayTomcat62RuntimeZip(), getLiferayTomcat62RuntimeDir(), getTomcat62RuntimeName(), getLiferayTomcat62UnzipRuntimeDir(), get62RuntimeId() );
-        setup62Runtime( getLiferayTomcat62RuntimeZip(), getLiferayTomcat62RuntimeDir(), getTomcat62DumyRuntimeName(), getLiferayTomcat62DumyUnzipRuntimeDir(), get62RuntimeId() );
     }
 
     @Test
@@ -247,6 +246,7 @@ public class ServerNameChangeTests extends ServerCoreBase
         assertEquals( "Liferay CE GA5 Wildfly at localhost", newServer.getName() );
     }
 
+    @Ignore
     @Test
     public void testPortalServiceDelegate62Name() throws Exception 
     {

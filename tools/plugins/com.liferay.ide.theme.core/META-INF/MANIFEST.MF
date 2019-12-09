@@ -22,6 +22,5 @@ Require-Bundle: com.liferay.ide.core,
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: com.liferay.ide.theme.core,
- com.liferay.ide.theme.core.facet,
  com.liferay.ide.theme.core.operation,
  com.liferay.ide.theme.core.util
