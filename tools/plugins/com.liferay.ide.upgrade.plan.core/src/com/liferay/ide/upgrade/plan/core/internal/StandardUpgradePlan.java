@@ -55,8 +55,8 @@ public class StandardUpgradePlan implements UpgradePlan {
 	}
 
 	@Override
-	public void addIgnoredProblems(Collection<UpgradeProblem> ignoredProblems) {
-		_ignoredProblems.addAll(ignoredProblems);
+	public void addIgnoredProblem(UpgradeProblem ignoredProblem) {
+		_ignoredProblems.add(ignoredProblem);
 	}
 
 	@Override
@@ -206,6 +206,11 @@ public class StandardUpgradePlan implements UpgradePlan {
 		}
 
 		return false;
+	}
+
+	@Override
+	public void removeIgnoredProblem(UpgradeProblem ignoredProblem) {
+		_ignoredProblems.remove(ignoredProblem);
 	}
 
 	@SuppressWarnings("serial")

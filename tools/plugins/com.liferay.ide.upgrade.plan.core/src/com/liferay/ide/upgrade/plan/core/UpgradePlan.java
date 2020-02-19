@@ -25,7 +25,7 @@ import java.util.Map;
  */
 public interface UpgradePlan {
 
-	public void addIgnoredProblems(Collection<UpgradeProblem> ignoredProblems);
+	public void addIgnoredProblem(UpgradeProblem ignoredProblem);
 
 	public void addUpgradeProblems(Collection<UpgradeProblem> upgradeProblems);
 
@@ -46,5 +46,7 @@ public interface UpgradePlan {
 	public List<UpgradeStep> getUpgradeSteps();
 
 	public List<String> getUpgradeVersions();
+
+	public void removeIgnoredProblem(UpgradeProblem ignoredProblem);
 
 }

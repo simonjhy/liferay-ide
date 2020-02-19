@@ -16,6 +16,7 @@ package com.liferay.ide.upgrade.problems.core.internal.commands;
 
 import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.core.util.ListUtil;
+import com.liferay.ide.core.util.StringUtil;
 import com.liferay.ide.upgrade.plan.core.MessagePrompt;
 import com.liferay.ide.upgrade.plan.core.ResourceSelection;
 import com.liferay.ide.upgrade.plan.core.UpgradeCommand;
@@ -40,6 +41,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -151,19 +153,6 @@ public class AutoCorrectFindUpgradeProblemsCommand implements UpgradeCommand, Up
 
 		Collection<UpgradeProblem> upgradeProblems = upgradePlan.getUpgradeProblems();
 
-		Collection<UpgradeProblem> ignoredProblems = upgradePlan.getIgnoredProblems();
-
-		if ((ignoredProblems == null) || ignoredProblems.isEmpty()) {
-			Set<UpgradeProblem> ignoredProblemSet = upgradeProblems.stream(
-			).filter(
-				problem -> UpgradeProblem.STATUS_IGNORE == problem.getStatus()
-			).collect(
-				Collectors.toSet()
-			);
-
-			upgradePlan.addIgnoredProblems(ignoredProblemSet);
-		}
-
 		if (ListUtil.isNotEmpty(upgradeProblems)) {
 			boolean result = _messagePrompt.promptQuestion(
 				"Remove the found results?",
@@ -173,7 +162,14 @@ public class AutoCorrectFindUpgradeProblemsCommand implements UpgradeCommand, Up
 				return Collections.emptyList();
 			}
 
-			removeMarkers(upgradeProblems);
+			Stream<UpgradeProblem> stream = upgradeProblems.stream();
+
+			removeMarkers(
+				stream.filter(
+					problem -> StringUtil.equals(problem.getAutoCorrectContext(), "auto.correct")
+				).collect(
+					Collectors.toSet()
+				));
 
 			upgradeProblems.clear();
 		}
@@ -187,6 +183,8 @@ public class AutoCorrectFindUpgradeProblemsCommand implements UpgradeCommand, Up
 			return Collections.emptyList();
 		}
 
+		Collection<UpgradeProblem> ignoreUpradeProblems = upgradePlan.getIgnoredProblems();
+
 		return projects.stream(
 		).map(
 			FileUtil::getFile
@@ -196,7 +194,7 @@ public class AutoCorrectFindUpgradeProblemsCommand implements UpgradeCommand, Up
 		).flatMap(
 			findProblems -> findProblems.stream()
 		).filter(
-			findProblem -> ListUtil.notContains((Set<UpgradeProblem>)upgradePlan.getIgnoredProblems(), findProblem)
+			findProblem -> ListUtil.notContains((Set<UpgradeProblem>)ignoreUpradeProblems, findProblem)
 		).collect(
 			Collectors.toList()
 		);

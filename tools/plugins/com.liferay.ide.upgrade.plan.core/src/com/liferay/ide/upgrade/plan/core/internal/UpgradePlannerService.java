@@ -435,6 +435,13 @@ public class UpgradePlannerService implements UpgradePlanner {
 		);
 
 		upgradePlan.addUpgradeProblems(upgradeProblems);
+
+		upgradeProblems.stream(
+		).filter(
+			problem -> problem.getStatus() == UpgradeProblem.STATUS_IGNORE
+		).forEach(
+			problem -> upgradePlan.addIgnoredProblem(problem)
+		);
 	}
 
 	private void _loadUpgradeSteps(IMemento memento, List<UpgradeStep> upgradeSteps, UpgradeStep parentUpgradeStep) {
@@ -472,6 +479,8 @@ public class UpgradePlannerService implements UpgradePlanner {
 		memento.removeChildren("upgradeProblem");
 
 		Collection<UpgradeProblem> upgradeProblems = upgradePlan.getUpgradeProblems();
+
+		upgradeProblems.addAll(upgradePlan.getIgnoredProblems());
 
 		for (UpgradeProblem upgradeProblem : upgradeProblems) {
 			IMemento upgradeProblemMemento = memento.createChild("upgradeProblem");
