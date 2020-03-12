@@ -27,12 +27,15 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.sapphire.modeling.Path;
 import org.eclipse.sapphire.platform.PathBridge;
 
 /**
  * @author Joye Luo
+<<<<<<< HEAD
  * @author Simon Jiang
+=======
+ * @author Seiphon Wang
+>>>>>>> IDE-4729 project location should include project name
  */
 public class MavenModuleFragmentProjectProvider
 	extends LiferayMavenProjectProvider implements NewLiferayProjectProvider<NewModuleFragmentOp> {
@@ -45,7 +48,7 @@ public class MavenModuleFragmentProjectProvider
 
 		String projectName = get(op.getProjectName());
 
-		Path location = get(op.getLocation());
+		IPath location = PathBridge.create(get(op.getLocation()));
 
 		String[] bsnAndVersion = NewModuleFragmentOpMethods.getBsnAndVersion(op);
 
@@ -57,9 +60,11 @@ public class MavenModuleFragmentProjectProvider
 		sb.append("create ");
 		sb.append("-d \"");
 
-		File file = location.toFile();
+		IPath targetDirPath = location.removeLastSegments(1);
 
-		sb.append(file.getAbsolutePath());
+		File targetDir = targetDirPath.toFile();
+
+		sb.append(targetDir.getAbsolutePath());
 
 		sb.append("\" ");
 		sb.append("-b ");
@@ -92,15 +97,11 @@ public class MavenModuleFragmentProjectProvider
 
 		NewModuleFragmentOpMethods.copyOverrideFiles(op);
 
-		IPath l = PathBridge.create(location);
-
-		IPath projectLocation = l.append(projectName);
-
 		NewModuleFragmentOpMethods.storeRuntimeInfo(op);
 
-		CoreUtil.openProject(projectName, projectLocation, monitor);
+		CoreUtil.openProject(projectName, location, monitor);
 
-		MavenUtil.updateProjectConfiguration(projectName, projectLocation.toOSString(), monitor);
+		MavenUtil.updateProjectConfiguration(projectName, location.toOSString(), monitor);
 
 		return retval;
 	}

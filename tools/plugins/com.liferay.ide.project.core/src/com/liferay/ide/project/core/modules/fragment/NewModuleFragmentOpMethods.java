@@ -59,12 +59,11 @@ import org.eclipse.wst.server.core.IRuntime;
  * @author Charles Wu
  * @author Ethan Sun
  * @author Simon Jiang
+ * @author Seiphon Wang
  */
 public class NewModuleFragmentOpMethods {
 
 	public static void copyOverrideFiles(NewModuleFragmentOp op) {
-		String projectName = _getter.get(op.getProjectName());
-
 		IPath location = PathBridge.create(_getter.get(op.getLocation()));
 
 		ElementList<OverrideFilePath> files = op.getOverrideFiles();
@@ -79,9 +78,7 @@ public class NewModuleFragmentOpMethods {
 			File folder = null;
 
 			if (FileUtil.nameEquals(fragmentFile, "portlet.properties")) {
-				IPath path = location.append(projectName);
-
-				path = path.append("src/main/java");
+				IPath path = location.append("src/main/java");
 
 				folder = path.toFile();
 
@@ -98,9 +95,7 @@ public class NewModuleFragmentOpMethods {
 
 				parent = parent.substring(parent.indexOf(metaInfResources) + metaInfResources.length());
 
-				IPath resources = location.append(projectName);
-
-				resources = resources.append("src/main/resources/resource-actions");
+				IPath resources = location.append("src/main/resources/resource-actions");
 
 				folder = resources.toFile();
 
@@ -115,9 +110,7 @@ public class NewModuleFragmentOpMethods {
 				FileUtil.copyFileToDir(fragmentFile, "default-ext.xml", folder);
 
 				try {
-					IPath p = location.append(projectName);
-
-					File ext = new File(p.append("src/main/resources") + "/portlet-ext.properties");
+					File ext = new File(location.append("src/main/resources") + "/portlet-ext.properties");
 
 					ext.createNewFile();
 
@@ -140,9 +133,7 @@ public class NewModuleFragmentOpMethods {
 
 				parentPath = parentPath.substring(parentPath.indexOf(metaInfResources) + metaInfResources.length());
 
-				IPath resources = location.append(projectName);
-
-				resources = resources.append("src/main/resources/META-INF/resources");
+				IPath resources = location.append("src/main/resources/META-INF/resources");
 
 				folder = resources.toFile();
 
