@@ -66,7 +66,7 @@ public class TargetLiferayVersionListener
 			}
 		}
 
-		op.setTargetPlatform(WorkspaceConstants.liferayTargetPlatformVersions.get(liferayVersion)[0]);
+//		op.setTargetPlatform(WorkspaceConstants.liferayTargetPlatformVersions.get(liferayVersion)[0]);
 	}
 
 }
