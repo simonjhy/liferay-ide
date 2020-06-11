@@ -121,7 +121,7 @@ public interface NewLiferayWorkspaceOp extends BaseLiferayWorkspaceOp {
 	public ValueProperty PROP_SERVER_NAME = new ValueProperty(TYPE, BaseLiferayWorkspaceOp.PROP_SERVER_NAME);
 
 	@DefaultValue(text = "false")
-	@Label(standard = "show all version product")
+	@Label(standard = "Show All Version Product")
 	@Type(base = Boolean.class)
 	public ValueProperty PROP_SHOW_ALL_VERSION_PRODUCT = new ValueProperty(TYPE, "ShowAllVersionProduct");
 

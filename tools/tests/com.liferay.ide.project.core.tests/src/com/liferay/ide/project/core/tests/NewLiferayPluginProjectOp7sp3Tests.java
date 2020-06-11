@@ -229,6 +229,7 @@ public class NewLiferayPluginProjectOp7sp3Tests extends NewLiferayPluginProjectO
     }
 
     @Test
+    @Ignore
     public void testNewExtAntProjectNotSupportedWithWorkspaceSDK() throws Exception
     {
         if( shouldSkipBundleTests() )

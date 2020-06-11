@@ -14,20 +14,13 @@
 
 package com.liferay.ide.project.core.service;
 
-import com.liferay.ide.core.util.SapphireUtil;
-import com.liferay.ide.project.core.util.WorkspaceProductInfoUtil;
+import com.liferay.ide.project.core.util.WorkspaceProductInfo;
 import com.liferay.ide.project.core.workspace.NewLiferayWorkspaceOp;
 
 import java.util.Set;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.sapphire.DefaultValueService;
-import org.eclipse.sapphire.FilteredListener;
 import org.eclipse.sapphire.PossibleValuesService;
-import org.eclipse.sapphire.PropertyContentEvent;
 import org.eclipse.sapphire.Value;
 
 /**
@@ -54,40 +47,20 @@ public class ProductCategoryDefaultValueService extends DefaultValueService {
 
 	@Override
 	protected void initDefaultValueService() {
-		_listener = new FilteredListener<PropertyContentEvent>() {
+		_productInfo.startWorkspaceProductDownload(
+			new Runnable() {
 
-			@Override
-			protected void handleTypedEvent(PropertyContentEvent event) {
-				refresh();
-			}
+				@Override
+				public void run() {
+					refresh();
+				}
 
-		};
+			});
 
 		_op = context(NewLiferayWorkspaceOp.class);
-
-		SapphireUtil.attachListener(_op.property(NewLiferayWorkspaceOp.PROP_PRODUCT_CATEGORY), _listener);
-
-		if (!WorkspaceProductInfoUtil.workspaceCacheFile.exists()) {
-			_job.addJobChangeListener(
-				new JobChangeAdapter() {
-
-					@Override
-					public void done(final IJobChangeEvent event) {
-						IStatus status = event.getResult();
-
-						if (status.isOK()) {
-							refresh();
-						}
-					}
-
-				});
-
-			WorkspaceProductInfoUtil.downloadProductInfo();
-		}
 	}
 
-	private Job _job = WorkspaceProductInfoUtil.job;
-	private FilteredListener<PropertyContentEvent> _listener;
 	private NewLiferayWorkspaceOp _op;
+	private WorkspaceProductInfo _productInfo = WorkspaceProductInfo.getInstance();
 
 }

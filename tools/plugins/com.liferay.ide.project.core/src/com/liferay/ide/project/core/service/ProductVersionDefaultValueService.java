@@ -14,9 +14,10 @@
 
 package com.liferay.ide.project.core.service;
 
+import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.core.util.SapphireContentAccessor;
 import com.liferay.ide.core.util.SapphireUtil;
-import com.liferay.ide.project.core.util.WorkspaceProductInfoUtil;
+import com.liferay.ide.project.core.util.WorkspaceProductInfo;
 import com.liferay.ide.project.core.workspace.NewLiferayWorkspaceOp;
 
 import java.util.List;
@@ -34,6 +35,7 @@ public class ProductVersionDefaultValueService extends DefaultValueService imple
 	public void dispose() {
 		if (_op != null) {
 			SapphireUtil.detachListener(_op.property(NewLiferayWorkspaceOp.PROP_PRODUCT_CATEGORY), _listener);
+			SapphireUtil.detachListener(_op.property(NewLiferayWorkspaceOp.PROP_SHOW_ALL_VERSION_PRODUCT), _listener);
 		}
 
 		super.dispose();
@@ -44,43 +46,49 @@ public class ProductVersionDefaultValueService extends DefaultValueService imple
 		String category = get(_op.getProductCategory());
 
 		if (category != null) {
-			List<String> productVersionsList = WorkspaceProductInfoUtil.getProductVersionList(
+			List<String> productVersionsList = _productInfo.getProductVersionList(
 				category, get(_op.getShowAllVersionProduct()));
 
 			productVersionsList.sort(String::compareTo);
 
-			return productVersionsList.get(productVersionsList.size() - 1);
+			if (ListUtil.isNotEmpty(productVersionsList)) {
+				return productVersionsList.get(productVersionsList.size() - 1);
+			}
 		}
 
-		return null;
+		return "";
 	}
 
 	@Override
 	protected void initDefaultValueService() {
+		_op = context(NewLiferayWorkspaceOp.class);
+
 		_listener = new FilteredListener<PropertyContentEvent>() {
 
 			@Override
 			protected void handleTypedEvent(PropertyContentEvent event) {
 				String category = get(_op.getProductCategory());
 
-				List<String> productVersionsList = WorkspaceProductInfoUtil.getProductVersionList(
+				List<String> productVersionsList = _productInfo.getProductVersionList(
 					category, get(_op.getShowAllVersionProduct()));
 
 				productVersionsList.sort(String::compareTo);
 
-				_op.setProductVersion(productVersionsList.get(productVersionsList.size() - 1));
+				if (ListUtil.isNotEmpty(productVersionsList)) {
+					_op.setProductVersion(productVersionsList.get(productVersionsList.size() - 1));
+				}
 
 				refresh();
 			}
 
 		};
 
-		_op = context(NewLiferayWorkspaceOp.class);
-
 		SapphireUtil.attachListener(_op.property(NewLiferayWorkspaceOp.PROP_PRODUCT_CATEGORY), _listener);
+		SapphireUtil.attachListener(_op.property(NewLiferayWorkspaceOp.PROP_SHOW_ALL_VERSION_PRODUCT), _listener);
 	}
 
 	private FilteredListener<PropertyContentEvent> _listener;
 	private NewLiferayWorkspaceOp _op;
+	private WorkspaceProductInfo _productInfo = WorkspaceProductInfo.getInstance();
 
 }

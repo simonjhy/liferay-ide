@@ -14,15 +14,10 @@
 
 package com.liferay.ide.project.core.service;
 
-import com.liferay.ide.project.core.util.WorkspaceProductInfoUtil;
+import com.liferay.ide.project.core.util.WorkspaceProductInfo;
 
-import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.jobs.IJobChangeEvent;
-import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.sapphire.PossibleValuesService;
 
 /**
@@ -31,51 +26,23 @@ import org.eclipse.sapphire.PossibleValuesService;
 public class ProductCategoryPossibleValuesService extends PossibleValuesService {
 
 	@Override
-	public void dispose() {
-		if (_job.getState() == Job.RUNNING) {
-			_job.cancel();
-		}
-	}
-
-	@Override
 	protected void compute(Set<String> values) {
-		Set<String> productCategory = new HashSet<>();
-
-		Set<String> productCategorySet = WorkspaceProductInfoUtil.getProductCategory();
-
-		if (productCategorySet != null) {
-			productCategorySet.forEach(
-				entry -> {
-					String category = entry.split("-")[0];
-
-					if (!"commerce".equals(category)) {
-						productCategory.add(category);
-					}
-				});
-
-			values.addAll(productCategory);
-		}
+		values.addAll(_productInfo.getProductCategory());
 	}
 
 	@Override
 	protected void initPossibleValuesService() {
-		if (!WorkspaceProductInfoUtil.workspaceCacheFile.exists()) {
-			_job.addJobChangeListener(
-				new JobChangeAdapter() {
+		_productInfo.startWorkspaceProductDownload(
+			new Runnable() {
 
-					@Override
-					public void done(final IJobChangeEvent event) {
-						IStatus status = event.getResult();
+				@Override
+				public void run() {
+					refresh();
+				}
 
-						if (status.isOK()) {
-							refresh();
-						}
-					}
-
-				});
-		}
+			});
 	}
 
-	private Job _job = WorkspaceProductInfoUtil.job;
+	private WorkspaceProductInfo _productInfo = WorkspaceProductInfo.getInstance();
 
 }
