@@ -14,20 +14,14 @@
 
 package com.liferay.ide.project.core.workspace;
 
-import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.core.util.SapphireContentAccessor;
 import com.liferay.ide.core.util.SapphireUtil;
-import com.liferay.ide.project.core.ProjectCore;
 import com.liferay.ide.project.core.WorkspaceProductInfo;
-import com.liferay.ide.project.core.modules.BladeCLI;
 
+import java.util.Calendar;
 import java.util.List;
 
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.sapphire.DefaultValueService;
 import org.eclipse.sapphire.FilteredListener;
 import org.eclipse.sapphire.PropertyContentEvent;
@@ -49,16 +43,22 @@ public class ProductVersionDefaultValueService extends DefaultValueService imple
 
 	@Override
 	protected String compute() {
-		if (ListUtil.isEmpty(_workspaceProducts)) {
+		WorkspaceProductInfo instance = WorkspaceProductInfo.getInstance();
+		
+		NewLiferayWorkspaceOp op = context(NewLiferayWorkspaceOp.class);
+
+		String string = get(op.getProductCategory());
+		Boolean boolean1 = get(op.getShowAllVersionProduct());
+		
+		List<String> productVersionList = instance.getProductVersionList(string, boolean1);
+		
+		if (ListUtil.isEmpty(productVersionList)) {
 			return null;
 		}
+		
+		System.out.println("ProductVersionDefaultValueService Start time is " + Calendar.getInstance().toString());
 
-		String category = get(_op.getProductCategory());
-
-		List<String> productVersionsList = NewLiferayWorkspaceOpMethods.getProductVersionList(
-			category, _workspaceProducts);
-
-		return productVersionsList.get(productVersionsList.size() - 1);
+		return productVersionList.toArray(new String[0])[0];
 	}
 
 	@Override
@@ -76,31 +76,7 @@ public class ProductVersionDefaultValueService extends DefaultValueService imple
 		SapphireUtil.attachListener(_op.property(NewLiferayWorkspaceOp.PROP_PRODUCT_CATEGORY), _listener);
 		SapphireUtil.attachListener(_op.property(NewLiferayWorkspaceOp.PROP_SHOW_ALL_VERSION_PRODUCT), _listener);
 		
-		if (FileUtil.notExists(WorkspaceProductInfo.workspaceCacheFile)){
-			Job refreshWorkspaceProductJob = new Job("") {
 
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					try {
-						boolean showAll = get(_op.getShowAllVersionProduct());
-
-						_workspaceProducts = BladeCLI.getWorkspaceProduct(showAll);
-
-						refresh();
-					}
-					catch (Exception exception) {
-						ProjectCore.logError("Failed to init workspace product default value", exception);
-					}
-
-					return Status.OK_STATUS;
-				}
-
-			};
-
-			refreshWorkspaceProductJob.setSystem(true);
-
-			refreshWorkspaceProductJob.schedule();
-		}
 	}
 
 	private FilteredListener<PropertyContentEvent> _listener;

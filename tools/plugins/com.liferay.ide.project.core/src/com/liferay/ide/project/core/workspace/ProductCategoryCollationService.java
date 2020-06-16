@@ -21,7 +21,7 @@ import org.eclipse.sapphire.CollationService;
 /**
  * @author Simon Jiang
  */
-public class ProdcutCategoryCollationService extends CollationService {
+public class ProductCategoryCollationService extends CollationService {
 
 	@Override
 	protected Comparator<String> compute() {

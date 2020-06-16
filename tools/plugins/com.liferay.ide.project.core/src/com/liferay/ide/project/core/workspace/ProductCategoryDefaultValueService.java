@@ -86,35 +86,37 @@ public class ProductCategoryDefaultValueService extends DefaultValueService {
 			@Override
 			protected void handleTypedEvent(PropertyContentEvent event) {
 				refresh();
+				
+				if (FileUtil.notExists(WorkspaceProductInfo.workspaceCacheFile)){
+					Job refreshWorkspaceProductJob = new Job("") {
+
+						@Override
+						protected IStatus run(IProgressMonitor monitor) {
+							try {
+								BladeCLI.getWorkspaceProduct(true);
+
+								refresh();
+							}
+							catch (Exception exception) {
+								ProjectCore.logError("Failed to init workspace product cateogry default value.", exception);
+							}
+
+							return Status.OK_STATUS;
+						}
+
+					};
+
+					refreshWorkspaceProductJob.setSystem(true);
+
+					refreshWorkspaceProductJob.schedule();			
+				}
 			}
 
 		};
 
 		SapphireUtil.attachListener(_op.property(NewLiferayWorkspaceOp.PROP_PROJECT_PROVIDER), _listener);
 
-		if (FileUtil.notExists(WorkspaceProductInfo.workspaceCacheFile)){
-			Job refreshWorkspaceProductJob = new Job("") {
 
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					try {
-						BladeCLI.getWorkspaceProduct(true);
-
-						refresh();
-					}
-					catch (Exception exception) {
-						ProjectCore.logError("Failed to init workspace product cateogry default value.", exception);
-					}
-
-					return Status.OK_STATUS;
-				}
-
-			};
-
-			refreshWorkspaceProductJob.setSystem(true);
-
-			refreshWorkspaceProductJob.schedule();			
-		}
 
 	}
 

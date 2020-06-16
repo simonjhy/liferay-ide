@@ -22,6 +22,7 @@ import com.liferay.ide.project.core.ProjectCore;
 import com.liferay.ide.project.core.WorkspaceProductInfo;
 import com.liferay.ide.project.core.modules.BladeCLI;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -52,6 +53,8 @@ public class ProductVersionPossibleValuesService extends PossibleValuesService i
 	@Override
 	protected void compute(Set<String> values) {
 		
+		values.clear();
+		
 		WorkspaceProductInfo instance = WorkspaceProductInfo.getInstance();
 		
 		Set<String> productCategories = instance.getProductCategory();
@@ -64,6 +67,8 @@ public class ProductVersionPossibleValuesService extends PossibleValuesService i
 
 			values.addAll(productVersionList);
 		}
+		
+		System.out.println("ProductVersionPossibleValuesService Start time is "+ Calendar.getInstance().toString());
 	}
 
 	@Override
@@ -80,45 +85,7 @@ public class ProductVersionPossibleValuesService extends PossibleValuesService i
 		SapphireUtil.attachListener(_op.property(NewLiferayWorkspaceOp.PROP_PRODUCT_CATEGORY), _listener);
 		SapphireUtil.attachListener(_op.property(NewLiferayWorkspaceOp.PROP_SHOW_ALL_VERSION_PRODUCT), _listener);
 		
-		if (FileUtil.notExists(WorkspaceProductInfo.workspaceCacheFile)){
-			Job refreshWorkspaceProductJob = new Job("") {
 
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					try {
-						String category = get(_op.getProductCategory());
-
-						String version = get(_op.getProductVersion());
-
-						boolean showAll = get(_op.getShowAllVersionProduct());
-
-						_workspaceProducts = BladeCLI.getWorkspaceProduct(showAll);
-
-						List<String> productVersionsList = NewLiferayWorkspaceOpMethods.getProductVersionList(
-							category, _workspaceProducts);
-
-						if (Objects.nonNull(version) && !productVersionsList.contains(version) &&
-							ListUtil.isNotEmpty(productVersionsList)) {
-
-							_op.setProductVersion(productVersionsList.get(0));
-						}
-
-						refresh();
-					}
-					catch (Exception exception) {
-						ProjectCore.logError("Failed to init product version list.", exception);
-					}
-
-					return Status.OK_STATUS;
-				}
-
-			};
-
-			refreshWorkspaceProductJob.setSystem(true);
-
-			refreshWorkspaceProductJob.schedule();
-			
-		}
 	}
 
 	private FilteredListener<PropertyContentEvent> _listener;

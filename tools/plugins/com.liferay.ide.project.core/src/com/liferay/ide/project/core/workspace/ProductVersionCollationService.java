@@ -28,7 +28,7 @@ import org.eclipse.sapphire.CollationService;
 /**
  * @author Simon Jiang
  */
-public class ProdcutVersionCollationService extends CollationService {
+public class ProductVersionCollationService extends CollationService {
 
 	@Override
 	protected Comparator<String> compute() {
@@ -109,6 +109,6 @@ public class ProdcutVersionCollationService extends CollationService {
 			return null;
 		}
 
-		private static final Pattern _versionPattern = Pattern.compile("([0-9\\.]+).*");
-
+		private final Pattern _versionPattern = Pattern.compile("([0-9\\.]+).*");
+	}
 }

@@ -21,11 +21,8 @@ import com.google.gson.stream.JsonReader;
 import com.liferay.ide.core.LiferayCore;
 import com.liferay.ide.core.ProductInfo;
 import com.liferay.ide.core.util.CoreUtil;
-import com.liferay.ide.core.util.FileUtil;
-import com.liferay.portal.tools.bundle.support.commands.DownloadCommand;
 
 import java.io.File;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -38,10 +35,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 
 /**
  * @author Ethan Sun
@@ -101,9 +94,9 @@ public class WorkspaceProductInfo {
 				if (!showAll) {
 					productInfos.forEach(
 						(key, product) -> {
-							if (product.isInitialVersion()) {
+//							if (product.isInitialVersion()) {
 								productCategorySet.add(key);
-							}
+//							}
 						});
 				}
 				else {

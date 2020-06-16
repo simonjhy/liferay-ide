@@ -59,9 +59,9 @@ public class ProductCategoryPossibleValuesService extends PossibleValuesService 
 
 		values.addAll(productCategories);
 
-		String[] productCategoryValuesArr = values.toArray(new String[0]);
+//		String[] productCategoryValuesArr = values.toArray(new String[0]);
 
-		_op.setProductCategory(productCategoryValuesArr[0]);
+//		_op.setProductCategory(productCategoryValuesArr[0]);
 	}
 
 	@Override
@@ -73,36 +73,38 @@ public class ProductCategoryPossibleValuesService extends PossibleValuesService 
 			@Override
 			protected void handleTypedEvent(PropertyContentEvent event) {
 				refresh();
+				
+				if (FileUtil.notExists(WorkspaceProductInfo.workspaceCacheFile)){
+					Job refreshWorkspaceProductJob = new Job("Init liferay workspace product info.") {
+
+						@Override
+						protected IStatus run(IProgressMonitor monitor) {
+							try {
+								BladeCLI.getWorkspaceProduct(true);
+
+								refresh();
+							}
+							catch (Exception exception) {
+								ProjectCore.logError("Failed to init workspace product possible values.", exception);
+							}
+
+							return Status.OK_STATUS;
+						}
+
+					};
+
+					refreshWorkspaceProductJob.setSystem(true);
+
+					refreshWorkspaceProductJob.schedule();
+				}
+				
 			}
 
 		};
 
 		SapphireUtil.attachListener(_op.property(NewLiferayWorkspaceOp.PROP_PROJECT_PROVIDER), _listener);
 
-		if (FileUtil.notExists(WorkspaceProductInfo.workspaceCacheFile)){
-			Job refreshWorkspaceProductJob = new Job("Init liferay workspace product info.") {
 
-				@Override
-				protected IStatus run(IProgressMonitor monitor) {
-					try {
-						BladeCLI.getWorkspaceProduct(true);
-
-						refresh();
-					}
-					catch (Exception exception) {
-						ProjectCore.logError("Failed to init workspace product possible values.", exception);
-					}
-
-					return Status.OK_STATUS;
-				}
-
-			};
-
-			refreshWorkspaceProductJob.setSystem(true);
-
-			refreshWorkspaceProductJob.schedule();
-		}
-		
 	}
 
 	private FilteredListener<PropertyContentEvent> _listener;

@@ -18,7 +18,9 @@ import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.core.util.SapphireContentAccessor;
 import com.liferay.ide.core.util.SapphireUtil;
 import com.liferay.ide.project.core.ProjectCore;
+import com.liferay.ide.project.core.WorkspaceProductInfo;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.eclipse.sapphire.FilteredListener;
@@ -47,12 +49,14 @@ public class ProductVersionValidationService extends ValidationService implement
 	protected Status compute() {
 		Status retval = Status.createOkStatus();
 
-		Value<String> productVersion = _op.getProductVersion();
+		WorkspaceProductInfo instance = WorkspaceProductInfo.getInstance();
+		
+		String category = get(_op.getProductCategory());
+		 Boolean showAllProduct = get(_op.getShowAllVersionProduct());
 
-		ProductVersionPossibleValuesService possibleValuesService = productVersion.service(
-			ProductVersionPossibleValuesService.class);
+		List<String> productVersionList = instance.getProductVersionList(category, showAllProduct);
 
-		if (Objects.isNull(possibleValuesService) || ListUtil.isEmpty(possibleValuesService.values())) {
+		if (ListUtil.isEmpty(productVersionList)) {
 			return StatusBridge.create(ProjectCore.createErrorStatus("Product Version can not be empty."));
 		}
 
