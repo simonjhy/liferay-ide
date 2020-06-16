@@ -14,14 +14,14 @@
 
 package com.liferay.ide.project.core.workspace;
 
+import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.core.util.SapphireUtil;
 import com.liferay.ide.project.core.ProjectCore;
+import com.liferay.ide.project.core.WorkspaceProductInfo;
 import com.liferay.ide.project.core.modules.BladeCLI;
 
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -48,25 +48,20 @@ public class ProductCategoryPossibleValuesService extends PossibleValuesService 
 
 	@Override
 	protected void compute(Set<String> values) {
-		if (ListUtil.isEmpty(_workspaceProducts)) {
+		
+		WorkspaceProductInfo instance = WorkspaceProductInfo.getInstance();
+		
+		Set<String> productCategories = instance.getProductCategory();
+		
+		if (ListUtil.isEmpty(productCategories)) {
 			return;
 		}
 
-		Set<String> categorySet = Stream.of(
-			_workspaceProducts
-		).map(
-			productTemplete -> productTemplete.split("-")[0]
-		).collect(
-			Collectors.toSet()
-		);
+		values.addAll(productCategories);
 
-		if (ListUtil.isNotEmpty(categorySet)) {
-			values.addAll(categorySet);
+		String[] productCategoryValuesArr = values.toArray(new String[0]);
 
-			String[] productCategoryValuesArr = values.toArray(new String[0]);
-
-			_op.setProductCategory(productCategoryValuesArr[0]);
-		}
+		_op.setProductCategory(productCategoryValuesArr[0]);
 	}
 
 	@Override
@@ -84,31 +79,32 @@ public class ProductCategoryPossibleValuesService extends PossibleValuesService 
 
 		SapphireUtil.attachListener(_op.property(NewLiferayWorkspaceOp.PROP_PROJECT_PROVIDER), _listener);
 
-		Job refreshWorkspaceProductJob = new Job("Init liferay workspace product info.") {
+		if (FileUtil.notExists(WorkspaceProductInfo.workspaceCacheFile)){
+			Job refreshWorkspaceProductJob = new Job("Init liferay workspace product info.") {
 
-			@Override
-			protected IStatus run(IProgressMonitor monitor) {
-				try {
-					_workspaceProducts = BladeCLI.getWorkspaceProduct(true);
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					try {
+						BladeCLI.getWorkspaceProduct(true);
 
-					refresh();
+						refresh();
+					}
+					catch (Exception exception) {
+						ProjectCore.logError("Failed to init workspace product possible values.", exception);
+					}
+
+					return Status.OK_STATUS;
 				}
-				catch (Exception exception) {
-					ProjectCore.logError("Failed to init workspace product possible values.", exception);
-				}
 
-				return Status.OK_STATUS;
-			}
+			};
 
-		};
+			refreshWorkspaceProductJob.setSystem(true);
 
-		refreshWorkspaceProductJob.setSystem(true);
-
-		refreshWorkspaceProductJob.schedule();
+			refreshWorkspaceProductJob.schedule();
+		}
+		
 	}
 
 	private FilteredListener<PropertyContentEvent> _listener;
 	private NewLiferayWorkspaceOp _op;
-	private String[] _workspaceProducts;
-
 }

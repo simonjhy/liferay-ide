@@ -16,7 +16,10 @@ package com.liferay.ide.core;
 
 import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.core.workspace.ProjectChangeListener;
+import com.liferay.portal.tools.bundle.support.commands.DownloadCommand;
 
+import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -29,11 +32,12 @@ import java.util.Objects;
 import org.eclipse.core.net.proxy.IProxyService;
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.Status;
-
+import org.eclipse.core.runtime.jobs.Job;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -259,6 +263,8 @@ public class LiferayCore extends Plugin {
 		_listenerRegistryService = context.registerService(
 			ListenerRegistry.class.getName(), new DefaultListenerRegistry(), preferences);
 		_projectChangeListener = ProjectChangeListener.createAndRegister();
+		
+		initLiferayWorkspaceProduct();
 	}
 
 	@Override
@@ -274,6 +280,45 @@ public class LiferayCore extends Plugin {
 		super.stop(context);
 	}
 
+	private static final String _PRODUCT_INFO_URL = "https://releases-cdn.liferay.com/tools/workspace/.product_info.json";
+	private static final String _DEFAULT_WORKSPACE_CACHE_DIR_NAME = ".liferay/workspace";
+	private static File _workspaceCacheDir = new File(System.getProperty("user.home"),
+			_DEFAULT_WORKSPACE_CACHE_DIR_NAME);
+
+	
+
+	private void initLiferayWorkspaceProduct() {
+		Job initLiferayWorkspaceProductInfo = new Job("Init Liferay Workspace Product") {
+
+			@Override
+			protected IStatus run(IProgressMonitor monitor) {
+				try {
+					DownloadCommand downloadCommand = new DownloadCommand();
+
+					downloadCommand.setCacheDir(_workspaceCacheDir);
+					downloadCommand.setPassword(null);
+					downloadCommand.setToken(false);
+					downloadCommand.setUrl(new URL(_PRODUCT_INFO_URL));
+					downloadCommand.setUserName(null);
+					downloadCommand.setQuiet(true);
+
+					downloadCommand.execute();
+				}
+				catch (Exception exception) {
+					LiferayCore.logError("Failed to init liferay workspace product", exception);
+				}
+				
+				return Status.OK_STATUS;
+			}
+			
+		};
+
+		initLiferayWorkspaceProductInfo.setSystem(true);
+		initLiferayWorkspaceProductInfo.setUser(false);
+		initLiferayWorkspaceProductInfo.schedule();
+	}
+	
+	
 	private static <T extends ILiferayProject> ILiferayProject _checkProjectCache(Class<T> type, Object adaptable) {
 		Map<ProjectCacheKey<?>, ILiferayProject> projectCache = _plugin._projectCache;
 

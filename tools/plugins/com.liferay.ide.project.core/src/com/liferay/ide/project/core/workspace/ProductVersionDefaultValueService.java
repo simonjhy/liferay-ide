@@ -14,10 +14,12 @@
 
 package com.liferay.ide.project.core.workspace;
 
+import com.liferay.ide.core.util.FileUtil;
 import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.core.util.SapphireContentAccessor;
 import com.liferay.ide.core.util.SapphireUtil;
 import com.liferay.ide.project.core.ProjectCore;
+import com.liferay.ide.project.core.WorkspaceProductInfo;
 import com.liferay.ide.project.core.modules.BladeCLI;
 
 import java.util.List;
@@ -63,39 +65,42 @@ public class ProductVersionDefaultValueService extends DefaultValueService imple
 	protected void initDefaultValueService() {
 		_op = context(NewLiferayWorkspaceOp.class);
 
-		_listener = new FilteredListener<PropertyContentEvent>() {
 
+		_listener = new FilteredListener<PropertyContentEvent>() {
 			@Override
 			protected void handleTypedEvent(PropertyContentEvent event) {
-				Job refreshWorkspaceProductJob = new Job("") {
-
-					@Override
-					protected IStatus run(IProgressMonitor monitor) {
-						try {
-							boolean showAll = get(_op.getShowAllVersionProduct());
-
-							_workspaceProducts = BladeCLI.getWorkspaceProduct(showAll);
-
-							refresh();
-						}
-						catch (Exception exception) {
-							ProjectCore.logError("Failed to init workspace product default value", exception);
-						}
-
-						return Status.OK_STATUS;
-					}
-
-				};
-
-				refreshWorkspaceProductJob.setSystem(true);
-
-				refreshWorkspaceProductJob.schedule();
+				refresh();
 			}
-
 		};
-
+		
 		SapphireUtil.attachListener(_op.property(NewLiferayWorkspaceOp.PROP_PRODUCT_CATEGORY), _listener);
 		SapphireUtil.attachListener(_op.property(NewLiferayWorkspaceOp.PROP_SHOW_ALL_VERSION_PRODUCT), _listener);
+		
+		if (FileUtil.notExists(WorkspaceProductInfo.workspaceCacheFile)){
+			Job refreshWorkspaceProductJob = new Job("") {
+
+				@Override
+				protected IStatus run(IProgressMonitor monitor) {
+					try {
+						boolean showAll = get(_op.getShowAllVersionProduct());
+
+						_workspaceProducts = BladeCLI.getWorkspaceProduct(showAll);
+
+						refresh();
+					}
+					catch (Exception exception) {
+						ProjectCore.logError("Failed to init workspace product default value", exception);
+					}
+
+					return Status.OK_STATUS;
+				}
+
+			};
+
+			refreshWorkspaceProductJob.setSystem(true);
+
+			refreshWorkspaceProductJob.schedule();
+		}
 	}
 
 	private FilteredListener<PropertyContentEvent> _listener;
