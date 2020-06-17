@@ -100,8 +100,9 @@ public interface NewLiferayWorkspaceOp extends BaseLiferayWorkspaceOp {
 	public ValueProperty PROP_LOCATION = new ValueProperty(TYPE, "Location");
 
 	@Label(standard = "product version")
-	@Service(impl = ProductVersionPossibleValuesService.class)
 	@Required
+	@Service(impl = ProductVersionPossibleValuesService.class)
+	@Service(impl = ProductVersionCollationService.class)
 	public ValueProperty PROP_PRODUCT_VERSION = new ValueProperty(TYPE, "ProductVersion");
 
 	@Service(impl = NewLiferayWorkspaceServerNameService.class)
