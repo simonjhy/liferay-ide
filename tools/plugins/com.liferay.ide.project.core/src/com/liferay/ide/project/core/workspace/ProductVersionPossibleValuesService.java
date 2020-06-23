@@ -29,9 +29,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.sapphire.DefaultValueService;
 import org.eclipse.sapphire.FilteredListener;
 import org.eclipse.sapphire.PossibleValuesService;
 import org.eclipse.sapphire.PropertyContentEvent;
+import org.eclipse.sapphire.Value;
 
 /**
  * @author Ethan Sun
@@ -117,7 +119,23 @@ public class ProductVersionPossibleValuesService extends PossibleValuesService i
 
 			@Override
 			protected void handleTypedEvent(PropertyContentEvent event) {
+				String productVersion = get(op.getProductVersion());
+
 				refresh();
+
+				Value<Object> property = op.property(NewLiferayWorkspaceOp.PROP_PRODUCT_VERSION);
+
+				PossibleValuesService possibleValuesService = property.service(PossibleValuesService.class);
+
+				Set<String> values = possibleValuesService.values();
+
+				if (!values.contains(productVersion)) {
+					DefaultValueService defaultValueService = property.service(DefaultValueService.class);
+
+					String value = defaultValueService.value();
+
+					op.setProductVersion(value);
+				}
 			}
 
 		};
