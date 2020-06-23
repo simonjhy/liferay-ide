@@ -15,6 +15,7 @@
 package com.liferay.ide.project.core.workspace;
 
 import com.liferay.ide.core.ILiferayProjectProvider;
+import com.liferay.ide.core.util.ListUtil;
 import com.liferay.ide.core.util.SapphireContentAccessor;
 import com.liferay.ide.core.util.SapphireUtil;
 import com.liferay.ide.project.core.ProjectCore;
@@ -123,18 +124,15 @@ public class ProductVersionPossibleValuesService extends PossibleValuesService i
 
 				refresh();
 
-				Value<Object> property = op.property(NewLiferayWorkspaceOp.PROP_PRODUCT_VERSION);
+				Value<Object> productVersionProperty = op.property(NewLiferayWorkspaceOp.PROP_PRODUCT_VERSION);
 
-				PossibleValuesService possibleValuesService = property.service(PossibleValuesService.class);
+				PossibleValuesService possibleValuesService = productVersionProperty.service(
+					PossibleValuesService.class);
 
-				Set<String> values = possibleValuesService.values();
+				if (ListUtil.notContains(possibleValuesService.values(), productVersion)) {
+					DefaultValueService defaultValueService = productVersionProperty.service(DefaultValueService.class);
 
-				if (!values.contains(productVersion)) {
-					DefaultValueService defaultValueService = property.service(DefaultValueService.class);
-
-					String value = defaultValueService.value();
-
-					op.setProductVersion(value);
+					op.setProductVersion(defaultValueService.value());
 				}
 			}
 
