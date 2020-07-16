@@ -67,7 +67,7 @@ public interface ImportLiferayWorkspaceOp extends BaseLiferayWorkspaceOp {
 	@Derived
 	@Service(impl = HasBundlesDirDerivedValueService.class)
 	@Type(base = Boolean.class)
-	public ValueProperty PROP_HAS_BUNDLES_DIR = new ValueProperty(TYPE, "hasBundlesDir");
+	public ValueProperty PROP_HAS_BUNDLES_DIR = new ValueProperty(TYPE, "HasBundlesDir");
 
 	@Service(impl = ImportLiferayWorkspaceServerNameService.class)
 	public ValueProperty PROP_SERVER_NAME = new ValueProperty(TYPE, BaseLiferayWorkspaceOp.PROP_SERVER_NAME);

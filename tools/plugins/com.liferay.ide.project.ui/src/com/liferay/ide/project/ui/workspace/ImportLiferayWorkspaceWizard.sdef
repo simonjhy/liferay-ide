@@ -35,15 +35,15 @@
                 <property-editor>buildType</property-editor>
                 <spacer></spacer>
                 <property-editor>
-                    <visible-when>${ Severity(Validation(workspaceLocation)) == 'OK' &amp;&amp; hasBundlesDir == 'false' }</visible-when>
-                    <property>provisionLiferayBundle</property>
+                    <visible-when>${ Severity(Validation(workspaceLocation)) == 'OK' &amp;&amp; HasBundlesDir == 'false' }</visible-when>
+                    <property>ProvisionLiferayBundle</property>
                 </property-editor>
                 <property-editor>
-                    <visible-when>${ hasBundlesDir == 'true' || provisionLiferayBundle == 'true' }</visible-when>
+                    <visible-when>${ HasBundlesDir == 'true' || ProvisionLiferayBundle == 'true' }</visible-when>
                     <property>serverName</property>
                 </property-editor>
                 <property-editor>
-                    <visible-when>${ provisionLiferayBundle == 'true' &amp;&amp; hasBundlesDir == 'false'}</visible-when>
+                    <visible-when>${ ProvisionLiferayBundle == 'true' &amp;&amp; HasBundlesDir == 'false'}</visible-when>
                     <property>bundleUrl</property>
                     <label>Bundle url</label>
                 </property-editor>

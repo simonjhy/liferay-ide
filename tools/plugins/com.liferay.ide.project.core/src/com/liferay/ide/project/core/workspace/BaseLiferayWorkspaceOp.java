@@ -35,6 +35,8 @@ public interface BaseLiferayWorkspaceOp extends ExecutableElement {
 
 	public Value<String> getBundleUrl();
 
+	public Value<Boolean> getCanConnectInternet();
+
 	public Value<Boolean> getEnableTargetPlatform();
 
 	public Value<Boolean> getIndexSources();
@@ -64,6 +66,10 @@ public interface BaseLiferayWorkspaceOp extends ExecutableElement {
 	@Service(impl = BundleUrlValidationService.class)
 	public ValueProperty PROP_BUNDLE_URL = new ValueProperty(TYPE, "bundleUrl");
 
+	@Service(impl = CanConnectInternetDefaultValueService.class)
+	@Type(base = Boolean.class)
+	public ValueProperty PROP_CAN_CONNECT_INTERNET = new ValueProperty(TYPE, "CanConnectInternet");
+
 	@DefaultValue(text = "true")
 	@Label(standard = "enable target platform")
 	@Type(base = Boolean.class)
@@ -86,7 +92,7 @@ public interface BaseLiferayWorkspaceOp extends ExecutableElement {
 	@DefaultValue(text = "false")
 	@Label(standard = "Download Liferay bundle")
 	@Type(base = Boolean.class)
-	public ValueProperty PROP_PROVISION_LIFERAY_BUNDLE = new ValueProperty(TYPE, "provisionLiferayBundle");
+	public ValueProperty PROP_PROVISION_LIFERAY_BUNDLE = new ValueProperty(TYPE, "ProvisionLiferayBundle");
 
 	@Service(impl = ServerNameValidationService.class)
 	public ValueProperty PROP_SERVER_NAME = new ValueProperty(TYPE, "serverName");

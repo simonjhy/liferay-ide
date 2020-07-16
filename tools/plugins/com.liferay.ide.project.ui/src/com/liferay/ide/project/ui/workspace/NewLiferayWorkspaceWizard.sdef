@@ -42,7 +42,7 @@
                 <property-editor>
                     <style>Sapphire.PropertyEditor.PopUpListField.Strict</style>
                     <property>ProductVersion</property>
-                    <visible-when>${ ProjectProvider == 'gradle-liferay-workspace' }</visible-when>
+                    <visible-when>${ ProjectProvider == 'gradle-liferay-workspace' &amp;&amp; CanConnectInternet == 'true' }</visible-when>
                 </property-editor>
                 <property-editor>
                     <style>Sapphire.PropertyEditor.PopUpListField.Strict</style>
@@ -55,7 +55,7 @@
                     <visible-when>${ ProjectProvider != 'gradle-liferay-workspace' }</visible-when>
                 </property-editor>
                 <property-editor>
-                    <visible-when>${ ProjectProvider == 'gradle-liferay-workspace' }</visible-when>
+                    <visible-when>${ ProjectProvider == 'gradle-liferay-workspace'  &amp;&amp; CanConnectInternet == 'true' }</visible-when>
                     <property>ShowAllProductVersions</property>
                 </property-editor>
                 <property-editor>
@@ -64,14 +64,14 @@
                 </property-editor>
                 <property-editor>
                     <label>Download Liferay bundle</label>
-                    <property>provisionLiferayBundle</property>
+                    <property>ProvisionLiferayBundle</property>
                 </property-editor>
                 <property-editor>
-                    <visible-when>${ provisionLiferayBundle == 'true' }</visible-when>
+                    <visible-when>${ ProvisionLiferayBundle == 'true' }</visible-when>
                     <property>serverName</property>
                 </property-editor>
                 <property-editor>
-                    <visible-when>${ provisionLiferayBundle == 'true' &amp;&amp; ProjectProvider != 'gradle-liferay-workspace' }</visible-when>
+                    <visible-when>${ ProvisionLiferayBundle == 'true' &amp;&amp; ProjectProvider != 'gradle-liferay-workspace' }</visible-when>
                     <property>bundleUrl</property>
                 </property-editor>
                 <spacer/>
@@ -89,6 +89,34 @@
             <margin-horizontal>0</margin-horizontal>
             <margin-vertical>0</margin-vertical>
             <margin>0</margin>
+        </page>
+        <page>
+            <id>ConfigureWorkspaceSettingPage</id>
+            <label>Liferay Workspace Project</label>
+        	<content>
+                <property-editor>
+                    <style>Sapphire.PropertyEditor.PopUpListField.Strict</style>
+                    <property>LiferayVersion</property>
+                </property-editor>
+				<property-editor>
+                   	<style>Sapphire.PropertyEditor.PopUpListField.Strict</style>
+                    <property>TargetPlatform</property>
+                </property-editor>
+        		<property-editor>
+                    <property>bundleUrl</property>
+                </property-editor>
+        	</content>
+            <description>Configure workspace setting</description>
+            <scale-vertically>true</scale-vertically>
+            <margin-right>10</margin-right>
+            <scroll-vertically>true</scroll-vertically>
+            <margin-left>0</margin-left>
+            <margin-bottom>0</margin-bottom>
+            <margin-top>0</margin-top>
+            <margin-horizontal>0</margin-horizontal>
+            <margin-vertical>0</margin-vertical>
+            <margin>0</margin>
+            <visible-when>${ CanConnectInternet == 'false' &amp;&amp; ProjectProvider == 'gradle-liferay-workspace' }</visible-when>        	
         </page>
         <description>Create a new Liferay Workspace project for developing modules and themes for Liferay 7</description>
         <image>LiferayWorkspaceWizard.png</image>

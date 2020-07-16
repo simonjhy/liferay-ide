@@ -95,7 +95,6 @@ public interface NewLiferayWorkspaceOp extends BaseLiferayWorkspaceOp, ProductVe
 	@Service(impl = NewLiferayWorkspaceServerNameService.class)
 	public ValueProperty PROP_SERVER_NAME = new ValueProperty(TYPE, BaseLiferayWorkspaceOp.PROP_SERVER_NAME);
 
-	//	@Enablement(expr = "${ EnableTargetPlatform == 'true' }")
 	@Label(standard = "target platform")
 	@Service(impl = TargetPlatformDefaultValueService.class)
 	@Service(impl = TargetPlatformPossibleValuesService.class)

@@ -77,7 +77,17 @@ public class LiferayGradleWorkspaceProjectProvider
 		sb.append("\" ");
 		sb.append("init ");
 		sb.append("-v ");
-		sb.append(get(op.getProductVersion()));
+
+		Boolean canConnect = get(op.getCanConnectInternet());
+
+		if (canConnect) {
+			sb.append(get(op.getProductVersion()));
+		}
+		else {
+			sb.append(get(op.getLiferayVersion()));
+
+			sb.append(" --offline");
+		}
 
 		try {
 			BladeCLI.executeWithLatestBlade(sb.toString());
@@ -95,6 +105,24 @@ public class LiferayGradleWorkspaceProjectProvider
 
 				config.setProperty(
 					WorkspaceConstants.TARGET_PLATFORM_INDEX_SOURCES_PROPERTY, get(op.getIndexSources()));
+
+				config.save();
+			}
+			catch (ConfigurationException ce) {
+				LiferayGradleCore.logError(ce);
+			}
+		}
+
+		if (!canConnect) {
+			try {
+				PropertiesConfiguration config = new PropertiesConfiguration(
+					FileUtil.getFile(workspaceLocation.append("gradle.properties")));
+
+				config.setProperty(WorkspaceConstants.WORKSPACE_PRODUCT_PROPERTY, null);
+
+				config.setProperty(WorkspaceConstants.BUNDLE_URL_PROPERTY, get(op.getBundleUrl()));
+
+				config.setProperty(WorkspaceConstants.TARGET_PLATFORM_VERSION_PROPERTY, get(op.getTargetPlatform()));
 
 				config.save();
 			}

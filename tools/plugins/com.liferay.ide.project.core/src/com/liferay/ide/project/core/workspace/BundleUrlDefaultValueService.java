@@ -49,7 +49,7 @@ public class BundleUrlDefaultValueService extends DefaultValueService implements
 
 		String buildType = workspaceProjectProvider.getDisplayName();
 
-		if (buildType.equals("Gradle")) {
+		if (buildType.equals("Gradle") && get(op.getCanConnectInternet())) {
 			return null;
 		}
 
