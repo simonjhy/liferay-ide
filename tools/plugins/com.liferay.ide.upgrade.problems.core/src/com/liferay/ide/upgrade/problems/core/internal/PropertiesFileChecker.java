@@ -213,7 +213,6 @@ public class PropertiesFileChecker {
 			LineReader lr = new LineReader(inputReader);
 
 			char[] convtBuf = new char[1024];
-			int[] limit;
 			int keyLen;
 			int valueStart;
 			char c;
@@ -221,7 +220,7 @@ public class PropertiesFileChecker {
 			boolean precedingBackslash;
 			int lineNumber = 0;
 
-			limit = lr.readLine();
+			int[] limit = lr.readLine();
 
 			while (limit[0] >= 0) {
 				lineNumber++;

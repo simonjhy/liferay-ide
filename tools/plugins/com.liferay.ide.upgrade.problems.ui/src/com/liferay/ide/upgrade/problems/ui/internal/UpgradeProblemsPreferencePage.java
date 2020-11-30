@@ -89,8 +89,6 @@ public class UpgradeProblemsPreferencePage
 
 		pageComposite.setLayoutData(gridData);
 
-		gridData = new GridData(GridData.FILL_HORIZONTAL | GridData.GRAB_HORIZONTAL);
-
 		Label label = new Label(pageComposite, SWT.LEFT);
 
 		label.setText(
