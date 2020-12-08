@@ -279,10 +279,6 @@ public class LiferayGradleWorkspaceProject extends LiferayWorkspaceProject imple
 
 			if (Objects.nonNull(workspaceProductInfo)) {
 				targetplatformVersion = workspaceProductInfo.getTargetPlatformVersion();
-
-				if (targetplatformVersion.contains("-")) {
-					targetplatformVersion = targetplatformVersion.substring(0, targetplatformVersion.indexOf("-"));
-				}
 			}
 		}
 
