@@ -27,8 +27,6 @@ public class VersionUtil {
 			return null;
 		}
 
-		String simplifiedTargetPlatformVersion = targetPlatformVersion;
-
 		String[] segments = targetPlatformVersion.split("\\.");
 
 		StringBuilder sb = new StringBuilder();
@@ -60,23 +58,18 @@ public class VersionUtil {
 
 			Matcher matcher = _microPattern.matcher(qualifier);
 
-			if (matcher.matches()) {
-				qualifier = qualifier.substring(2);
+			if (matcher.matches() && (matcher.groupCount() >= 5)) {
+				qualifier = matcher.group(5);
 			}
 
-			if (qualifier.contains("-")) {
-				sb.append(qualifier.substring(0, qualifier.indexOf("-")));
-			}
-			else {
+			if (CoreUtil.isNotNullOrEmpty(qualifier)) {
 				sb.append(qualifier);
 			}
 		}
 
-		simplifiedTargetPlatformVersion = sb.toString();
-
-		return simplifiedTargetPlatformVersion;
+		return sb.toString();
 	}
 
-	private static final Pattern _microPattern = Pattern.compile("(((e|f|s)p)|(ga))[0-9]+(-[0-9]+)?");
+	private static final Pattern _microPattern = Pattern.compile("(((e|f|s)p)|(ga))([0-9]+)(-[0-9]+)?");
 
 }
