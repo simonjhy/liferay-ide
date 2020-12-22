@@ -28,10 +28,12 @@ Require-Bundle: com.liferay.ide.core,
  org.eclipse.ui.ide,
  org.eclipse.ui.navigator,
  org.eclipse.wst.common.project.facet.ui,
- org.eclipse.wst.server.core
+ org.eclipse.wst.server.core,
+ org.apache.commons.io
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .
 Export-Package: com.liferay.ide.gradle.ui
 Service-Component: OSGI-INF/com.liferay.ide.gradle.ui.upgrade.UpdateWorkspacePluginVersionCommand.xml,
- OSGI-INF/com.liferay.ide.gradle.ui.upgrade.RemoveDependencyVersionCommand.xml
+ OSGI-INF/com.liferay.ide.gradle.ui.upgrade.RemoveDependencyVersionCommand.xml,
+ OSGI-INF/com.liferay.ide.gradle.ui.upgrade.SwitchToUseReleaseAPIDependencyCommand.xml

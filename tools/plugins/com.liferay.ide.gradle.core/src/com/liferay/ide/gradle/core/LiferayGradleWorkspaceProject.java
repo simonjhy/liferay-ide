@@ -127,6 +127,23 @@ public class LiferayGradleWorkspaceProject extends LiferayWorkspaceProject imple
 	}
 
 	@Override
+	public String getOriginalTargetPlatformVersion() {
+		_readGradleWorkspaceProperties();
+
+		String targetplatformVersion = getProperty(WorkspaceConstants.TARGET_PLATFORM_VERSION_PROPERTY, null);
+
+		if (CoreUtil.isNullOrEmpty(targetplatformVersion)) {
+			ProductInfo workspaceProductInfo = getWorkspaceProductInfo();
+
+			if (Objects.nonNull(workspaceProductInfo)) {
+				targetplatformVersion = workspaceProductInfo.getTargetPlatformVersion();
+			}
+		}
+
+		return targetplatformVersion;
+	}
+
+	@Override
 	public List<Artifact> getTargetPlatformArtifacts() {
 		if (_targetPlatformArtifacts.isEmpty()) {
 			GradleProject workspaceGradleProject = GradleUtil.getGradleProject(getProject());
@@ -271,19 +288,7 @@ public class LiferayGradleWorkspaceProject extends LiferayWorkspaceProject imple
 
 	@Override
 	public String getTargetPlatformVersion() {
-		_readGradleWorkspaceProperties();
-
-		String targetplatformVersion = getProperty(WorkspaceConstants.TARGET_PLATFORM_VERSION_PROPERTY, null);
-
-		if (CoreUtil.isNullOrEmpty(targetplatformVersion)) {
-			ProductInfo workspaceProductInfo = getWorkspaceProductInfo();
-
-			if (Objects.nonNull(workspaceProductInfo)) {
-				targetplatformVersion = workspaceProductInfo.getTargetPlatformVersion();
-			}
-		}
-
-		return VersionUtil.simplifyTargetPlatformVersion(targetplatformVersion);
+		return VersionUtil.simplifyTargetPlatformVersion(getOriginalTargetPlatformVersion());
 	}
 
 	@Override

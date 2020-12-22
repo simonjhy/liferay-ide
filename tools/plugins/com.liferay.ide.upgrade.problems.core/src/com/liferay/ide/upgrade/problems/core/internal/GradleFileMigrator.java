@@ -89,6 +89,12 @@ public abstract class GradleFileMigrator implements FileMigrator {
 				else if (Objects.equals("7.1", version)) {
 					fileName = "liferay71/" + fileName;
 				}
+				else if (Objects.equals("7.2", version)) {
+					fileName = "liferay72/" + fileName;
+				}
+				else if (Objects.equals("7.3", version)) {
+					fileName = "liferay73/" + fileName;
+				}
 
 				String sectionHtml = MarkdownParser.getSection(fileName, sectionKey);
 

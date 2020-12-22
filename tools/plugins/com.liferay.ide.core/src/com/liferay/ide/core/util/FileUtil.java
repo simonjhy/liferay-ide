@@ -37,6 +37,8 @@ import java.net.URL;
 
 import java.nio.file.Files;
 
+import java.text.DecimalFormat;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.jar.Attributes;
@@ -391,6 +393,20 @@ public class FileUtil {
 		}
 
 		return new File(url.getFile());
+	}
+
+	public static String getFileLength(long length) {
+		DecimalFormat decimalFormat = new DecimalFormat("#.##");
+
+		if (length > _FILE_LENGTH_MB) {
+			return decimalFormat.format((double)length / _FILE_LENGTH_MB) + " MB";
+		}
+
+		if (length > +_FILE_LENGTH_KB) {
+			return decimalFormat.format((double)length / _FILE_LENGTH_KB) + " KB";
+		}
+
+		return decimalFormat.format(length) + " B";
 	}
 
 	public static String getFilePath(File file) {
@@ -1293,6 +1309,10 @@ public class FileUtil {
 
 		return sb.toString();
 	}
+
+	private static final long _FILE_LENGTH_KB = 1024;
+
+	private static final long _FILE_LENGTH_MB = 1024 * 1024;
 
 	private static final int _NOT_FOUND = -1;
 
