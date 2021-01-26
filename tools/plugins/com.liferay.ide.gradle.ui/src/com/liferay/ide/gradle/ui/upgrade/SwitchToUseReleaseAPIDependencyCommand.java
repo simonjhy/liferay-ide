@@ -49,7 +49,6 @@ import java.util.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -80,7 +79,9 @@ public class SwitchToUseReleaseAPIDependencyCommand implements UpgradeCommand, U
 
 		Stream<File> buildGradleStrem = buildGradleFiles.stream();
 
-		buildGradleStrem.forEach(this::_replaceDependencisWithReleaseAPI);
+		List<String> allArtifactIds = _getAllDependenciesArtifactIds();
+
+		buildGradleStrem.forEach(buildGradle -> _replaceDependencisWithReleaseAPI(buildGradle, allArtifactIds));
 
 		GradleUtil.refreshProject(LiferayWorkspaceUtil.getWorkspaceProject());
 
@@ -94,12 +95,13 @@ public class SwitchToUseReleaseAPIDependencyCommand implements UpgradeCommand, U
 	}
 
 	private List<String> _getAllDependenciesArtifactIds() {
-		IProject workspace = LiferayWorkspaceUtil.getWorkspaceProject();
+		IWorkspaceProject gradleWorkspaceProject = LiferayWorkspaceUtil.getGradleWorkspaceProject();
 
-		IPath location = workspace.getLocation();
+		if (Objects.isNull(gradleWorkspaceProject)) {
+			return Collections.emptyList();
+		}
 
-		String productKey = LiferayWorkspaceUtil.getGradleProperty(
-			location.toOSString(), WorkspaceConstants.WORKSPACE_PRODUCT_PROPERTY, null);
+		String productKey = gradleWorkspaceProject.getProperty(WorkspaceConstants.WORKSPACE_PRODUCT_PROPERTY, null);
 
 		List<String> allArtifactIds = _getAllDependenciesFromLocal(productKey);
 
@@ -201,10 +203,8 @@ public class SwitchToUseReleaseAPIDependencyCommand implements UpgradeCommand, U
 		return gradleBuildScript;
 	}
 
-	private void _replaceDependencisWithReleaseAPI(File buildGradleFile) {
+	private void _replaceDependencisWithReleaseAPI(File buildGradleFile, List<String> allArtifactIds) {
 		GradleBuildScript gradleBuildScript = _getGradleBuildScript(buildGradleFile);
-
-		List<String> allArtifactIds = _getAllDependenciesArtifactIds();
 
 		if ((gradleBuildScript == null) || allArtifactIds.isEmpty()) {
 			return;
@@ -212,9 +212,9 @@ public class SwitchToUseReleaseAPIDependencyCommand implements UpgradeCommand, U
 
 		List<GradleDependency> gradleDependencies = gradleBuildScript.getDependencies();
 
-		Stream<GradleDependency> stream = gradleDependencies.stream();
+		Stream<GradleDependency> dependencyStream = gradleDependencies.stream();
 
-		List<GradleDependency> dependencies = stream.filter(
+		List<GradleDependency> dependencies = dependencyStream.filter(
 			dep -> allArtifactIds.contains(dep.getName())
 		).collect(
 			Collectors.toList()

@@ -70,15 +70,12 @@ public class LiferayMavenWorkspaceProject extends LiferayWorkspaceProject implem
 	}
 
 	@Override
-	public String getOriginalTargetPlatformVersion() {
+	public String getTargetPlatformVersion() {
 		_readMavenWorkspaceProperties();
 
-		return getProperty(WorkspaceConstants.WORKSPACE_BOM_VERSION, null);
-	}
+		String targetPlatformVersion = getProperty(WorkspaceConstants.WORKSPACE_BOM_VERSION, null);
 
-	@Override
-	public String getTargetPlatformVersion() {
-		return VersionUtil.simplifyTargetPlatformVersion(getOriginalTargetPlatformVersion());
+		return VersionUtil.simplifyTargetPlatformVersion(targetPlatformVersion);
 	}
 
 	@Override

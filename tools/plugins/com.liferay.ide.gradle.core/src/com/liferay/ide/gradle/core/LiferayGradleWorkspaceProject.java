@@ -127,20 +127,10 @@ public class LiferayGradleWorkspaceProject extends LiferayWorkspaceProject imple
 	}
 
 	@Override
-	public String getOriginalTargetPlatformVersion() {
+	public String getProperty(String key, String defaultValue) {
 		_readGradleWorkspaceProperties();
 
-		String targetplatformVersion = getProperty(WorkspaceConstants.TARGET_PLATFORM_VERSION_PROPERTY, null);
-
-		if (CoreUtil.isNullOrEmpty(targetplatformVersion)) {
-			ProductInfo workspaceProductInfo = getWorkspaceProductInfo();
-
-			if (Objects.nonNull(workspaceProductInfo)) {
-				targetplatformVersion = workspaceProductInfo.getTargetPlatformVersion();
-			}
-		}
-
-		return targetplatformVersion;
+		return properties.getProperty(key, defaultValue);
 	}
 
 	@Override
@@ -288,7 +278,19 @@ public class LiferayGradleWorkspaceProject extends LiferayWorkspaceProject imple
 
 	@Override
 	public String getTargetPlatformVersion() {
-		return VersionUtil.simplifyTargetPlatformVersion(getOriginalTargetPlatformVersion());
+		_readGradleWorkspaceProperties();
+
+		String targetplatformVersion = getProperty(WorkspaceConstants.TARGET_PLATFORM_VERSION_PROPERTY, null);
+
+		if (CoreUtil.isNullOrEmpty(targetplatformVersion)) {
+			ProductInfo workspaceProductInfo = getWorkspaceProductInfo();
+
+			if (Objects.nonNull(workspaceProductInfo)) {
+				targetplatformVersion = workspaceProductInfo.getTargetPlatformVersion();
+			}
+		}
+
+		return VersionUtil.simplifyTargetPlatformVersion(targetplatformVersion);
 	}
 
 	@Override

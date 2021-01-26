@@ -79,6 +79,8 @@ public class GradleUtil {
 			_searchableFolders
 		).map(
 			searchFolder -> FileUtil.getFolder(workspaceProject, searchFolder)
+		).filter(
+			Objects::nonNull
 		).collect(
 			Collectors.toSet()
 		);

@@ -14,11 +14,12 @@
 
 package com.liferay.ide.upgrade.commands.ui.internal.code;
 
-import com.liferay.ide.core.ILiferayProjectProvider;
 import com.liferay.ide.core.IWorkspaceProject;
-import com.liferay.ide.core.util.DownloadUtil;
+import com.liferay.ide.core.LiferayCore;
+import com.liferay.ide.core.ProductInfo;
+import com.liferay.ide.core.util.CoreUtil;
 import com.liferay.ide.core.util.FileUtil;
-import com.liferay.ide.core.util.JobUtil;
+import com.liferay.ide.core.util.HttpUtil;
 import com.liferay.ide.core.workspace.LiferayWorkspaceUtil;
 import com.liferay.ide.core.workspace.WorkspaceConstants;
 import com.liferay.ide.project.core.modules.BladeCLI;
@@ -48,11 +49,12 @@ import java.util.stream.Stream;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Composite;
@@ -85,18 +87,19 @@ public class ConfigureWorkspaceProductKeyCommand implements UpgradeCommand, Upgr
 	public IStatus perform(IProgressMonitor progressMonitor) {
 		File gradleProperties = _getGradlePropertiesFile();
 
-		if (gradleProperties == null) {
+		if (Objects.isNull(gradleProperties)) {
 			return Status.CANCEL_STATUS;
 		}
 
-		IProject workspace = LiferayWorkspaceUtil.getWorkspaceProject();
-
-		IPath location = workspace.getLocation();
+		IWorkspaceProject liferayWorkspaceProject = LiferayWorkspaceUtil.getLiferayWorkspaceProject();
 
 		IStatus retVal = _updateWorkspaceProductKeyValue(gradleProperties);
 
-		String productKey = LiferayWorkspaceUtil.getGradleProperty(
-			location.toOSString(), WorkspaceConstants.WORKSPACE_PRODUCT_PROPERTY, null);
+		String productKey = liferayWorkspaceProject.getProperty(WorkspaceConstants.WORKSPACE_PRODUCT_PROPERTY, null);
+
+		if (Objects.isNull(productKey)) {
+			return Status.CANCEL_STATUS;
+		}
 
 		try {
 			_downloadReleaseApiJar(productKey);
@@ -153,30 +156,20 @@ public class ConfigureWorkspaceProductKeyCommand implements UpgradeCommand, Upgr
 			return;
 		}
 
+		String targetplatformVersion = _getGradleWorkspaceTargetPlatform();
+
+		if (Objects.isNull(targetplatformVersion)) {
+			return;
+		}
+
 		String productType = productKey.substring(0, productKey.indexOf("-"));
-
-		IWorkspaceProject gradleWorkspace = LiferayWorkspaceUtil.getGradleWorkspaceProject();
-
-		String targetPlatformVersion = gradleWorkspace.getOriginalTargetPlatformVersion();
-
-		_downloadReleaseCompileOnlyPom(targetPlatformVersion, productType);
 
 		Job job = new Job("download release api job") {
 
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					String releaseApiUrl = _getDownloadReleaseApiUrl(targetPlatformVersion, productType);
-
-					URI uri = new URI(releaseApiUrl);
-
-					File cacheDir = new File(System.getProperty("user.home"), ".liferay-ide/release-api/" + productKey);
-
-					DownloadUtil.download(uri, cacheDir.toPath());
-
-					File tempCacheDir = new File(System.getProperty("user.home"), ".liferay-ide/temp");
-
-					FileUtil.deleteDirContents(tempCacheDir);
+					_downloadReleaseCompileOnlyPom(targetplatformVersion, productType);
 				}
 				catch (Exception e) {
 				}
@@ -185,6 +178,36 @@ public class ConfigureWorkspaceProductKeyCommand implements UpgradeCommand, Upgr
 			}
 
 		};
+
+		job.addJobChangeListener(
+			new JobChangeAdapter() {
+
+				@Override
+				public void done(IJobChangeEvent event) {
+					try {
+						String releaseApiUrl = _getDownloadReleaseApiUrl(targetplatformVersion, productType);
+
+						if (Objects.isNull(releaseApiUrl)) {
+							LiferayCore.logError("Failed to get release api download url");
+
+							return;
+						}
+
+						File cacheDir = new File(
+							System.getProperty("user.home"), ".liferay-ide/release-api/" + productKey);
+
+						HttpUtil.download(new URI(releaseApiUrl), cacheDir.toPath(), false);
+
+						File tempCacheDir = new File(System.getProperty("user.home"), ".liferay-ide/temp");
+
+						FileUtil.deleteDirContents(tempCacheDir);
+					}
+					catch (Exception exception) {
+						LiferayCore.logError("Failed to parse release api version from release api.", exception);
+					}
+				}
+
+			});
 
 		job.schedule();
 	}
@@ -203,17 +226,16 @@ public class ConfigureWorkspaceProductKeyCommand implements UpgradeCommand, Upgr
 			@Override
 			protected IStatus run(IProgressMonitor monitor) {
 				try {
-					DownloadUtil.download(uri, tempCacheDir.toPath());
+					HttpUtil.download(uri, tempCacheDir.toPath(), false);
 				}
 				catch (Exception e) {
+					UpgradeCommandsUIPlugin.logError("Failed to download release api jar.", e);
 				}
 
 				return Status.OK_STATUS;
 			}
 
 		};
-
-		job.setProperty(ILiferayProjectProvider.LIFERAY_PROJECT_JOB, new Object());
 
 		job.schedule();
 	}
@@ -225,6 +247,10 @@ public class ConfigureWorkspaceProductKeyCommand implements UpgradeCommand, Upgr
 		urlStringBuilder.append(".api/");
 
 		String releaseApiVersion = _getReleaseApiVersion(targetPlatformVersion, productType);
+
+		if (Objects.isNull(releaseApiVersion)) {
+			return null;
+		}
 
 		urlStringBuilder.append(releaseApiVersion);
 
@@ -250,6 +276,27 @@ public class ConfigureWorkspaceProductKeyCommand implements UpgradeCommand, Upgr
 		return FileUtil.getFile(project.getFile("gradle.properties"));
 	}
 
+	private String _getGradleWorkspaceTargetPlatform() {
+		IWorkspaceProject gradleWorkspace = LiferayWorkspaceUtil.getGradleWorkspaceProject();
+
+		if (Objects.isNull(gradleWorkspace)) {
+			return null;
+		}
+
+		String targetplatformVersion = gradleWorkspace.getProperty(
+			WorkspaceConstants.TARGET_PLATFORM_VERSION_PROPERTY, null);
+
+		if (CoreUtil.isNullOrEmpty(targetplatformVersion)) {
+			ProductInfo workspaceProductInfo = gradleWorkspace.getWorkspaceProductInfo();
+
+			if (Objects.nonNull(workspaceProductInfo)) {
+				targetplatformVersion = workspaceProductInfo.getTargetPlatformVersion();
+			}
+		}
+
+		return targetplatformVersion;
+	}
+
 	private String _getReleaseApiVersion(String targetPlatformVersion, String productType) {
 		String artifactId = "release." + productType + ".api";
 
@@ -258,7 +305,7 @@ public class ConfigureWorkspaceProductKeyCommand implements UpgradeCommand, Upgr
 			".liferay-ide/temp/release." + productType + ".bom.compile.only-" + targetPlatformVersion + ".pom");
 
 		if (!pomFile.exists()) {
-			JobUtil.waitForLiferayProjectJob();
+			return null;
 		}
 
 		Document document = FileUtil.readXMLFile(pomFile);
@@ -290,8 +337,7 @@ public class ConfigureWorkspaceProductKeyCommand implements UpgradeCommand, Upgr
 
 	private String _getReleaseCompileOnlyPomUrl(String targetPlatformVersion, String productType) {
 		StringBuilder urlStringBuilder = new StringBuilder(
-			"https://repository-cdn.liferay.com/nexus/content/repositories/liferay-public-releases/com/liferay/portal" +
-				"/release.");
+			"https://repository-cdn.liferay.com/nexus/content/groups/public/com/liferay/portal/release.");
 
 		urlStringBuilder.append(productType);
 		urlStringBuilder.append(".bom.compile.only/");

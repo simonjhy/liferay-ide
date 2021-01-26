@@ -30,8 +30,6 @@ public interface IWorkspaceProject extends ILiferayProject {
 
 	public String getLiferayHome();
 
-	public String getOriginalTargetPlatformVersion();
-
 	public default List<Artifact> getTargetPlatformArtifacts() {
 		return Collections.emptyList();
 	}

@@ -30,10 +30,12 @@ import java.nio.file.attribute.FileTime;
 
 import java.util.Collections;
 import java.util.Date;
+import java.util.Objects;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
@@ -65,7 +67,6 @@ import org.apache.http.util.EntityUtils;
 /**
  * @author Seiphon Wang
  */
-@SuppressWarnings("restriction")
 public class HttpUtil {
 
 	public static String createToken(URI uri, String userName, String password) throws IOException {
@@ -97,31 +98,47 @@ public class HttpUtil {
 		}
 	}
 
-	public static Path downloadFile(URI uri, String token, Path cacheDirPath) throws Exception {
-		return downloadFile(uri, token, cacheDirPath, -1);
+	public static void download(URI uri, Path cacheDirPath, boolean showProgress) throws Exception {
+		download(uri, null, null, cacheDirPath, showProgress);
 	}
 
-	public static Path downloadFile(URI uri, String token, Path cacheDirPath, int connectionTimeout) throws Exception {
+	public static void download(URI uri, String userName, String password, Path cacheDirPath, boolean showProgress)
+		throws Exception {
+
+		downloadFile(uri, userName, password, cacheDirPath, showProgress);
+	}
+
+	public static Path downloadFile(URI uri, String token, Path cacheDirPath, boolean showProgress) throws Exception {
+		return downloadFile(uri, token, cacheDirPath, -1, showProgress);
+	}
+
+	public static Path downloadFile(
+			URI uri, String token, Path cacheDirPath, int connectionTimeout, boolean showProgress)
+		throws Exception {
+
 		Path path;
 
 		try (CloseableHttpClient closeableHttpClient = _getHttpClient(uri, token, connectionTimeout)) {
-			path = _downloadFile(closeableHttpClient, uri, cacheDirPath);
+			path = _downloadFile(closeableHttpClient, uri, cacheDirPath, showProgress);
 		}
 
 		return path;
 	}
 
-	public static Path downloadFile(URI uri, String userName, String password, Path cacheDirPath) throws Exception {
-		return downloadFile(uri, userName, password, cacheDirPath, -1);
+	public static Path downloadFile(URI uri, String userName, String password, Path cacheDirPath, boolean showProgress)
+		throws Exception {
+
+		return downloadFile(uri, userName, password, cacheDirPath, -1, showProgress);
 	}
 
-	public static Path downloadFile(URI uri, String userName, String password, Path cacheDirPath, int connectionTimeout)
+	public static Path downloadFile(
+			URI uri, String userName, String password, Path cacheDirPath, int connectionTimeout, boolean showProgress)
 		throws Exception {
 
 		Path path;
 
 		try (CloseableHttpClient closeableHttpClient = _getHttpClient(uri, userName, password, connectionTimeout)) {
-			path = _downloadFile(closeableHttpClient, uri, cacheDirPath);
+			path = _downloadFile(closeableHttpClient, uri, cacheDirPath, showProgress);
 		}
 
 		return path;
@@ -155,12 +172,13 @@ public class HttpUtil {
 		}
 	}
 
-	private static Path _downloadFile(CloseableHttpClient closeableHttpClient, URI uri, Path cacheDirPath)
+	private static Path _downloadFile(
+			CloseableHttpClient closeableHttpClient, URI uri, Path cacheDirPath, boolean showProgress)
 		throws Exception {
 
 		HttpHead httpHead = new HttpHead(uri);
 
-		HttpContext httpContext = new BasicHttpContext();
+		HttpClientContext httpContext = HttpClientContext.create();
 
 		String fileName = null;
 
@@ -246,7 +264,9 @@ public class HttpUtil {
 
 					completed += read;
 
-					_onDownloadProcess(completed, length);
+					if (showProgress) {
+						_onDownloadProcess(completed, length);
+					}
 				}
 			}
 			finally {
@@ -284,8 +304,6 @@ public class HttpUtil {
 
 		CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
 
-		httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
-
 		RequestConfig.Builder requestConfigBuilder = RequestConfig.custom();
 
 		requestConfigBuilder.setConnectTimeout(connectionTimeout);
@@ -294,27 +312,36 @@ public class HttpUtil {
 
 		httpClientBuilder.setDefaultRequestConfig(requestConfigBuilder.build());
 
-		if ((userName != null) && (password != null)) {
-			credentialsProvider.setCredentials(
-				new AuthScope(uri.getHost(), uri.getPort()), new UsernamePasswordCredentials(userName, password));
-		}
-
 		String scheme = uri.getScheme();
 
 		String proxyHost = System.getProperty(scheme + ".proxyHost");
 		String proxyPort = System.getProperty(scheme + ".proxyPort");
-		String proxyUser = System.getProperty(scheme + ".proxyUser");
-		String proxyPassword = System.getProperty(scheme + ".proxyPassword");
 
-		if ((proxyHost != null) && (proxyPort != null) && (proxyUser != null) && (proxyPassword != null)) {
+		if ((proxyHost != null) && (proxyPort != null)) {
 			try {
-				credentialsProvider.setCredentials(
-					new AuthScope(proxyHost, Integer.parseInt(proxyPort)),
-					new UsernamePasswordCredentials(proxyUser, proxyPassword));
+				httpClientBuilder.setProxy(new HttpHost(proxyHost, Integer.parseInt(proxyPort)));
+
+				String proxyUser = System.getProperty(scheme + ".proxyUser");
+				String proxyPassword = System.getProperty(scheme + ".proxyPassword");
+
+				if (!Objects.isNull(proxyUser) && !Objects.isNull(proxyPassword)) {
+					credentialsProvider.setCredentials(
+						new AuthScope(proxyHost, Integer.parseInt(proxyPort)),
+						new UsernamePasswordCredentials(proxyUser, proxyPassword));
+				}
 			}
 			catch (Exception e) {
+				LiferayCore.logError("Failed to configure http builder", e);
 			}
 		}
+		else {
+			if (!Objects.isNull(userName) && !Objects.isNull(password)) {
+				credentialsProvider.setCredentials(
+					new AuthScope(uri.getHost(), uri.getPort()), new UsernamePasswordCredentials(userName, password));
+			}
+		}
+
+		httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider);
 
 		httpClientBuilder.useSystemProperties();
 

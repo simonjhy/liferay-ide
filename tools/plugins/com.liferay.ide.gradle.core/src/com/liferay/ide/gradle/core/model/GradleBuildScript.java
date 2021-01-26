@@ -66,7 +66,33 @@ public class GradleBuildScript {
 	}
 
 	public BuildScriptVisitor deleteDependency(List<GradleDependency> dependencies) throws IOException {
-		return _deleteDependency(dependencies);
+		BuildScriptVisitor buildScriptVisitor = new BuildScriptVisitor();
+
+		_walkScript(buildScriptVisitor);
+
+		_fileContents = Files.readAllLines(_path);
+
+		List<String> delDependencies = new ArrayList<>();
+
+		for (GradleDependency dependency : dependencies) {
+			String dep = _toGradleDependencyString(dependency);
+
+			dep = dep.trim();
+
+			Iterator<String> iterator = _fileContents.iterator();
+
+			while (iterator.hasNext()) {
+				String line = iterator.next();
+
+				if (dep.equals(line.trim())) {
+					delDependencies.add(line);
+				}
+			}
+		}
+
+		_fileContents.removeAll(delDependencies);
+
+		return buildScriptVisitor;
 	}
 
 	public List<GradleDependency> getBuildScriptDependencies() {
@@ -184,36 +210,6 @@ public class GradleBuildScript {
 		String content = fileContentsStream.collect(Collectors.joining(System.lineSeparator()));
 
 		Files.write(_path, content.getBytes());
-	}
-
-	private BuildScriptVisitor _deleteDependency(List<GradleDependency> dependencies) throws IOException {
-		BuildScriptVisitor buildScriptVisitor = new BuildScriptVisitor();
-
-		_walkScript(buildScriptVisitor);
-
-		_fileContents = Files.readAllLines(_path);
-
-		List<String> delDependencies = new ArrayList<>();
-
-		for (GradleDependency dependency : dependencies) {
-			String dep = _toGradleDependencyString(dependency);
-
-			dep = dep.trim();
-
-			Iterator<String> iterator = _fileContents.iterator();
-
-			while (iterator.hasNext()) {
-				String line = iterator.next();
-
-				if (dep.equals(line.trim())) {
-					delDependencies.add(line);
-				}
-			}
-		}
-
-		_fileContents.removeAll(delDependencies);
-
-		return buildScriptVisitor;
 	}
 
 	private BuildScriptVisitor _insertDependency(String dependency) throws IOException {
