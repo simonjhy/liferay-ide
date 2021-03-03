@@ -36,7 +36,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.function.BiConsumer;
@@ -113,6 +112,11 @@ public class FileMigrationService implements FileMigration {
 
 		ServiceReference<FileMigrator>[] fileMigratorsServiceReferences = _fileMigratorTracker.getServiceReferences();
 
+		String[] targetUpgradeVersions = versions.toArray(new String[0]);
+
+		VersionRange targetUpgradeVersionRange = VersionRange.valueOf(
+			"[" + targetUpgradeVersions[targetUpgradeVersions.length - 1] + "," + targetUpgradeVersions[0] + "]");
+
 		if (ListUtil.isNotEmpty(fileMigratorsServiceReferences)) {
 			List<ServiceReference<FileMigrator>> fileMigrators = Stream.of(
 				fileMigratorsServiceReferences
@@ -129,22 +133,14 @@ public class FileMigrationService implements FileMigration {
 					if (ListUtil.isNotEmpty(versions)) {
 						Dictionary<String, Object> serviceProperties = ref.getProperties();
 
-						return Optional.ofNullable(
-							serviceProperties.get("version")
-						).map(
-							Object::toString
-						).map(
-							VersionRange::valueOf
-						).filter(
-							range -> versions.stream(
-							).filter(
-								v -> range.includes(new Version(v))
-							).findFirst(
-							).isPresent()
-						).isPresent();
+						String thisVersion = (String)serviceProperties.get("version");
+
+						if (targetUpgradeVersionRange.includes(Version.parseVersion(thisVersion))) {
+							return true;
+						}
 					}
 
-					return true;
+					return false;
 				}
 			).filter(
 				serviceReference -> {
